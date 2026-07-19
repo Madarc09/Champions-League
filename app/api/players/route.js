@@ -1,16 +1,27 @@
 import { NextResponse } from "next/server";
 import { getAllPlayers, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
+import {
+  canonicalPlayerName,
+  getCapSpaceSalarySnapshot
+} from "@/lib/capspace-snapshot";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 function attachFantasyRanks(players) {
-  let skaterRank = 0;
+  let rank = 0;
   return players.map((player) => {
     if (player.fantasyPoints == null) return { ...player, fantasyRank: null };
-    skaterRank += 1;
-    return { ...player, fantasyRank: skaterRank };
+    rank += 1;
+    return { ...player, fantasyRank: rank };
   });
+}
+
+function trustedSalaryOverride(record) {
+  if (!record || !Number.isFinite(Number(record.capHit))) return null;
+  const source = String(record.source || "").toLowerCase();
+  return ["manual", "csv-import", "import", "seed"].includes(source) ? record : null;
 }
 
 export async function GET(request) {
@@ -23,7 +34,22 @@ export async function GET(request) {
     return NextResponse.json({ players: [], message: "Enter at least two characters." });
   }
 
-  const allPlayers = await getAllPlayers();
+  let salarySnapshot = null;
+  let salaryError = null;
+
+  const [allPlayers, salaryResult] = await Promise.all([
+    getAllPlayers(),
+    getCapSpaceSalarySnapshot()
+      .then((snapshot) => ({ snapshot, error: null }))
+      .catch((error) => ({ snapshot: null, error }))
+  ]);
+
+  salarySnapshot = salaryResult.snapshot;
+  if (salaryResult.error) {
+    console.error("Salary snapshot unavailable:", salaryResult.error);
+    salaryError = salaryResult.error?.message || "Salary data could not be loaded.";
+  }
+
   const matches = searchPlayers(
     allPlayers,
     leaderboardMode ? "" : search,
@@ -31,14 +57,35 @@ export async function GET(request) {
     leaderboardMode ? 1000 : 80
   );
   const rankedMatches = attachFantasyRanks(matches);
-  const salaries = await getSalaryRecords(rankedMatches.map((player) => player.playerId));
+  const storedOverrides = await getSalaryRecords(rankedMatches.map((player) => player.playerId));
 
-  const players = rankedMatches.map((player) => ({
-    ...player,
-    capHit: salaries[String(player.playerId)]?.capHit ?? player.capHit ?? null,
-    salarySource: salaries[String(player.playerId)]?.source || (player.capHit ? "demo" : null),
-    salaryUpdatedAt: salaries[String(player.playerId)]?.updatedAt || null
-  }));
+  const players = rankedMatches.map((player) => {
+    const publicRecord = salarySnapshot?.byName?.[canonicalPlayerName(player.name)] || null;
+    const override = trustedSalaryOverride(storedOverrides[String(player.playerId)]);
+    const selected = override || publicRecord;
+    const demoCapHit = player.capHit != null ? Number(player.capHit) : null;
+    const capHit = selected?.capHit != null ? Number(selected.capHit) : demoCapHit;
 
-  return NextResponse.json({ players });
+    return {
+      ...player,
+      capHit: Number.isFinite(capHit) ? capHit : null,
+      salarySource: selected?.source || (demoCapHit != null ? "demo" : null),
+      salaryUpdatedAt: override?.updatedAt || salarySnapshot?.updatedAt || null,
+      salaryState: Number.isFinite(capHit) ? "signed" : "unsigned"
+    };
+  });
+
+  return NextResponse.json({
+    players,
+    salaryData: {
+      source: salarySnapshot?.source || null,
+      sourceUrl: salarySnapshot?.sourceUrl || null,
+      updatedAt: salarySnapshot?.updatedAt || null,
+      recordCount: salarySnapshot?.recordCount || 0,
+      teamCount: salarySnapshot?.teamCount || 0,
+      failedTeamCount: salarySnapshot?.failedTeams?.length || 0,
+      stale: Boolean(salarySnapshot?.stale),
+      error: salaryError
+    }
+  });
 }

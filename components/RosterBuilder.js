@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function money(value) {
-  if (value == null || Number.isNaN(Number(value))) return "Salary unavailable";
+  if (value == null || Number.isNaN(Number(value))) return "No 2026–27 contract";
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
     currency: "USD",
@@ -31,24 +31,85 @@ function playerMeta(player) {
   return `${player.team} · ${player.gamesPlayed} GP`;
 }
 
-function DraftTable({
-  players,
-  roster,
-  rosterLimits,
-  salaryCap,
-  totalCap,
-  salaryLoading,
-  onDraft
-}) {
+function SortButton({ label, column, sort, onSort, compact = false }) {
+  const active = sort.column === column;
+  const direction = active ? sort.direction : null;
+  const arrow = direction === "asc" ? "▲" : direction === "desc" ? "▼" : "↕";
+
+  return (
+    <button
+      className={`sort-header-button ${active ? "active" : ""} ${compact ? "compact" : ""}`}
+      type="button"
+      onClick={() => onSort(column)}
+      title={`Sort by ${label}`}
+    >
+      <span>{label}</span>
+      <span aria-hidden="true">{arrow}</span>
+    </button>
+  );
+}
+
+function sortValue(player, column) {
+  switch (column) {
+    case "rank": return Number(player.fantasyRank || 0);
+    case "name": return String(player.name || "");
+    case "salary": return player.capHit == null ? null : Number(player.capHit);
+    case "position": return String(player.position || "");
+    case "goals": return Number(player.goals || 0);
+    case "assists": return Number(player.assists || 0);
+    case "hits": return player.rosterType === "G" ? null : Number(player.hits || 0);
+    case "shots": return player.rosterType === "G" ? null : Number(player.shots || 0);
+    case "fantasyPoints": return Number(player.fantasyPoints || 0);
+    default: return 0;
+  }
+}
+
+function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraft }) {
+  const [sort, setSort] = useState({ column: "fantasyPoints", direction: "desc" });
+
   const counts = roster.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
     return acc;
   }, { F: 0, D: 0, G: 0 });
 
+  const sortedPlayers = useMemo(() => {
+    const direction = sort.direction === "asc" ? 1 : -1;
+    return [...players].sort((a, b) => {
+      const left = sortValue(a, sort.column);
+      const right = sortValue(b, sort.column);
+      const leftMissing = left == null || left === "";
+      const rightMissing = right == null || right === "";
+
+      if (leftMissing && rightMissing) return Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0);
+      if (leftMissing) return 1;
+      if (rightMissing) return -1;
+
+      if (typeof left === "string" || typeof right === "string") {
+        const result = String(left).localeCompare(String(right), "en", { sensitivity: "base" });
+        return result === 0
+          ? Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0)
+          : result * direction;
+      }
+
+      const result = Number(left) - Number(right);
+      return result === 0
+        ? Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0)
+        : result * direction;
+    });
+  }, [players, sort]);
+
+  function changeSort(column) {
+    setSort((current) => ({
+      column,
+      direction: current.column === column && current.direction === "desc" ? "asc" : "desc"
+    }));
+  }
+
   function disabledReason(player) {
     if (roster.some((item) => item.playerId === player.playerId)) return "Already on roster";
+    if (player.capHit == null) return "No 2026–27 contract";
     if (counts[player.rosterType] >= rosterLimits[player.rosterType]) return "Position full";
-    if (player.capHit != null && totalCap + Number(player.capHit) > salaryCap) return "Would exceed cap";
+    if (totalCap + Number(player.capHit) > salaryCap) return "Would exceed cap";
     return "";
   }
 
@@ -57,20 +118,36 @@ function DraftTable({
       <table className="draft-table compact-draft-table">
         <thead>
           <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Pos</th>
-            <th>Goals</th>
-            <th>Assists</th>
-            <th>Hits</th>
-            <th>SOG</th>
-            <th>FPTS</th>
+            <th aria-sort={sort.column === "rank" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Rank" column="rank" sort={sort} onSort={changeSort} />
+            </th>
+            <th className="player-sort-heading" aria-sort={sort.column === "name" || sort.column === "salary" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
+              <SortButton label="Salary" column="salary" sort={sort} onSort={changeSort} compact />
+            </th>
+            <th aria-sort={sort.column === "position" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Pos" column="position" sort={sort} onSort={changeSort} />
+            </th>
+            <th aria-sort={sort.column === "goals" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Goals" column="goals" sort={sort} onSort={changeSort} />
+            </th>
+            <th aria-sort={sort.column === "assists" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Assists" column="assists" sort={sort} onSort={changeSort} />
+            </th>
+            <th aria-sort={sort.column === "hits" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Hits" column="hits" sort={sort} onSort={changeSort} />
+            </th>
+            <th aria-sort={sort.column === "shots" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="SOG" column="shots" sort={sort} onSort={changeSort} />
+            </th>
+            <th aria-sort={sort.column === "fantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} />
+            </th>
           </tr>
         </thead>
         <tbody>
-          {players.map((player) => {
+          {sortedPlayers.map((player) => {
             const reason = disabledReason(player);
-            const loadingSalary = salaryLoading.has(String(player.playerId));
             const drafted = reason === "Already on roster";
 
             return (
@@ -81,17 +158,13 @@ function DraftTable({
                     className="draft-player-button"
                     type="button"
                     onClick={() => onDraft(player)}
-                    disabled={Boolean(reason) || loadingSalary}
+                    disabled={Boolean(reason)}
                     title={reason || `Draft ${player.name}`}
                   >
                     {player.name}
                   </button>
-                  <span className={`draft-player-salary ${player.capHit == null ? "salary-pending" : ""}`}>
-                    {loadingSalary
-                      ? "Loading 2026–27 salary…"
-                      : player.capHit == null
-                        ? "Select name to load salary"
-                        : money(player.capHit)}
+                  <span className={`draft-player-salary ${player.capHit == null ? "salary-unsigned" : ""}`}>
+                    {money(player.capHit)}
                   </span>
                   <small className="draft-player-meta">{playerMeta(player)}</small>
                   {reason ? <small className="draft-player-warning">{reason}</small> : null}
@@ -170,7 +243,7 @@ function DefencePair({ number, players, onRemove }) {
   );
 }
 
-function LineupCard({ players, onRemove }) {
+function LineupCard({ players, onRemove, salaryCap, totalCap, capRemaining }) {
   const forwards = players.filter((player) => player.rosterType === "F");
   const defence = players.filter((player) => player.rosterType === "D");
   const goalies = players.filter((player) => player.rosterType === "G");
@@ -183,7 +256,12 @@ function LineupCard({ players, onRemove }) {
           <h2>Projected roster</h2>
           <small>Click a player&apos;s name to remove him.</small>
         </div>
-        <span>{players.length}/20</span>
+        <div className={`lineup-cap-summary ${capRemaining < 0 ? "over" : ""}`}>
+          <small>Cap remaining</small>
+          <strong>{money(capRemaining)}</strong>
+          <span>{money(totalCap)} used · {players.length}/20</span>
+          <span>{money(salaryCap)} limit</span>
+        </div>
       </div>
 
       <section className="lineup-group">
@@ -228,11 +306,10 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [players, setPlayers] = useState([]);
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
+  const [salaryData, setSalaryData] = useState(null);
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
   const [persistence, setPersistence] = useState("local");
-  const [salaryLoading, setSalaryLoading] = useState(new Set());
-  const salaryAttempted = useRef(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -244,7 +321,10 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         const response = await fetch("/api/players?mode=leaderboard", { cache: "no-store" });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Player pool could not be loaded.");
-        if (!cancelled) setPoolPlayers(data.players || []);
+        if (!cancelled) {
+          setPoolPlayers(data.players || []);
+          setSalaryData(data.salaryData || null);
+        }
       } catch (error) {
         if (!cancelled) setPoolError(error.message || "Player pool could not be loaded.");
       } finally {
@@ -299,6 +379,33 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     );
   }, [players, team.slug, loadingRoster]);
 
+  // Replace cap hits saved by older builds with the current salary snapshot.
+  useEffect(() => {
+    if (loadingRoster || poolPlayers.length === 0 || players.length === 0) return;
+    const liveById = new Map(poolPlayers.map((player) => [String(player.playerId), player]));
+
+    setPlayers((current) => {
+      let changed = false;
+      const next = current.map((saved) => {
+        const live = liveById.get(String(saved.playerId));
+        if (!live) return saved;
+
+        const merged = { ...saved, ...live };
+        if (
+          Number(saved.capHit) !== Number(merged.capHit) ||
+          Number(saved.fantasyPoints) !== Number(merged.fantasyPoints) ||
+          saved.team !== merged.team ||
+          saved.position !== merged.position
+        ) {
+          changed = true;
+        }
+        return merged;
+      });
+
+      return changed ? next : current;
+    });
+  }, [loadingRoster, poolPlayers, players.length]);
+
   const filteredPlayers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return poolPlayers.filter((player) => {
@@ -309,58 +416,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       return matchesPosition && matchesQuery;
     });
   }, [poolPlayers, position, query]);
-
-  async function fetchSalaries(candidates, { force = false } = {}) {
-    const requested = candidates.filter((player) => {
-      const id = String(player.playerId);
-      return player.capHit == null && (force || !salaryAttempted.current.has(id));
-    }).slice(0, 20);
-
-    if (requested.length === 0) return {};
-
-    requested.forEach((player) => salaryAttempted.current.add(String(player.playerId)));
-    setSalaryLoading((current) => {
-      const next = new Set(current);
-      requested.forEach((player) => next.add(String(player.playerId)));
-      return next;
-    });
-
-    try {
-      const response = await fetch("/api/salaries/lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          players: requested.map((player) => ({ playerId: player.playerId, name: player.name }))
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Salary lookup failed.");
-
-      const records = data.records || {};
-      setPoolPlayers((current) => current.map((player) => {
-        const record = records[String(player.playerId)];
-        return record ? { ...player, capHit: Number(record.capHit), salarySource: record.source } : player;
-      }));
-      return records;
-    } catch (error) {
-      console.error(error);
-      return {};
-    } finally {
-      setSalaryLoading((current) => {
-        const next = new Set(current);
-        requested.forEach((player) => next.delete(String(player.playerId)));
-        return next;
-      });
-    }
-  }
-
-  useEffect(() => {
-    if (loadingPool || filteredPlayers.length === 0) return;
-    const timer = window.setTimeout(() => {
-      fetchSalaries(filteredPlayers.slice(0, 20));
-    }, 300);
-    return () => window.clearTimeout(timer);
-  }, [loadingPool, filteredPlayers]);
 
   const counts = useMemo(() => players.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
@@ -375,25 +430,16 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const rosterComplete = Object.entries(rosterLimits).every(([type, limit]) => counts[type] === limit);
   const totalFantasyPoints = players.reduce((sum, player) => sum + Number(player.fantasyPoints || 0), 0);
 
-  async function addPlayer(selectedPlayer) {
-    if (players.some((item) => item.playerId === selectedPlayer.playerId)) return;
-    if (counts[selectedPlayer.rosterType] >= rosterLimits[selectedPlayer.rosterType]) {
-      setSaveStatus(`The ${selectedPlayer.rosterType === "G" ? "goalie" : selectedPlayer.rosterType === "D" ? "defence" : "forward"} section is already full.`);
+  function addPlayer(player) {
+    if (players.some((item) => item.playerId === player.playerId)) return;
+    if (player.capHit == null) {
+      setSaveStatus(`${player.name} does not currently have a 2026–27 NHL cap hit and cannot be added yet.`);
       return;
     }
-
-    let player = selectedPlayer;
-    if (player.capHit == null) {
-      setSaveStatus(`Loading ${player.name}'s 2026–27 cap hit…`);
-      const records = await fetchSalaries([player], { force: true });
-      const record = records[String(player.playerId)];
-      if (!record?.capHit) {
-        setSaveStatus(`${player.name}'s 2026–27 cap hit could not be found. The player was not added.`);
-        return;
-      }
-      player = { ...player, capHit: Number(record.capHit), salarySource: record.source };
+    if (counts[player.rosterType] >= rosterLimits[player.rosterType]) {
+      setSaveStatus(`The ${player.rosterType === "G" ? "goalie" : player.rosterType === "D" ? "defence" : "forward"} section is already full.`);
+      return;
     }
-
     if (totalCap + Number(player.capHit) > salaryCap) {
       setSaveStatus(`${player.name} would put this roster over the salary cap.`);
       return;
@@ -436,6 +482,21 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     }
   }
 
+  const salaryNote = useMemo(() => {
+    if (loadingPool) return "Loading the complete 2026–27 salary list before opening the draft table…";
+    if (salaryData?.error) return `Salary refresh warning: ${salaryData.error}`;
+    if (!salaryData?.recordCount) return "Salary data is unavailable right now.";
+
+    const refreshed = salaryData.updatedAt
+      ? new Date(salaryData.updatedAt).toLocaleString()
+      : "recently";
+    const failed = salaryData.failedTeamCount
+      ? ` · ${salaryData.failedTeamCount} team page${salaryData.failedTeamCount === 1 ? "" : "s"} could not refresh`
+      : "";
+    const stale = salaryData.stale ? " · using the most recent saved snapshot" : "";
+    return `${salaryData.recordCount} current 2026–27 cap hits loaded together from CapSpace · refreshed ${refreshed}${failed}${stale}. Players without a signed 2026–27 contract are marked unsigned.`;
+  }, [loadingPool, salaryData]);
+
   return (
     <>
       <div className="panel cap-dashboard">
@@ -475,7 +536,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             <div>
               <p className="eyebrow">2025–26 player leaderboard</p>
               <h2>Draft room</h2>
-              <p>Click a player&apos;s name to add him. Search by player name or NHL team and edit the roster whenever you need to before the deadline.</p>
+              <p>Click a player&apos;s name to add him. Every column can be sorted, and the roster can be changed whenever needed before the deadline.</p>
             </div>
             <div className="scoring-badge scoring-badge-wide">
               <strong>Skaters</strong>
@@ -510,7 +571,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             </div>
           </div>
 
-          {loadingPool ? <div className="empty-state">Loading the 2025–26 leaderboard…</div> : null}
+          {loadingPool ? <div className="empty-state">Loading player statistics and all 2026–27 salaries…</div> : null}
           {!loadingPool && poolError ? <div className="empty-state error-state">{poolError}</div> : null}
           {!loadingPool && !poolError && filteredPlayers.length === 0 ? (
             <div className="empty-state">No players match that search.</div>
@@ -522,14 +583,19 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               rosterLimits={rosterLimits}
               salaryCap={salaryCap}
               totalCap={totalCap}
-              salaryLoading={salaryLoading}
               onDraft={addPlayer}
             />
           ) : null}
-          <p className="salary-data-note">2026–27 cap hits now come from CapSpace&apos;s public contract data. Salary appears below each player&apos;s name and is checked before the player is added.</p>
+          <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
         </section>
 
-        <LineupCard players={players} onRemove={removePlayer} />
+        <LineupCard
+          players={players}
+          onRemove={removePlayer}
+          salaryCap={salaryCap}
+          totalCap={totalCap}
+          capRemaining={capRemaining}
+        />
       </div>
     </>
   );
