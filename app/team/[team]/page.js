@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import RosterBuilder from "@/components/RosterBuilder";
 import {
+  GOALIE_SCORING,
   ROSTER_LIMITS,
   SALARY_CAP,
   SCORING,
@@ -36,6 +37,7 @@ export default async function TeamPage({ params }) {
         salaryCap={SALARY_CAP}
         rosterLimits={ROSTER_LIMITS}
         scoring={SCORING}
+        goalieScoring={GOALIE_SCORING}
       />
     </>
   );

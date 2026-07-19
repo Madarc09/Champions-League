@@ -3,12 +3,21 @@ export const SEASON_LABEL = "2026–27";
 export const STATS_SEASON_ID = 20252026;
 export const SALARY_CAP = 104_000_000;
 
-// Change scoring here later. The player search and fantasy-point totals update automatically.
+// Change skater scoring here later.
 export const SCORING = {
   goals: 2.0,
   assists: 1.5,
   hits: 1.0,
   shots: 1.0
+};
+
+// Change goalie scoring here later.
+export const GOALIE_SCORING = {
+  saves: 0.25,
+  goalsAgainst: -1.0,
+  wins: 5.0,
+  goals: 50.0,
+  assists: 7.0
 };
 
 export const ROSTER_LIMITS = {

@@ -40,7 +40,11 @@ export const DEMO_PLAYERS = [
     wins: 31,
     shutouts: 5,
     savePct: 0.915,
-    fantasyPoints: null,
+    saves: 1420,
+    goalsAgainst: 128,
+    goals: 0,
+    assists: 2,
+    fantasyPoints: 396,
     capHit: 5000000,
     isDemo: true
   }

@@ -13,6 +13,12 @@ A Vercel-ready starter site for an eight-manager salary-cap fantasy hockey leagu
   - Assist: 1.5
   - Hit: 1.0
   - Shot on goal: 1.0
+- Fantasy-point calculation for goalies:
+  - Save: 0.25
+  - Goal against: -1
+  - Win: 5
+  - Goal: 50
+  - Assist: 7
 - 2026–27 salary cap set to **$104,000,000**.
 - Legal roster limits:
   - 12 forwards
@@ -25,7 +31,7 @@ A Vercel-ready starter site for an eight-manager salary-cap fantasy hockey leagu
 - Daily Faceoff-style lineup card with four forward lines, three defence pairs, and two goalie slots.
 - Shared storage through Upstash Redis.
 - Browser storage fallback before Upstash is connected.
-- Fixed salary display with CSV/Upstash salary import support; league users cannot change salaries from the draft page.
+- Automatic 2026–27 cap-hit lookup when players appear in the table or are drafted; league users cannot manually change salaries.
 
 ## Important data note
 
@@ -33,7 +39,7 @@ The public NHL statistics service supplies goals, assists, hits, shots, and goal
 
 Because there is no dependable official free NHL contract API, salary information is kept as a separate editable data layer. This prevents the league site from breaking whenever a third-party salary website changes its page layout.
 
-Salary values are fixed from the league salary data. A player without a loaded cap hit is shown in the leaderboard but cannot be drafted until the salary CSV or shared salary database is updated.
+Salary values load automatically from the configured public salary source and are cached in Upstash when connected. The Draft button remains visible; if a cap hit is not loaded yet, pressing Draft performs the lookup first.
 
 ## Upload to GitHub
 
@@ -146,8 +152,7 @@ node scripts/import-salaries.mjs path/to/file.csv
 ## Current intentional placeholders
 
 - Standings begin at zero because the league scoring/standings update rules have not been defined yet.
-- Goalie fantasy points are blank because goalie scoring has not been defined yet.
-- Full salary data is not prefilled; players without imported cap hits remain visible but their Draft button is disabled.
+- Salary lookups depend on the external salary page being available; successfully resolved values are cached when Upstash is connected.
 - Team authentication has not been added yet.
 
 ## Main project structure

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function money(value) {
   if (value == null || Number.isNaN(Number(value))) return "—";
@@ -27,11 +27,12 @@ function loadJson(key, fallback) {
 function PlayerStats({ player }) {
   if (player.rosterType === "G") {
     return (
-      <div className="table-stat-line">
-        <span>{player.gamesPlayed} GP</span>
+      <div className="table-stat-line goalie-stat-line">
+        <span>{player.saves || 0} SV</span>
+        <span>{player.goalsAgainst || 0} GA</span>
         <span>{player.wins || 0} W</span>
-        <span>{player.shutouts || 0} SO</span>
-        <span>{player.savePct == null ? "—" : player.savePct.toFixed(3)} SV%</span>
+        <span>{player.goals || 0} G</span>
+        <span>{player.assists || 0} A</span>
       </div>
     );
   }
@@ -46,7 +47,7 @@ function PlayerStats({ player }) {
   );
 }
 
-function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraft }) {
+function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, salaryLoading, onDraft }) {
   const counts = roster.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
     return acc;
@@ -54,9 +55,8 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
 
   function disabledReason(player) {
     if (roster.some((item) => item.playerId === player.playerId)) return "Drafted";
-    if (player.capHit == null) return "No salary";
     if (counts[player.rosterType] >= rosterLimits[player.rosterType]) return "Position full";
-    if (totalCap + Number(player.capHit) > salaryCap) return "Over cap";
+    if (player.capHit != null && totalCap + Number(player.capHit) > salaryCap) return "Over cap";
     return "";
   }
 
@@ -96,17 +96,19 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                   {player.fantasyPoints == null ? "—" : Number(player.fantasyPoints).toFixed(1)}
                 </td>
                 <td className={player.capHit == null ? "missing-salary" : "salary-cell"}>
-                  {player.capHit == null ? "Not loaded" : money(player.capHit)}
+                  {player.capHit == null
+                    ? (salaryLoading.has(String(player.playerId)) ? "Loading…" : "Loads automatically")
+                    : money(player.capHit)}
                 </td>
                 <td>
                   <button
                     className="draft-button"
                     type="button"
                     onClick={() => onDraft(player)}
-                    disabled={Boolean(reason)}
+                    disabled={Boolean(reason) || salaryLoading.has(String(player.playerId))}
                     title={reason || `Draft ${player.name}`}
                   >
-                    {reason || "Draft"}
+                    {salaryLoading.has(String(player.playerId)) ? "Loading…" : reason || "Draft"}
                   </button>
                 </td>
               </tr>
@@ -135,7 +137,7 @@ function LineupPlayerCard({ player, slotLabel, onRemove }) {
           <strong>{player.name}</strong>
           <small>{player.team} · {player.position}</small>
           <div className="lineup-card-bottom">
-            <span>{player.fantasyPoints == null ? "Goalie" : `${Number(player.fantasyPoints).toFixed(1)} FP`}</span>
+            <span>{`${Number(player.fantasyPoints || 0).toFixed(1)} FP`}</span>
             <span>{money(player.capHit)}</span>
           </div>
         </>
@@ -222,7 +224,7 @@ function LineupCard({ players, onRemove }) {
   );
 }
 
-export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }) {
+export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, goalieScoring }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("ALL");
   const [poolPlayers, setPoolPlayers] = useState([]);
@@ -232,6 +234,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
   const [persistence, setPersistence] = useState("local");
+  const [salaryLoading, setSalaryLoading] = useState(new Set());
+  const salaryAttempted = useRef(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -309,6 +313,58 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }
     });
   }, [poolPlayers, position, query]);
 
+  async function fetchSalaries(candidates, { retry = false } = {}) {
+    const requested = candidates.filter((player) => {
+      const id = String(player.playerId);
+      return player.capHit == null && (retry || !salaryAttempted.current.has(id));
+    }).slice(0, 12);
+
+    if (requested.length === 0) return {};
+
+    requested.forEach((player) => salaryAttempted.current.add(String(player.playerId)));
+    setSalaryLoading((current) => {
+      const next = new Set(current);
+      requested.forEach((player) => next.add(String(player.playerId)));
+      return next;
+    });
+
+    try {
+      const response = await fetch("/api/salaries/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          players: requested.map((player) => ({ playerId: player.playerId, name: player.name }))
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Salary lookup failed.");
+
+      const records = data.records || {};
+      setPoolPlayers((current) => current.map((player) => {
+        const record = records[String(player.playerId)];
+        return record ? { ...player, capHit: Number(record.capHit), salarySource: record.source } : player;
+      }));
+      return records;
+    } catch (error) {
+      console.error(error);
+      return {};
+    } finally {
+      setSalaryLoading((current) => {
+        const next = new Set(current);
+        requested.forEach((player) => next.delete(String(player.playerId)));
+        return next;
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (loadingPool || filteredPlayers.length === 0) return;
+    const timer = window.setTimeout(() => {
+      fetchSalaries(filteredPlayers.slice(0, 12));
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [loadingPool, filteredPlayers]);
+
   const counts = useMemo(() => players.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
     return acc;
@@ -322,13 +378,29 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }
   const rosterComplete = Object.entries(rosterLimits).every(([type, limit]) => counts[type] === limit);
   const totalFantasyPoints = players.reduce((sum, player) => sum + Number(player.fantasyPoints || 0), 0);
 
-  function addPlayer(player) {
-    if (player.capHit == null) return;
-    if (players.some((item) => item.playerId === player.playerId)) return;
-    if (counts[player.rosterType] >= rosterLimits[player.rosterType]) return;
-    if (totalCap + Number(player.capHit) > salaryCap) return;
+  async function addPlayer(selectedPlayer) {
+    if (players.some((item) => item.playerId === selectedPlayer.playerId)) return;
+    if (counts[selectedPlayer.rosterType] >= rosterLimits[selectedPlayer.rosterType]) return;
+
+    let player = selectedPlayer;
+    if (player.capHit == null) {
+      setSaveStatus(`Loading ${player.name}'s 2026–27 salary…`);
+      const records = await fetchSalaries([player], { retry: true });
+      const record = records[String(player.playerId)];
+      if (!record?.capHit) {
+        setSaveStatus(`Could not load ${player.name}'s salary. Press Draft to try again.`);
+        return;
+      }
+      player = { ...player, capHit: Number(record.capHit), salarySource: record.source };
+    }
+
+    if (totalCap + Number(player.capHit) > salaryCap) {
+      setSaveStatus(`${player.name} would put this roster over the salary cap.`);
+      return;
+    }
+
     setPlayers((current) => [...current, player]);
-    setSaveStatus(`${player.name} drafted. Save the roster when ready.`);
+    setSaveStatus(`${player.name} drafted. You can remove or replace players at any time before the deadline.`);
   }
 
   function removePlayer(playerId) {
@@ -404,9 +476,11 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }
               <h2>Draft room</h2>
               <p>Players are ranked by fantasy points from last season. Search by player name or NHL team, then press Draft.</p>
             </div>
-            <div className="scoring-badge">
-              <strong>Scoring</strong>
+            <div className="scoring-badge scoring-badge-wide">
+              <strong>Skaters</strong>
               <span>G {scoring.goals} · A {scoring.assists} · HIT {scoring.hits} · SOG {scoring.shots}</span>
+              <strong>Goalies</strong>
+              <span>SV {goalieScoring.saves} · GA {goalieScoring.goalsAgainst} · W {goalieScoring.wins} · G {goalieScoring.goals} · A {goalieScoring.assists}</span>
             </div>
           </div>
 
@@ -447,10 +521,11 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring }
               rosterLimits={rosterLimits}
               salaryCap={salaryCap}
               totalCap={totalCap}
+              salaryLoading={salaryLoading}
               onDraft={addPlayer}
             />
           ) : null}
-          <p className="salary-data-note">Cap hits are fixed in the league salary file. Players without a loaded 2026–27 cap hit cannot be drafted yet.</p>
+          <p className="salary-data-note">2026–27 cap hits load automatically from the salary source. A missing salary is looked up when the player appears near the top of the table or when you press Draft.</p>
         </section>
 
         <LineupCard players={players} onRemove={removePlayer} />
