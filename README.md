@@ -7,7 +7,7 @@ A Vercel-ready starter site for an eight-manager salary-cap fantasy hockey leagu
 - Home page with a standings table.
 - Team links for Joe, Lucas, Dan, Adam, Darren, Nick, Rob, and Ernie.
 - Separate editable roster page for every manager.
-- NHL player search using 2025–26 regular-season statistics.
+- Scrollable NHL player leaderboard using 2025–26 regular-season statistics, sorted by fantasy points.
 - Fantasy-point calculation for skaters:
   - Goal: 2.0
   - Assist: 1.5
@@ -21,10 +21,11 @@ A Vercel-ready starter site for an eight-manager salary-cap fantasy hockey leagu
 - Duplicate players are allowed on different Champions League teams.
 - Duplicate players are blocked within the same roster.
 - Cap and position validation.
-- Roster removal/editing and re-saving.
+- One-click Draft buttons, roster removal, editing, and re-saving.
+- Daily Faceoff-style lineup card with four forward lines, three defence pairs, and two goalie slots.
 - Shared storage through Upstash Redis.
 - Browser storage fallback before Upstash is connected.
-- Manual salary entry and CSV salary import support.
+- Fixed salary display with CSV/Upstash salary import support; league users cannot change salaries from the draft page.
 
 ## Important data note
 
@@ -32,7 +33,7 @@ The public NHL statistics service supplies goals, assists, hits, shots, and goal
 
 Because there is no dependable official free NHL contract API, salary information is kept as a separate editable data layer. This prevents the league site from breaking whenever a third-party salary website changes its page layout.
 
-A missing salary can be entered directly beside a search result. Once Upstash is connected, that salary is shared with every user. A complete salary CSV can also be imported later.
+Salary values are fixed from the league salary data. A player without a loaded cap hit is shown in the leaderboard but cannot be drafted until the salary CSV or shared salary database is updated.
 
 ## Upload to GitHub
 
@@ -64,13 +65,9 @@ In the Vercel project:
 4. Apply both variables to Production, Preview, and Development.
 5. Redeploy the Vercel project.
 
-After that, rosters and salary entries are shared across devices.
+After that, rosters and imported salary data are shared across devices.
 
-### Optional salary-write protection
-
-Add an `ADMIN_KEY` environment variable to protect salary changes. When it is set, the website asks for that key the first time someone enters or changes a salary during that browser session.
-
-Roster pages are intentionally not password-protected yet. Team login/PIN protection can be added once the basic league flow is approved.
+Salary updates are handled through the CSV import rather than by league users on the draft page.
 
 ## Run locally
 
@@ -150,7 +147,7 @@ node scripts/import-salaries.mjs path/to/file.csv
 
 - Standings begin at zero because the league scoring/standings update rules have not been defined yet.
 - Goalie fantasy points are blank because goalie scoring has not been defined yet.
-- Full salary data is not prefilled; the salary system is ready for manual entries or a bulk import.
+- Full salary data is not prefilled; players without imported cap hits remain visible but their Draft button is disabled.
 - Team authentication has not been added yet.
 
 ## Main project structure
@@ -158,7 +155,7 @@ node scripts/import-salaries.mjs path/to/file.csv
 ```text
 app/page.js                    Home page and standings
 app/team/[team]/page.js        Individual team page
-components/RosterBuilder.js    Search, draft, cap, roster, and saving interface
+components/RosterBuilder.js    Leaderboard, Draft buttons, lineup card, cap, and saving interface
 app/api/players/route.js       NHL stats search
 app/api/rosters/[team]/route.js Shared roster loading/saving
 app/api/salaries/route.js      Shared salary loading/saving

@@ -25,8 +25,7 @@ export default async function TeamPage({ params }) {
           <p className="eyebrow">{SEASON_LABEL} roster builder</p>
           <h1>{team.name}&apos;s Team</h1>
           <p>
-            Search 2025–26 NHL statistics, verify the player&apos;s 2026–27 cap hit,
-            and build a legal 20-player roster.
+            Use the 2025–26 fantasy leaderboard to draft a legal 20-player lineup under the 2026–27 salary cap.
           </p>
         </div>
         <div className="manager-crest">{team.name.slice(0, 1)}</div>
