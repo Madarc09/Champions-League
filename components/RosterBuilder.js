@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 function money(value) {
-  if (value == null || Number.isNaN(Number(value))) return "—";
+  if (value == null || Number.isNaN(Number(value))) return "Salary unavailable";
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
     currency: "USD",
@@ -24,92 +24,89 @@ function loadJson(key, fallback) {
   }
 }
 
-function PlayerStats({ player }) {
+function playerMeta(player) {
   if (player.rosterType === "G") {
-    return (
-      <div className="table-stat-line goalie-stat-line">
-        <span>{player.saves || 0} SV</span>
-        <span>{player.goalsAgainst || 0} GA</span>
-        <span>{player.wins || 0} W</span>
-        <span>{player.goals || 0} G</span>
-        <span>{player.assists || 0} A</span>
-      </div>
-    );
+    return `${player.team} · ${player.gamesPlayed} GP · ${player.saves || 0} SV · ${player.goalsAgainst || 0} GA · ${player.wins || 0} W`;
   }
-
-  return (
-    <div className="table-stat-line">
-      <span>{player.goals} G</span>
-      <span>{player.assists} A</span>
-      <span>{player.hits} HIT</span>
-      <span>{player.shots} SOG</span>
-    </div>
-  );
+  return `${player.team} · ${player.gamesPlayed} GP`;
 }
 
-function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, salaryLoading, onDraft }) {
+function DraftTable({
+  players,
+  roster,
+  rosterLimits,
+  salaryCap,
+  totalCap,
+  salaryLoading,
+  onDraft
+}) {
   const counts = roster.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
     return acc;
   }, { F: 0, D: 0, G: 0 });
 
   function disabledReason(player) {
-    if (roster.some((item) => item.playerId === player.playerId)) return "Drafted";
+    if (roster.some((item) => item.playerId === player.playerId)) return "Already on roster";
     if (counts[player.rosterType] >= rosterLimits[player.rosterType]) return "Position full";
-    if (player.capHit != null && totalCap + Number(player.capHit) > salaryCap) return "Over cap";
+    if (player.capHit != null && totalCap + Number(player.capHit) > salaryCap) return "Would exceed cap";
     return "";
   }
 
   return (
     <div className="draft-table-scroll">
-      <table className="draft-table">
+      <table className="draft-table compact-draft-table">
         <thead>
           <tr>
             <th>Rank</th>
             <th>Player</th>
             <th>Pos</th>
-            <th>2025–26 statistics</th>
-            <th>Fantasy pts</th>
-            <th>2026–27 cap hit</th>
-            <th aria-label="Draft player" />
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Hits</th>
+            <th>SOG</th>
+            <th>FPTS</th>
           </tr>
         </thead>
         <tbody>
           {players.map((player) => {
             const reason = disabledReason(player);
+            const loadingSalary = salaryLoading.has(String(player.playerId));
+            const drafted = reason === "Already on roster";
+
             return (
-              <tr key={player.playerId}>
+              <tr key={player.playerId} className={drafted ? "drafted-row" : ""}>
                 <td className="draft-rank">{player.fantasyRank || "—"}</td>
-                <td>
-                  <div className="draft-player-name">
-                    <strong>{player.name}</strong>
-                    <small>{player.team} · {player.gamesPlayed} GP</small>
-                  </div>
+                <td className="draft-player-cell">
+                  <button
+                    className="draft-player-button"
+                    type="button"
+                    onClick={() => onDraft(player)}
+                    disabled={Boolean(reason) || loadingSalary}
+                    title={reason || `Draft ${player.name}`}
+                  >
+                    {player.name}
+                  </button>
+                  <span className={`draft-player-salary ${player.capHit == null ? "salary-pending" : ""}`}>
+                    {loadingSalary
+                      ? "Loading 2026–27 salary…"
+                      : player.capHit == null
+                        ? "Select name to load salary"
+                        : money(player.capHit)}
+                  </span>
+                  <small className="draft-player-meta">{playerMeta(player)}</small>
+                  {reason ? <small className="draft-player-warning">{reason}</small> : null}
                 </td>
                 <td>
                   <span className={`position-chip position-${player.rosterType.toLowerCase()}`}>
                     {player.position}
                   </span>
                 </td>
-                <td><PlayerStats player={player} /></td>
+                <td className="stat-number">{player.goals || 0}</td>
+                <td className="stat-number">{player.assists || 0}</td>
+                <td className="stat-number">{player.rosterType === "G" ? "—" : player.hits || 0}</td>
+                <td className="stat-number">{player.rosterType === "G" ? "—" : player.shots || 0}</td>
                 <td className="fantasy-points-cell">
                   {player.fantasyPoints == null ? "—" : Number(player.fantasyPoints).toFixed(1)}
-                </td>
-                <td className={player.capHit == null ? "missing-salary" : "salary-cell"}>
-                  {player.capHit == null
-                    ? (salaryLoading.has(String(player.playerId)) ? "Loading…" : "Loads automatically")
-                    : money(player.capHit)}
-                </td>
-                <td>
-                  <button
-                    className="draft-button"
-                    type="button"
-                    onClick={() => onDraft(player)}
-                    disabled={Boolean(reason) || salaryLoading.has(String(player.playerId))}
-                    title={reason || `Draft ${player.name}`}
-                  >
-                    {salaryLoading.has(String(player.playerId)) ? "Loading…" : reason || "Draft"}
-                  </button>
                 </td>
               </tr>
             );
@@ -127,14 +124,13 @@ function LineupPlayerCard({ player, slotLabel, onRemove }) {
       {player ? (
         <>
           <button
-            className="lineup-remove"
+            className="lineup-player-name-button"
             type="button"
             onClick={() => onRemove(player.playerId)}
-            aria-label={`Remove ${player.name}`}
+            title={`Remove ${player.name} from the roster`}
           >
-            ×
+            {player.name}
           </button>
-          <strong>{player.name}</strong>
           <small>{player.team} · {player.position}</small>
           <div className="lineup-card-bottom">
             <span>{`${Number(player.fantasyPoints || 0).toFixed(1)} FP`}</span>
@@ -185,6 +181,7 @@ function LineupCard({ players, onRemove }) {
         <div>
           <p className="eyebrow">Daily lineup card</p>
           <h2>Projected roster</h2>
+          <small>Click a player&apos;s name to remove him.</small>
         </div>
         <span>{players.length}/20</span>
       </div>
@@ -313,11 +310,11 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     });
   }, [poolPlayers, position, query]);
 
-  async function fetchSalaries(candidates, { retry = false } = {}) {
+  async function fetchSalaries(candidates, { force = false } = {}) {
     const requested = candidates.filter((player) => {
       const id = String(player.playerId);
-      return player.capHit == null && (retry || !salaryAttempted.current.has(id));
-    }).slice(0, 12);
+      return player.capHit == null && (force || !salaryAttempted.current.has(id));
+    }).slice(0, 20);
 
     if (requested.length === 0) return {};
 
@@ -360,8 +357,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   useEffect(() => {
     if (loadingPool || filteredPlayers.length === 0) return;
     const timer = window.setTimeout(() => {
-      fetchSalaries(filteredPlayers.slice(0, 12));
-    }, 250);
+      fetchSalaries(filteredPlayers.slice(0, 20));
+    }, 300);
     return () => window.clearTimeout(timer);
   }, [loadingPool, filteredPlayers]);
 
@@ -380,15 +377,18 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
   async function addPlayer(selectedPlayer) {
     if (players.some((item) => item.playerId === selectedPlayer.playerId)) return;
-    if (counts[selectedPlayer.rosterType] >= rosterLimits[selectedPlayer.rosterType]) return;
+    if (counts[selectedPlayer.rosterType] >= rosterLimits[selectedPlayer.rosterType]) {
+      setSaveStatus(`The ${selectedPlayer.rosterType === "G" ? "goalie" : selectedPlayer.rosterType === "D" ? "defence" : "forward"} section is already full.`);
+      return;
+    }
 
     let player = selectedPlayer;
     if (player.capHit == null) {
-      setSaveStatus(`Loading ${player.name}'s 2026–27 salary…`);
-      const records = await fetchSalaries([player], { retry: true });
+      setSaveStatus(`Loading ${player.name}'s 2026–27 cap hit…`);
+      const records = await fetchSalaries([player], { force: true });
       const record = records[String(player.playerId)];
       if (!record?.capHit) {
-        setSaveStatus(`Could not load ${player.name}'s salary. Press Draft to try again.`);
+        setSaveStatus(`${player.name}'s 2026–27 cap hit could not be found. The player was not added.`);
         return;
       }
       player = { ...player, capHit: Number(record.capHit), salarySource: record.source };
@@ -400,12 +400,13 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     }
 
     setPlayers((current) => [...current, player]);
-    setSaveStatus(`${player.name} drafted. You can remove or replace players at any time before the deadline.`);
+    setSaveStatus(`${player.name} added. You can change the roster at any time before the deadline.`);
   }
 
   function removePlayer(playerId) {
+    const removed = players.find((player) => player.playerId === playerId);
     setPlayers((current) => current.filter((player) => player.playerId !== playerId));
-    setSaveStatus("Roster changed. Save when ready.");
+    setSaveStatus(`${removed?.name || "Player"} removed. Save the roster when you are ready.`);
   }
 
   async function saveRoster() {
@@ -474,7 +475,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             <div>
               <p className="eyebrow">2025–26 player leaderboard</p>
               <h2>Draft room</h2>
-              <p>Players are ranked by fantasy points from last season. Search by player name or NHL team, then press Draft.</p>
+              <p>Click a player&apos;s name to add him. Search by player name or NHL team and edit the roster whenever you need to before the deadline.</p>
             </div>
             <div className="scoring-badge scoring-badge-wide">
               <strong>Skaters</strong>
@@ -525,7 +526,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               onDraft={addPlayer}
             />
           ) : null}
-          <p className="salary-data-note">2026–27 cap hits load automatically from the salary source. A missing salary is looked up when the player appears near the top of the table or when you press Draft.</p>
+          <p className="salary-data-note">2026–27 cap hits now come from CapSpace&apos;s public contract data. Salary appears below each player&apos;s name and is checked before the player is added.</p>
         </section>
 
         <LineupCard players={players} onRemove={removePlayer} />

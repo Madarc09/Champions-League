@@ -333,3 +333,74 @@ h1, h2, h3, p { margin-top: 0; }
   .lineup-player-card strong { font-size: 0.68rem; }
   .lineup-card-bottom { display: grid; gap: 2px; }
 }
+
+/* Compact click-to-draft table */
+.compact-draft-table { min-width: 660px; table-layout: fixed; }
+.compact-draft-table th:nth-child(1),
+.compact-draft-table td:nth-child(1) { width: 52px; text-align: center; }
+.compact-draft-table th:nth-child(2),
+.compact-draft-table td:nth-child(2) { width: 245px; }
+.compact-draft-table th:nth-child(3),
+.compact-draft-table td:nth-child(3) { width: 58px; text-align: center; }
+.compact-draft-table th:nth-child(n+4),
+.compact-draft-table td:nth-child(n+4) { width: 64px; text-align: center; }
+.draft-player-cell { min-width: 0; }
+.draft-player-button {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  color: #f5f8fc;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 950;
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.draft-player-button:hover:not(:disabled) { color: var(--gold-2); text-decoration: underline; text-underline-offset: 3px; }
+.draft-player-button:focus-visible,
+.lineup-player-name-button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 3px; }
+.draft-player-button:disabled { color: #8b98a9; cursor: default; text-decoration: none; }
+.draft-player-salary,
+.draft-player-meta,
+.draft-player-warning { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.draft-player-salary { margin-top: 4px; color: var(--gold-2); font-size: 0.72rem; font-weight: 900; }
+.draft-player-salary.salary-pending { color: #8ea0b6; }
+.draft-player-meta { margin-top: 3px; color: var(--muted); font-size: 0.64rem; }
+.draft-player-warning { margin-top: 3px; color: #ff9ca3; font-size: 0.61rem; font-weight: 850; }
+.stat-number { color: #d9e3ef; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.drafted-row { background: rgba(255,255,255,0.025); }
+.drafted-row .fantasy-points-cell { color: #8e9aab; }
+.lineup-board-header small { display: block; margin-top: 5px; color: var(--muted); font-size: 0.67rem; }
+.lineup-player-name-button {
+  display: block;
+  width: calc(100% - 2px);
+  margin-top: 9px;
+  padding: 0;
+  border: 0;
+  color: #f5f8fc;
+  background: transparent;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 950;
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.lineup-player-name-button:hover { color: #ff9ca3; text-decoration: line-through; text-decoration-thickness: 1px; }
+
+@media (max-width: 720px) {
+  .compact-draft-table { min-width: 640px; }
+  .compact-draft-table th:nth-child(2),
+  .compact-draft-table td:nth-child(2) { width: 220px; }
+  .compact-draft-table th:nth-child(n+4),
+  .compact-draft-table td:nth-child(n+4) { width: 60px; }
+}

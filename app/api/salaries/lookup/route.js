@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSalaryRecords, saveSalaryRecord } from "@/lib/salaries";
-import { lookupPuckPediaSalary } from "@/lib/puckpedia-salaries";
+import { lookupCapSpaceSalary } from "@/lib/capspace-salaries";
 
 export const dynamic = "force-dynamic";
 
@@ -18,27 +18,28 @@ async function resolveOne(player) {
     };
   }
 
+  const lookedUp = await lookupCapSpaceSalary({ playerId, name });
+  if (!lookedUp) return null;
+
   try {
-    const lookedUp = await lookupPuckPediaSalary({ playerId, name });
-    if (!lookedUp) return null;
-
-    try {
-      await saveSalaryRecord(lookedUp);
-    } catch (error) {
-      console.error("Salary cache save failed:", error);
-    }
-
-    return lookedUp;
+    await saveSalaryRecord(lookedUp);
   } catch (error) {
-    console.error(`Salary lookup failed for ${name}:`, error);
-    return null;
+    console.error("Salary cache save failed:", error);
   }
+
+  return lookedUp;
 }
 
 export async function POST(request) {
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
   const players = Array.isArray(body.players)
-    ? body.players.slice(0, 12)
+    ? body.players.slice(0, 20)
     : body.player
       ? [body.player]
       : [];
@@ -48,10 +49,23 @@ export async function POST(request) {
   }
 
   const records = {};
-  const results = await Promise.all(players.map(resolveOne));
-  for (const result of results) {
-    if (result) records[String(result.playerId)] = result;
-  }
+  const missing = [];
+  const results = await Promise.all(players.map(async (player) => {
+    try {
+      return await resolveOne(player);
+    } catch (error) {
+      console.error(`Salary lookup failed for ${player?.name || "unknown player"}:`, error);
+      return null;
+    }
+  }));
 
-  return NextResponse.json({ records });
+  results.forEach((result, index) => {
+    if (result) records[String(result.playerId)] = result;
+    else missing.push({
+      playerId: Number(players[index]?.playerId),
+      name: String(players[index]?.name || "Unknown player")
+    });
+  });
+
+  return NextResponse.json({ records, missing, source: "CapSpace" });
 }
