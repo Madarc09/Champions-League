@@ -1112,243 +1112,345 @@ body:has(.locker-page-root) .site-header {
   }
 }
 
-/* Nick locker hockey-card redesign: clean fronts with click-to-flip stat backs. */
+/* Nick locker roster cards and full-size hockey-card overlay. */
 .nick-locker-roster-panel {
-  grid-template-rows: auto minmax(0, 4.05fr) minmax(0, 2.05fr) minmax(0, 1.15fr);
-  padding: clamp(4px, 0.31cqw, 7px) clamp(6px, 0.43cqw, 10px) clamp(5px, 0.34cqw, 8px);
-  overflow: visible;
+  top: 11.9%;
+  right: 22.7%;
+  bottom: 13.8%;
+  left: 28.6%;
+  grid-template-rows: auto minmax(0, 3.28fr) minmax(0, 2.22fr) minmax(0, 1.12fr);
+  padding: clamp(3px, 0.23cqw, 6px) clamp(5px, 0.36cqw, 9px) clamp(4px, 0.28cqw, 7px);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(2,7,12,0.42), rgba(2,6,10,0.27));
 }
 
 .locker-compact-title {
   justify-content: center;
-  gap: clamp(10px, 1.1cqw, 22px);
-  padding-bottom: clamp(3px, 0.22cqw, 5px);
+  gap: clamp(9px, 0.78cqw, 18px);
+  padding: 0 2px clamp(2px, 0.14cqw, 4px);
 }
 .locker-compact-title strong {
-  font-size: clamp(13px, 1.06cqw, 21px);
+  font-size: clamp(12px, 0.93cqw, 19px);
   text-align: center;
 }
 .locker-compact-title span {
-  color: #d0aa58;
-  font-size: clamp(6px, 0.46cqw, 9px);
-  letter-spacing: 0.08em;
+  color: #d4ad5d;
+  font-size: clamp(6px, 0.42cqw, 9px);
+  letter-spacing: 0.075em;
 }
 
 .locker-card-group {
-  padding-top: clamp(2px, 0.14cqw, 4px);
+  padding-top: clamp(1px, 0.09cqw, 3px);
 }
 .locker-card-group-title {
   display: block;
   min-height: 0;
-  margin: 0 0 clamp(2px, 0.16cqw, 4px);
-  color: #e7edf5;
-  font-size: clamp(11px, 0.88cqw, 17px);
+  margin: 0 0 clamp(1px, 0.1cqw, 3px);
+  color: #f0f4f8;
+  font-size: clamp(10px, 0.78cqw, 16px);
   font-weight: 950;
   letter-spacing: 0.14em;
-  line-height: 1;
-  text-align: center;
-}
-
-.locker-player-card-grid {
-  gap: clamp(2px, 0.16cqw, 4px) clamp(4px, 0.31cqw, 7px);
-  overflow: visible;
-}
-.locker-goalie-card-grid {
-  width: 72%;
-}
-
-.locker-flip-card {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  perspective: 900px;
-  z-index: 1;
-}
-.locker-flip-card.is-flipped {
-  z-index: 40;
-}
-.locker-flip-button {
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  outline: 0;
-  color: inherit;
-  background: transparent;
-  cursor: pointer;
-}
-.locker-flip-button:focus-visible {
-  border-radius: clamp(3px, 0.22cqw, 5px);
-  box-shadow: 0 0 0 2px #f0c96f;
-}
-.locker-flip-card-inner {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  transform-style: preserve-3d;
-  transition: transform 0.48s cubic-bezier(.2,.72,.2,1), filter 0.25s ease;
-}
-.locker-flip-card.is-flipped .locker-flip-card-inner {
-  transform: rotateY(180deg) scale(1.42);
-  filter: drop-shadow(0 12px 18px rgba(0,0,0,0.62));
-}
-.locker-card-face {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid rgba(194,215,235,0.18);
-  border-radius: clamp(3px, 0.25cqw, 6px);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.locker-card-front {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  padding: clamp(2px, 0.16cqw, 4px);
-  background:
-    linear-gradient(180deg, rgba(15,35,54,0.88), rgba(5,13,21,0.91)),
-    radial-gradient(circle at 50% 20%, rgba(68,126,181,0.34), transparent 65%);
-  box-shadow: inset 0 0 14px rgba(0,0,0,0.35);
-}
-.locker-flip-card:nth-child(even) .locker-card-front {
-  background:
-    linear-gradient(180deg, rgba(20,42,63,0.9), rgba(5,13,21,0.91)),
-    radial-gradient(circle at 50% 20%, rgba(68,126,181,0.34), transparent 65%);
-}
-.locker-card-player-name {
-  min-width: 0;
-  padding: 0 1px clamp(1px, 0.08cqw, 2px);
-  overflow: hidden;
-  color: #f7f9fb;
-  font-size: clamp(10px, 0.82cqw, 16px);
-  font-weight: 950;
-  line-height: 1;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.locker-card-photo-frame {
-  display: grid;
-  place-items: end center;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  border: 0;
-  border-radius: clamp(2px, 0.18cqw, 4px);
-  background: radial-gradient(circle at 50% 36%, rgba(105,160,207,0.34), rgba(4,12,20,0.42) 68%);
-}
-.locker-card-photo-frame img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  transform: scale(1.08);
-  transform-origin: center bottom;
-}
-.locker-card-total {
-  padding-top: clamp(1px, 0.08cqw, 2px);
-  color: #ffd36f;
-  font-size: clamp(11px, 0.89cqw, 17px);
-  font-weight: 950;
   line-height: 1;
   text-align: center;
   text-shadow: 0 1px 3px #000;
 }
 
-.locker-card-back {
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  padding: clamp(3px, 0.24cqw, 6px);
-  transform: rotateY(180deg);
-  color: #f6f8fb;
-  background:
-    linear-gradient(145deg, rgba(8,31,53,0.98), rgba(3,10,17,0.99)),
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 7px);
-  box-shadow: inset 0 0 0 1px rgba(240,201,111,0.22), inset 0 0 24px rgba(36,99,151,0.2);
-}
-.locker-card-back-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 4px;
-  padding-bottom: clamp(1px, 0.1cqw, 2px);
-  border-bottom: 1px solid rgba(240,201,111,0.25);
-}
-.locker-card-back-heading strong {
-  min-width: 0;
+.locker-player-card-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(2px, 0.14cqw, 4px) clamp(3px, 0.22cqw, 6px);
   overflow: hidden;
-  font-size: clamp(7px, 0.57cqw, 11px);
-  line-height: 1;
+}
+.locker-card-group-d .locker-player-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.locker-goalie-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  width: 62%;
+  margin-inline: auto;
+}
+
+.locker-roster-card {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(188,211,232,0.18);
+  border-radius: clamp(3px, 0.2cqw, 5px);
+  background:
+    linear-gradient(180deg, rgba(15,35,54,0.88), rgba(4,12,20,0.9)),
+    radial-gradient(circle at 50% 32%, rgba(73,134,187,0.34), transparent 68%);
+  box-shadow: inset 0 0 13px rgba(0,0,0,0.32);
+}
+.locker-roster-card:nth-child(even) {
+  background:
+    linear-gradient(180deg, rgba(19,42,63,0.9), rgba(4,12,20,0.91)),
+    radial-gradient(circle at 50% 32%, rgba(73,134,187,0.34), transparent 68%);
+}
+.locker-roster-card-button,
+.locker-roster-card-empty {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(2px, 0.14cqw, 4px);
+}
+.locker-roster-card-button {
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.locker-roster-card-button:hover {
+  background: rgba(94,151,202,0.11);
+}
+.locker-roster-card-button:focus-visible {
+  outline: 2px solid #f0c96f;
+  outline-offset: -2px;
+}
+.locker-roster-card-empty {
+  opacity: 0.34;
+  border-style: dashed;
+}
+
+.locker-card-player-name {
+  min-width: 0;
+  padding: 0 1px clamp(1px, 0.07cqw, 2px);
+  overflow: hidden;
+  color: #f7f9fb;
+  font-size: clamp(8px, 0.62cqw, 13px);
+  font-weight: 950;
+  line-height: 1.02;
+  text-align: center;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 2px #000;
   white-space: nowrap;
 }
-.locker-card-back-heading small {
-  color: #8fb6d8;
-  font-size: clamp(5px, 0.4cqw, 8px);
-  font-weight: 950;
-}
-.locker-card-back-stats {
-  display: grid;
-  align-content: center;
-  gap: clamp(1px, 0.07cqw, 2px);
-  min-height: 0;
-}
-.locker-card-back-stat {
-  display: grid;
-  grid-template-columns: minmax(18px, auto) minmax(18px, auto) minmax(0, 1fr);
-  align-items: baseline;
-  column-gap: clamp(2px, 0.15cqw, 4px);
+.locker-card-photo-frame {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   min-width: 0;
-  font-size: clamp(6px, 0.49cqw, 9.5px);
-  line-height: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: clamp(2px, 0.15cqw, 4px);
+  background: radial-gradient(circle at 50% 40%, rgba(111,169,216,0.31), rgba(4,12,20,0.18) 67%);
 }
-.locker-card-back-stat b {
-  color: #8fb6d8;
+.locker-card-photo-frame img {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: none;
+}
+.locker-card-total {
+  padding-top: clamp(1px, 0.07cqw, 2px);
+  color: #ffd36f;
+  font-size: clamp(9px, 0.7cqw, 14px);
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 3px #000;
+}
+.locker-card-empty-photo img {
+  width: auto;
+  height: 82%;
+  opacity: 0.42;
+}
+
+.locker-hockey-card-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 3cqw, 54px);
+  background: radial-gradient(circle at center, rgba(3,11,19,0.42), rgba(0,0,0,0.76));
+  backdrop-filter: blur(2px);
+}
+.locker-hockey-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1.05fr) auto auto;
+  width: clamp(260px, 24cqw, 430px);
+  max-height: 88%;
+  aspect-ratio: 0.72;
+  overflow: hidden;
+  border: clamp(3px, 0.28cqw, 6px) solid #d3a84e;
+  border-radius: clamp(15px, 1.2cqw, 24px);
+  color: #f8fafc;
+  background:
+    linear-gradient(155deg, rgba(17,52,82,0.99), rgba(3,12,22,0.99) 52%, rgba(13,39,65,0.99)),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 9px);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.75),
+    inset 0 0 0 2px rgba(255,255,255,0.12),
+    inset 0 0 52px rgba(52,130,193,0.23);
+  transform-origin: 50% 82%;
+  animation: lockerCardFlipUp 0.48s cubic-bezier(.18,.75,.25,1) both;
+}
+.locker-hockey-card::before,
+.locker-hockey-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.locker-hockey-card::before {
+  inset: 10px;
+  border: 1px solid rgba(255,215,126,0.45);
+  border-radius: calc(clamp(15px, 1.2cqw, 24px) - 6px);
+}
+.locker-hockey-card::after {
+  right: -18%;
+  bottom: 18%;
+  width: 70%;
+  height: 17%;
+  background: linear-gradient(90deg, transparent, rgba(240,201,111,0.19), transparent);
+  transform: rotate(-25deg);
+}
+@keyframes lockerCardFlipUp {
+  0% { opacity: 0; transform: perspective(1000px) rotateX(72deg) rotateY(-24deg) translateY(32px) scale(0.78); }
+  68% { opacity: 1; transform: perspective(1000px) rotateX(-4deg) rotateY(2deg) translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: perspective(1000px) rotateX(0) rotateY(0) translateY(0) scale(1); }
+}
+.locker-hockey-card-close {
+  position: absolute;
+  top: clamp(8px, 0.7cqw, 13px);
+  right: clamp(8px, 0.7cqw, 13px);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: clamp(27px, 2.1cqw, 38px);
+  height: clamp(27px, 2.1cqw, 38px);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 50%;
+  color: white;
+  background: rgba(2,8,14,0.7);
+  font-size: clamp(19px, 1.5cqw, 27px);
+  line-height: 1;
+  cursor: pointer;
+}
+.locker-hockey-card-header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  padding: clamp(13px, 1.1cqw, 21px) clamp(17px, 1.4cqw, 27px) clamp(7px, 0.6cqw, 12px);
+  text-align: center;
+}
+.locker-hockey-card-header small,
+.locker-hockey-card-header span {
+  color: #9fc3e2;
+  font-size: clamp(8px, 0.62cqw, 12px);
+  font-weight: 950;
+  letter-spacing: 0.16em;
+}
+.locker-hockey-card-header strong {
+  margin: 2px 28px;
+  overflow: hidden;
+  font-size: clamp(20px, 1.75cqw, 34px);
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 5px #000;
+  white-space: nowrap;
+}
+.locker-hockey-card-portrait {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: end center;
+  min-height: 0;
+  margin: 0 clamp(18px, 1.5cqw, 29px);
+  overflow: hidden;
+  border: 1px solid rgba(196,219,239,0.26);
+  border-radius: clamp(9px, 0.7cqw, 14px);
+  background:
+    radial-gradient(circle at 50% 30%, rgba(118,179,227,0.48), transparent 52%),
+    linear-gradient(180deg, rgba(12,41,68,0.55), rgba(2,9,16,0.38));
+}
+.locker-hockey-card-portrait img {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.locker-hockey-card-season {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: #06101c;
+  background: #e8bb60;
+  font-size: clamp(7px, 0.54cqw, 10px);
   font-weight: 950;
 }
-.locker-card-back-stat em {
-  color: white;
-  font-style: normal;
-  font-weight: 900;
+.locker-hockey-card-stats {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(3px, 0.27cqw, 6px);
+  padding: clamp(10px, 0.8cqw, 16px) clamp(20px, 1.7cqw, 34px) clamp(8px, 0.65cqw, 13px);
 }
-.locker-card-back-stat small {
+.locker-hockey-card-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) auto minmax(74px, 0.9fr);
+  align-items: baseline;
+  gap: clamp(6px, 0.5cqw, 10px);
+  padding-bottom: clamp(2px, 0.18cqw, 4px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.locker-hockey-card-stat b {
+  color: #9fc3e2;
+  font-size: clamp(10px, 0.78cqw, 15px);
+}
+.locker-hockey-card-stat em {
+  color: white;
+  font-size: clamp(12px, 0.9cqw, 17px);
+  font-style: normal;
+  font-weight: 950;
+}
+.locker-hockey-card-stat small {
   color: #ffd36f;
-  font-size: 1em;
+  font-size: clamp(10px, 0.76cqw, 15px);
   font-weight: 950;
   text-align: right;
   white-space: nowrap;
 }
-.locker-card-back-total {
-  padding-top: clamp(1px, 0.1cqw, 2px);
-  border-top: 1px solid rgba(240,201,111,0.25);
-  color: #ffd36f;
-  font-size: clamp(7px, 0.56cqw, 11px);
+.locker-hockey-card-total {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: clamp(10px, 0.85cqw, 17px) clamp(21px, 1.75cqw, 35px) clamp(15px, 1.2cqw, 24px);
+  border-top: 1px solid rgba(240,201,111,0.32);
+  background: rgba(0,0,0,0.19);
+}
+.locker-hockey-card-total span {
+  color: #a9c5dd;
+  font-size: clamp(8px, 0.62cqw, 12px);
   font-weight: 950;
+  letter-spacing: 0.09em;
+}
+.locker-hockey-card-total strong {
+  color: #ffd36f;
+  font-size: clamp(22px, 1.85cqw, 36px);
   line-height: 1;
-  text-align: center;
-}
-
-.locker-flip-card-empty {
-  opacity: 0.34;
-}
-.locker-flip-card-empty .locker-card-front {
-  position: absolute;
-  inset: 0;
-  border-style: dashed;
-}
-.locker-card-empty-photo img {
-  opacity: 0.45;
-  transform: scale(0.72);
+  text-shadow: 0 2px 5px #000;
 }
 
 @media (max-width: 720px) {
-  .locker-flip-card.is-flipped .locker-flip-card-inner {
-    transform: rotateY(180deg) scale(1.18);
-  }
+  .locker-compact-title span { display: none; }
+  .locker-hockey-card-overlay { place-items: start center; padding-top: 22px; }
+  .locker-hockey-card { width: min(360px, 82vw); max-height: 92%; }
 }

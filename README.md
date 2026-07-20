@@ -161,3 +161,7 @@ Nick's Locker Room now uses a precisely aligned centre overlay with three player
 ## Nick Locker Room flip-card update
 
 Nick's Locker Room now displays compact hockey-card fronts with only the player name, NHL headshot, and total fantasy points. Selecting a player flips and lifts the card to reveal the complete 2025-26 stat breakdown and the fantasy-point contribution of each category. Only one card is expanded at a time.
+
+## Nick locker card update
+
+The locker front now displays each complete NHL headshot with only the player name and total fantasy points. Selecting a player opens a large animated hockey card with the full 2025–26 stat and fantasy-point breakdown. Close the card with the × button, the Escape key, or by selecting the shaded background.

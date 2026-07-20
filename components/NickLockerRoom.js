@@ -43,88 +43,62 @@ function compactNumber(value) {
 function statRows(player, goalie) {
   if (goalie) {
     return [
-      ["SV", numberValue(player, "saves"), numberValue(player, "saves") * GOALIE_SCORING.saves],
-      ["GA", numberValue(player, "goalsAgainst"), numberValue(player, "goalsAgainst") * GOALIE_SCORING.goalsAgainst],
-      ["W", numberValue(player, "wins"), numberValue(player, "wins") * GOALIE_SCORING.wins],
-      ["G", numberValue(player, "goals"), numberValue(player, "goals") * GOALIE_SCORING.goals],
-      ["A", numberValue(player, "assists"), numberValue(player, "assists") * GOALIE_SCORING.assists]
+      ["Saves", numberValue(player, "saves"), numberValue(player, "saves") * GOALIE_SCORING.saves],
+      ["Goals Against", numberValue(player, "goalsAgainst"), numberValue(player, "goalsAgainst") * GOALIE_SCORING.goalsAgainst],
+      ["Wins", numberValue(player, "wins"), numberValue(player, "wins") * GOALIE_SCORING.wins],
+      ["Goals", numberValue(player, "goals"), numberValue(player, "goals") * GOALIE_SCORING.goals],
+      ["Assists", numberValue(player, "assists"), numberValue(player, "assists") * GOALIE_SCORING.assists]
     ];
   }
 
   return [
-    ["G", numberValue(player, "goals"), numberValue(player, "goals") * SCORING.goals],
-    ["A", numberValue(player, "assists"), numberValue(player, "assists") * SCORING.assists],
-    ["H", numberValue(player, "hits"), numberValue(player, "hits") * SCORING.hits],
-    ["SOG", numberValue(player, "shots"), numberValue(player, "shots") * SCORING.shots]
+    ["Goals", numberValue(player, "goals"), numberValue(player, "goals") * SCORING.goals],
+    ["Assists", numberValue(player, "assists"), numberValue(player, "assists") * SCORING.assists],
+    ["Hits", numberValue(player, "hits"), numberValue(player, "hits") * SCORING.hits],
+    ["Shots", numberValue(player, "shots"), numberValue(player, "shots") * SCORING.shots]
   ];
 }
 
 function EmptyCard({ slotNumber }) {
   return (
-    <article className="locker-flip-card locker-flip-card-empty" aria-label={`Open roster spot ${slotNumber}`}>
-      <div className="locker-card-front">
-        <strong className="locker-card-player-name">Open spot {slotNumber}</strong>
-        <div className="locker-card-photo-frame locker-card-empty-photo">
-          <img src={FALLBACK_HEADSHOT} alt="" />
-        </div>
-        <span className="locker-card-total">—</span>
+    <article className="locker-roster-card locker-roster-card-empty" aria-label={`Open roster spot ${slotNumber}`}>
+      <strong className="locker-card-player-name">Open spot {slotNumber}</strong>
+      <div className="locker-card-photo-frame locker-card-empty-photo">
+        <img src={FALLBACK_HEADSHOT} alt="" />
       </div>
+      <span className="locker-card-total">—</span>
     </article>
   );
 }
 
-function PlayerCard({ player, goalie = false, slotNumber, flipped, onFlip }) {
+function PlayerCard({ player, slotNumber, onOpen }) {
   if (!player) return <EmptyCard slotNumber={slotNumber} />;
 
-  const rows = statRows(player, goalie);
-
   return (
-    <article className={`locker-flip-card ${flipped ? "is-flipped" : ""}`}>
+    <article className="locker-roster-card">
       <button
-        className="locker-flip-button"
+        className="locker-roster-card-button"
         type="button"
-        onClick={onFlip}
-        aria-pressed={flipped}
-        aria-label={`${flipped ? "Hide" : "Show"} ${player.name} statistics`}
+        onClick={onOpen}
+        aria-label={`Open ${player.name} hockey card and statistics`}
       >
-        <span className="locker-flip-card-inner">
-          <span className="locker-card-face locker-card-front">
-            <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
-            <span className="locker-card-photo-frame">
-              <img
-                src={player.headshot || FALLBACK_HEADSHOT}
-                alt={`${player.name} headshot`}
-                loading="lazy"
-                decoding="async"
-                onError={handleHeadshotError}
-              />
-            </span>
-            <span className="locker-card-total">{fantasyTotal(player)}</span>
-          </span>
-
-          <span className="locker-card-face locker-card-back">
-            <span className="locker-card-back-heading">
-              <strong>{player.name}</strong>
-              <small>{player.teamAbbrev || player.team || "NHL"}</small>
-            </span>
-            <span className="locker-card-back-stats">
-              {rows.map(([label, raw, points]) => (
-                <span className="locker-card-back-stat" key={label}>
-                  <b>{label}</b>
-                  <em>{raw}</em>
-                  <small>{compactNumber(points)} FPTS</small>
-                </span>
-              ))}
-            </span>
-            <span className="locker-card-back-total">TOTAL {fantasyTotal(player)}</span>
-          </span>
+        <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
+        <span className="locker-card-photo-frame">
+          <img
+            src={player.headshot || FALLBACK_HEADSHOT}
+            alt={`${player.name} headshot`}
+            loading="lazy"
+            decoding="async"
+            onError={handleHeadshotError}
+          />
         </span>
+        <span className="locker-card-total">{fantasyTotal(player)}</span>
       </button>
     </article>
   );
 }
 
-function RosterGroup({ title, players, type, limit, flippedId, setFlippedId }) {
+function RosterGroup({ title, players, type, limit, onOpen }) {
   const goalie = type === "G";
   const filled = Array.from({ length: limit }, (_, index) => players[index] || null);
 
@@ -132,27 +106,84 @@ function RosterGroup({ title, players, type, limit, flippedId, setFlippedId }) {
     <section className={`locker-card-group locker-card-group-${type.toLowerCase()}`}>
       <h2 className="locker-card-group-title">{title}</h2>
       <div className={`locker-player-card-grid ${goalie ? "locker-goalie-card-grid" : ""}`}>
-        {filled.map((player, index) => {
-          const cardId = player ? String(player.playerId) : `${type}-open-${index}`;
-          return (
-            <PlayerCard
-              key={cardId}
-              player={player}
-              goalie={goalie}
-              slotNumber={index + 1}
-              flipped={Boolean(player) && flippedId === cardId}
-              onFlip={() => setFlippedId((current) => current === cardId ? null : cardId)}
-            />
-          );
-        })}
+        {filled.map((player, index) => (
+          <PlayerCard
+            key={player ? String(player.playerId) : `${type}-open-${index}`}
+            player={player}
+            slotNumber={index + 1}
+            onOpen={() => player && onOpen(player, goalie)}
+          />
+        ))}
       </div>
     </section>
   );
 }
 
+function HockeyCardOverlay({ selection, onClose }) {
+  const { player, goalie } = selection;
+  const rows = statRows(player, goalie);
+
+  useEffect(() => {
+    function closeOnEscape(event) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
+  return (
+    <div
+      className="locker-hockey-card-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.currentTarget === event.target) onClose();
+      }}
+    >
+      <article
+        className="locker-hockey-card"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${player.name} statistics card`}
+      >
+        <button className="locker-hockey-card-close" type="button" onClick={onClose} aria-label="Close player card">×</button>
+
+        <header className="locker-hockey-card-header">
+          <small>{player.teamAbbrev || player.team || "NHL"}</small>
+          <strong>{player.name}</strong>
+          <span>{goalie ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD"}</span>
+        </header>
+
+        <div className="locker-hockey-card-portrait">
+          <img
+            src={player.headshot || FALLBACK_HEADSHOT}
+            alt={`${player.name} headshot`}
+            onError={handleHeadshotError}
+          />
+          <span className="locker-hockey-card-season">2025–26</span>
+        </div>
+
+        <div className="locker-hockey-card-stats">
+          {rows.map(([label, raw, points]) => (
+            <div className="locker-hockey-card-stat" key={label}>
+              <b>{label}</b>
+              <em>{raw}</em>
+              <small>{compactNumber(points)} FPTS</small>
+            </div>
+          ))}
+        </div>
+
+        <footer className="locker-hockey-card-total">
+          <span>TOTAL FANTASY POINTS</span>
+          <strong>{fantasyTotal(player)}</strong>
+        </footer>
+      </article>
+    </div>
+  );
+}
+
 export default function NickLockerRoom() {
   const [players, setPlayers] = useState([]);
-  const [flippedId, setFlippedId] = useState(null);
+  const [selection, setSelection] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -212,13 +243,15 @@ export default function NickLockerRoom() {
         <div className="nick-locker-roster-panel">
           <div className="locker-compact-title">
             <strong>PROJECTED LINEUP</strong>
-            <span>CLICK A PLAYER TO FLIP THE CARD</span>
+            <span>SELECT A PLAYER FOR THE FULL HOCKEY CARD</span>
           </div>
 
-          <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} flippedId={flippedId} setFlippedId={setFlippedId} />
-          <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} flippedId={flippedId} setFlippedId={setFlippedId} />
-          <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} flippedId={flippedId} setFlippedId={setFlippedId} />
+          <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+          <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+          <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
         </div>
+
+        {selection ? <HockeyCardOverlay selection={selection} onClose={() => setSelection(null)} /> : null}
       </div>
     </div>
   );
