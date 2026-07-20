@@ -241,3 +241,5 @@ Shared rosters are read from the existing Upstash connection. Browser-only roste
 
 ## Joe concert-stage background
 Joe now uses the Oilers concert-stage artwork while retaining the shared roster overlay, standings navigation, and mobile behavior.
+
+- Updated roster transparency: occupied cards approximately 60% transparent and empty slots approximately 80% transparent.
