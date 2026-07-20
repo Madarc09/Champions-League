@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+const FALLBACK_HEADSHOT = "/player-silhouette.svg";
+
 function money(value) {
   if (value == null || Number.isNaN(Number(value))) return "No 2026–27 contract";
   return new Intl.NumberFormat("en-CA", {
@@ -24,11 +26,31 @@ function loadJson(key, fallback) {
   }
 }
 
+function handleHeadshotError(event) {
+  const image = event.currentTarget;
+  if (!image.src.endsWith(FALLBACK_HEADSHOT)) {
+    image.src = FALLBACK_HEADSHOT;
+  }
+}
+
+function PlayerHeadshot({ player, className = "", alt = null }) {
+  return (
+    <img
+      className={className}
+      src={player?.headshot || FALLBACK_HEADSHOT}
+      alt={alt == null ? `${player?.name || "NHL player"} headshot` : alt}
+      loading="lazy"
+      decoding="async"
+      onError={handleHeadshotError}
+    />
+  );
+}
+
 function playerMeta(player) {
   if (player.rosterType === "G") {
-    return `${player.team} · ${player.gamesPlayed} GP · ${player.saves || 0} SV · ${player.goalsAgainst || 0} GA · ${player.wins || 0} W`;
+    return `${player.gamesPlayed} GP · ${player.saves || 0} SV · ${player.goalsAgainst || 0} GA · ${player.wins || 0} W`;
   }
-  return `${player.team} · ${player.gamesPlayed} GP`;
+  return `${player.gamesPlayed} GP`;
 }
 
 function SortButton({ label, column, sort, onSort, compact = false }) {
@@ -51,10 +73,9 @@ function SortButton({ label, column, sort, onSort, compact = false }) {
 
 function sortValue(player, column) {
   switch (column) {
-    case "rank": return Number(player.fantasyRank || 0);
     case "name": return String(player.name || "");
     case "salary": return player.capHit == null ? null : Number(player.capHit);
-    case "position": return String(player.position || "");
+    case "position": return String(player.rosterType || "");
     case "goals": return Number(player.goals || 0);
     case "assists": return Number(player.assists || 0);
     case "hits": return player.rosterType === "G" ? null : Number(player.hits || 0);
@@ -80,20 +101,20 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
       const leftMissing = left == null || left === "";
       const rightMissing = right == null || right === "";
 
-      if (leftMissing && rightMissing) return Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0);
+      if (leftMissing && rightMissing) return Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0);
       if (leftMissing) return 1;
       if (rightMissing) return -1;
 
       if (typeof left === "string" || typeof right === "string") {
         const result = String(left).localeCompare(String(right), "en", { sensitivity: "base" });
         return result === 0
-          ? Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0)
+          ? Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0)
           : result * direction;
       }
 
       const result = Number(left) - Number(right);
       return result === 0
-        ? Number(a.fantasyRank || 0) - Number(b.fantasyRank || 0)
+        ? Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0)
         : result * direction;
     });
   }, [players, sort]);
@@ -115,12 +136,10 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
 
   return (
     <div className="draft-table-scroll">
-      <table className="draft-table compact-draft-table">
+      <table className="draft-table compact-draft-table headshot-draft-table">
         <thead>
           <tr>
-            <th aria-sort={sort.column === "rank" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="Rank" column="rank" sort={sort} onSort={changeSort} />
-            </th>
+            <th className="photo-heading"><span className="visually-hidden">Player photo</span></th>
             <th className="player-sort-heading" aria-sort={sort.column === "name" || sort.column === "salary" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
               <SortButton label="Salary" column="salary" sort={sort} onSort={changeSort} compact />
@@ -152,7 +171,9 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
 
             return (
               <tr key={player.playerId} className={drafted ? "drafted-row" : ""}>
-                <td className="draft-rank">{player.fantasyRank || "—"}</td>
+                <td className="draft-headshot-cell">
+                  <PlayerHeadshot player={player} className="draft-player-headshot" />
+                </td>
                 <td className="draft-player-cell">
                   <button
                     className="draft-player-button"
@@ -166,12 +187,24 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                   <span className={`draft-player-salary ${player.capHit == null ? "salary-unsigned" : ""}`}>
                     {money(player.capHit)}
                   </span>
-                  <small className="draft-player-meta">{playerMeta(player)}</small>
+                  <span className="draft-team-line">
+                    {player.teamLogo ? (
+                      <img
+                        className="draft-team-logo"
+                        src={player.teamLogo}
+                        alt=""
+                        loading="lazy"
+                        onError={(event) => { event.currentTarget.style.display = "none"; }}
+                      />
+                    ) : null}
+                    <strong>{player.team || "NHL"}</strong>
+                    <small>{playerMeta(player)}</small>
+                  </span>
                   {reason ? <small className="draft-player-warning">{reason}</small> : null}
                 </td>
                 <td>
                   <span className={`position-chip position-${player.rosterType.toLowerCase()}`}>
-                    {player.position}
+                    {player.rosterType}
                   </span>
                 </td>
                 <td className="stat-number">{player.goals || 0}</td>
@@ -190,28 +223,24 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
   );
 }
 
-function LineupPlayerCard({ player, slotLabel, onRemove }) {
+function LineupPlayerCard({ player, onRemove }) {
   return (
-    <div className={`lineup-player-card ${player ? "filled" : "empty"}`}>
-      <span className="lineup-slot-label">{slotLabel}</span>
+    <div className={`lineup-player-card image-only ${player ? "filled" : "empty"}`}>
       {player ? (
-        <>
-          <button
-            className="lineup-player-name-button"
-            type="button"
-            onClick={() => onRemove(player.playerId)}
-            title={`Remove ${player.name} from the roster`}
-          >
-            {player.name}
-          </button>
-          <small>{player.team} · {player.position}</small>
-          <div className="lineup-card-bottom">
-            <span>{`${Number(player.fantasyPoints || 0).toFixed(1)} FP`}</span>
-            <span>{money(player.capHit)}</span>
-          </div>
-        </>
+        <button
+          className="lineup-player-image-button"
+          type="button"
+          onClick={() => onRemove(player.playerId)}
+          title={`Remove ${player.name} from the roster`}
+          aria-label={`Remove ${player.name} from the roster`}
+        >
+          <PlayerHeadshot player={player} className="lineup-player-headshot" alt="" />
+        </button>
       ) : (
-        <span className="open-lineup-slot">Open slot</span>
+        <div className="empty-lineup-face" aria-label="Open roster slot">
+          <img src={FALLBACK_HEADSHOT} alt="" />
+          <span>Open</span>
+        </div>
       )}
     </div>
   );
@@ -223,21 +252,23 @@ function ForwardLine({ number, players, onRemove }) {
     <div className="lineup-row">
       <span className="line-number">Line {number}</span>
       <div className="lineup-row-cards three-up">
-        <LineupPlayerCard player={slots[0]} slotLabel="LW" onRemove={onRemove} />
-        <LineupPlayerCard player={slots[1]} slotLabel="C" onRemove={onRemove} />
-        <LineupPlayerCard player={slots[2]} slotLabel="RW" onRemove={onRemove} />
+        {slots.map((player, index) => (
+          <LineupPlayerCard key={player?.playerId || `forward-open-${number}-${index}`} player={player} onRemove={onRemove} />
+        ))}
       </div>
     </div>
   );
 }
 
 function DefencePair({ number, players, onRemove }) {
+  const slots = [players[0] || null, players[1] || null];
   return (
     <div className="lineup-row">
       <span className="line-number">Pair {number}</span>
       <div className="lineup-row-cards two-up">
-        <LineupPlayerCard player={players[0] || null} slotLabel="LD" onRemove={onRemove} />
-        <LineupPlayerCard player={players[1] || null} slotLabel="RD" onRemove={onRemove} />
+        {slots.map((player, index) => (
+          <LineupPlayerCard key={player?.playerId || `defence-open-${number}-${index}`} player={player} onRemove={onRemove} />
+        ))}
       </div>
     </div>
   );
@@ -254,7 +285,7 @@ function LineupCard({ players, onRemove, salaryCap, totalCap, capRemaining }) {
         <div>
           <p className="eyebrow">Daily lineup card</p>
           <h2>Projected roster</h2>
-          <small>Click a player&apos;s name to remove him.</small>
+          <small>Click a player&apos;s face to remove him.</small>
         </div>
         <div className={`lineup-cap-summary ${capRemaining < 0 ? "over" : ""}`}>
           <small>Cap remaining</small>
@@ -291,8 +322,8 @@ function LineupCard({ players, onRemove, salaryCap, totalCap, capRemaining }) {
       <section className="lineup-group goalie-group">
         <h3>Goalies</h3>
         <div className="lineup-row-cards two-up">
-          <LineupPlayerCard player={goalies[0] || null} slotLabel="STARTER" onRemove={onRemove} />
-          <LineupPlayerCard player={goalies[1] || null} slotLabel="BACKUP" onRemove={onRemove} />
+          <LineupPlayerCard player={goalies[0] || null} onRemove={onRemove} />
+          <LineupPlayerCard player={goalies[1] || null} onRemove={onRemove} />
         </div>
       </section>
     </div>
@@ -307,7 +338,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
   const [salaryData, setSalaryData] = useState(null);
-  const [poolData, setPoolData] = useState(null);
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
   const [persistence, setPersistence] = useState("local");
@@ -324,7 +354,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         if (!response.ok) throw new Error(data.error || "Player pool could not be loaded.");
         if (!cancelled) {
           setPoolPlayers(data.players || []);
-          setPoolData(data.poolData || null);
           setSalaryData(data.salaryData || null);
         }
       } catch (error) {
@@ -381,7 +410,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     );
   }, [players, team.slug, loadingRoster]);
 
-  // Replace cap hits saved by older builds with the current salary snapshot.
+  // Replace older saved stats, salaries, teams and photos with the current snapshots.
   useEffect(() => {
     if (loadingRoster || poolPlayers.length === 0 || players.length === 0) return;
     const liveById = new Map(poolPlayers.map((player) => [String(player.playerId), player]));
@@ -397,7 +426,9 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           Number(saved.capHit) !== Number(merged.capHit) ||
           Number(saved.fantasyPoints) !== Number(merged.fantasyPoints) ||
           saved.team !== merged.team ||
-          saved.position !== merged.position
+          saved.position !== merged.position ||
+          saved.headshot !== merged.headshot ||
+          saved.teamLogo !== merged.teamLogo
         ) {
           changed = true;
         }
@@ -418,15 +449,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       return matchesPosition && matchesQuery;
     });
   }, [poolPlayers, position, query]);
-
-  const poolCounts = useMemo(() => {
-    if (poolData?.counts) return poolData.counts;
-    return poolPlayers.reduce((counts, player) => {
-      counts[player.rosterType] = (counts[player.rosterType] || 0) + 1;
-      counts.total += 1;
-      return counts;
-    }, { F: 0, D: 0, G: 0, total: 0 });
-  }, [poolData, poolPlayers]);
 
   const counts = useMemo(() => players.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
@@ -505,7 +527,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       ? ` · ${salaryData.failedTeamCount} team page${salaryData.failedTeamCount === 1 ? "" : "s"} could not refresh`
       : "";
     const stale = salaryData.stale ? " · using the most recent saved snapshot" : "";
-    return `${salaryData.recordCount} current 2026–27 cap hits loaded together from CapSpace · refreshed ${refreshed}${failed}${stale}. Players without a signed 2026–27 contract are marked unsigned.`;
+    return `2026–27 cap hits refreshed from CapSpace ${refreshed}${failed}${stale}. Players without a signed contract are marked unsigned.`;
   }, [loadingPool, salaryData]);
 
   return (
@@ -547,7 +569,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             <div>
               <p className="eyebrow">2025–26 player leaderboard</p>
               <h2>Draft room</h2>
-              <p>The table includes every player who appeared in the 2025–26 NHL regular season. Click a player&apos;s name to add him; every column can be sorted.</p>
+              <p>Click a player&apos;s name to add him. NHL headshots and current teams appear directly on the board, and every stat column can be sorted.</p>
             </div>
             <div className="scoring-badge scoring-badge-wide">
               <strong>Skaters</strong>
@@ -582,18 +604,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             </div>
           </div>
 
-          {!loadingPool && !poolError ? (
-            <div className="player-pool-summary" aria-label="Complete player pool counts">
-              <strong>{poolCounts.total.toLocaleString()} players loaded</strong>
-              <span>{poolCounts.F.toLocaleString()} forwards</span>
-              <span>{poolCounts.D.toLocaleString()} defence</span>
-              <span>{poolCounts.G.toLocaleString()} goalies</span>
-              <span>Showing {filteredPlayers.length.toLocaleString()}</span>
-              {poolData?.stale ? <em>Using the last saved complete NHL snapshot</em> : null}
-            </div>
-          ) : null}
-
-          {loadingPool ? <div className="empty-state">Loading every 2025–26 NHL player and all 2026–27 salaries…</div> : null}
+          {loadingPool ? <div className="empty-state">Loading NHL players, headshots and 2026–27 salaries…</div> : null}
           {!loadingPool && poolError ? <div className="empty-state error-state">{poolError}</div> : null}
           {!loadingPool && !poolError && filteredPlayers.length === 0 ? (
             <div className="empty-state">No players match that search.</div>

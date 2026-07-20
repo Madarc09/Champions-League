@@ -7,7 +7,7 @@ export const SALARY_CAP = 104_000_000;
 export const SCORING = {
   goals: 2.0,
   assists: 1.5,
-  hits: 1.0,
+  hits: 0.25,
   shots: 1.0
 };
 
