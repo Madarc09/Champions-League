@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllPlayers, searchPlayers } from "@/lib/nhl";
+import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import {
   canonicalPlayerName,
@@ -34,27 +34,35 @@ export async function GET(request) {
     return NextResponse.json({ players: [], message: "Enter at least two characters." });
   }
 
-  let salarySnapshot = null;
-  let salaryError = null;
-
-  const [allPlayers, salaryResult] = await Promise.all([
-    getAllPlayers(),
+  const [playerResult, salaryResult] = await Promise.all([
+    getPlayerPool()
+      .then((pool) => ({ pool, error: null }))
+      .catch((error) => ({ pool: null, error })),
     getCapSpaceSalarySnapshot()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error }))
   ]);
 
-  salarySnapshot = salaryResult.snapshot;
+  if (!playerResult.pool) {
+    return NextResponse.json(
+      {
+        error: playerResult.error?.message || "The complete NHL player pool could not be loaded."
+      },
+      { status: 502 }
+    );
+  }
+
+  const salarySnapshot = salaryResult.snapshot;
+  const salaryError = salaryResult.error?.message || null;
   if (salaryResult.error) {
     console.error("Salary snapshot unavailable:", salaryResult.error);
-    salaryError = salaryResult.error?.message || "Salary data could not be loaded.";
   }
 
   const matches = searchPlayers(
-    allPlayers,
+    playerResult.pool.players,
     leaderboardMode ? "" : search,
     position,
-    leaderboardMode ? 1000 : 80
+    leaderboardMode ? null : 100
   );
   const rankedMatches = attachFantasyRanks(matches);
   const storedOverrides = await getSalaryRecords(rankedMatches.map((player) => player.playerId));
@@ -77,6 +85,13 @@ export async function GET(request) {
 
   return NextResponse.json({
     players,
+    poolData: {
+      source: playerResult.pool.source,
+      updatedAt: playerResult.pool.updatedAt,
+      counts: playerResult.pool.counts,
+      stale: Boolean(playerResult.pool.stale),
+      warning: playerResult.pool.warning || null
+    },
     salaryData: {
       source: salarySnapshot?.source || null,
       sourceUrl: salarySnapshot?.sourceUrl || null,

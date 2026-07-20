@@ -511,3 +511,32 @@ h1, h2, h3, p { margin-top: 0; }
   .lineup-cap-summary strong { font-size: 0.92rem; }
   .lineup-cap-summary span { font-size: 0.52rem; }
 }
+
+/* Full NHL player-pool count strip */
+.player-pool-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin: -2px 0 14px;
+  color: #a8b7c9;
+  font-size: 0.72rem;
+}
+.player-pool-summary strong,
+.player-pool-summary span,
+.player-pool-summary em {
+  padding: 6px 9px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.035);
+  white-space: nowrap;
+}
+.player-pool-summary strong {
+  color: var(--gold-2);
+  border-color: rgba(222, 175, 79, 0.2);
+  background: rgba(222, 175, 79, 0.07);
+}
+.player-pool-summary em {
+  color: #ffd48a;
+  font-style: normal;
+}

@@ -6,7 +6,9 @@ A Vercel-ready Next.js site for the Champions League salary-cap fantasy league.
 
 - Home page standings with links for Joe, Lucas, Dan, Adam, Darren, Nick, Rob, and Ernie.
 - Individual draft room and saved roster page for every manager.
-- Complete 2025–26 NHL regular-season player leaderboard.
+- Complete 2025–26 NHL regular-season player pool—not a short leaders list.
+- Loads every NHL report row, with coverage checks for at least 300 forwards, 100 defence, and 90 goalies.
+- Displays live position counts above the draft table so incomplete data is immediately visible.
 - Click a player name to add him; click his name on the projected roster to remove him.
 - Search by player or NHL team.
 - Filters for all players, forwards, defence, and goalies.
@@ -138,7 +140,7 @@ components/RosterBuilder.js         Sortable draft room and projected lineup
 app/api/players/route.js            NHL stats plus full salary snapshot
 app/api/rosters/[team]/route.js     Shared roster loading and saving
 app/api/salaries/refresh/route.js   Forced salary refresh for an administrator
-lib/nhl.js                          2025–26 NHL statistics integration
+lib/nhl.js                          Complete 2025–26 NHL statistics integration, full-result fetching, coverage checks, and cached fallback
 lib/capspace-snapshot.js            League-wide 2026–27 salary loader and cache
 data/league-config.js               Teams, cap, roster limits, and scoring
 ```

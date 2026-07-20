@@ -307,6 +307,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
   const [salaryData, setSalaryData] = useState(null);
+  const [poolData, setPoolData] = useState(null);
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
   const [persistence, setPersistence] = useState("local");
@@ -323,6 +324,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         if (!response.ok) throw new Error(data.error || "Player pool could not be loaded.");
         if (!cancelled) {
           setPoolPlayers(data.players || []);
+          setPoolData(data.poolData || null);
           setSalaryData(data.salaryData || null);
         }
       } catch (error) {
@@ -416,6 +418,15 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       return matchesPosition && matchesQuery;
     });
   }, [poolPlayers, position, query]);
+
+  const poolCounts = useMemo(() => {
+    if (poolData?.counts) return poolData.counts;
+    return poolPlayers.reduce((counts, player) => {
+      counts[player.rosterType] = (counts[player.rosterType] || 0) + 1;
+      counts.total += 1;
+      return counts;
+    }, { F: 0, D: 0, G: 0, total: 0 });
+  }, [poolData, poolPlayers]);
 
   const counts = useMemo(() => players.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
@@ -536,7 +547,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             <div>
               <p className="eyebrow">2025–26 player leaderboard</p>
               <h2>Draft room</h2>
-              <p>Click a player&apos;s name to add him. Every column can be sorted, and the roster can be changed whenever needed before the deadline.</p>
+              <p>The table includes every player who appeared in the 2025–26 NHL regular season. Click a player&apos;s name to add him; every column can be sorted.</p>
             </div>
             <div className="scoring-badge scoring-badge-wide">
               <strong>Skaters</strong>
@@ -571,7 +582,18 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             </div>
           </div>
 
-          {loadingPool ? <div className="empty-state">Loading player statistics and all 2026–27 salaries…</div> : null}
+          {!loadingPool && !poolError ? (
+            <div className="player-pool-summary" aria-label="Complete player pool counts">
+              <strong>{poolCounts.total.toLocaleString()} players loaded</strong>
+              <span>{poolCounts.F.toLocaleString()} forwards</span>
+              <span>{poolCounts.D.toLocaleString()} defence</span>
+              <span>{poolCounts.G.toLocaleString()} goalies</span>
+              <span>Showing {filteredPlayers.length.toLocaleString()}</span>
+              {poolData?.stale ? <em>Using the last saved complete NHL snapshot</em> : null}
+            </div>
+          ) : null}
+
+          {loadingPool ? <div className="empty-state">Loading every 2025–26 NHL player and all 2026–27 salaries…</div> : null}
           {!loadingPool && poolError ? <div className="empty-state error-state">{poolError}</div> : null}
           {!loadingPool && !poolError && filteredPlayers.length === 0 ? (
             <div className="empty-state">No players match that search.</div>
