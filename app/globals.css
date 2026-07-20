@@ -807,20 +807,20 @@ h1, h2, h3, p { margin-top: 0; }
 /* These offsets follow the actual inside edges of the empty centre locker. */
 .nick-locker-roster-panel {
   position: absolute;
-  top: 13.15%;
-  right: 27.25%;
-  bottom: 19.1%;
-  left: 27.25%;
+  top: 12.9%;
+  right: 27.05%;
+  bottom: 18.8%;
+  left: 27.05%;
   display: grid;
-  grid-template-rows: auto minmax(0, 4fr) minmax(0, 2fr) minmax(0, 0.9fr);
+  grid-template-rows: auto minmax(0, 4.25fr) minmax(0, 2.15fr) minmax(0, 1.15fr);
   min-width: 0;
   min-height: 0;
-  padding: clamp(5px, 0.42cqw, 9px) clamp(7px, 0.54cqw, 12px) clamp(6px, 0.48cqw, 10px);
+  padding: clamp(3px, 0.25cqw, 6px) clamp(4px, 0.34cqw, 8px) clamp(4px, 0.3cqw, 7px);
   overflow: hidden;
-  border: 1px solid rgba(143,178,212,0.16);
+  border: 1px solid rgba(143,178,212,0.14);
   border-radius: clamp(3px, 0.28cqw, 6px);
-  background: linear-gradient(180deg, rgba(5,10,15,0.47), rgba(2,6,10,0.38));
-  box-shadow: inset 0 0 42px rgba(0,0,0,0.24);
+  background: linear-gradient(180deg, rgba(5,10,15,0.45), rgba(2,6,10,0.34));
+  box-shadow: inset 0 0 42px rgba(0,0,0,0.22);
 }
 
 .locker-compact-title {
@@ -828,49 +828,50 @@ h1, h2, h3, p { margin-top: 0; }
   align-items: baseline;
   justify-content: space-between;
   min-width: 0;
-  padding: 0 clamp(2px, 0.2cqw, 5px) clamp(3px, 0.28cqw, 6px);
-  border-bottom: 1px solid rgba(255,255,255,0.13);
+  padding: 0 clamp(2px, 0.16cqw, 4px) clamp(2px, 0.16cqw, 4px);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 .locker-compact-title strong {
   color: #f5f7fa;
-  font-size: clamp(9px, 0.69cqw, 14px);
+  font-size: clamp(12px, 0.9cqw, 18px);
   line-height: 1;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.055em;
 }
 .locker-compact-title span {
   color: #9db9d3;
-  font-size: clamp(5.5px, 0.4cqw, 8px);
+  font-size: clamp(8px, 0.57cqw, 11px);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.09em;
 }
 
 .locker-card-group {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
-  padding-top: clamp(3px, 0.24cqw, 5px);
+  padding-top: clamp(1px, 0.1cqw, 3px);
 }
 .locker-card-group + .locker-card-group {
-  border-top: 1px solid rgba(255,255,255,0.075);
+  border-top: 1px solid rgba(255,255,255,0.07);
 }
 .locker-card-group-title {
   display: flex;
   align-items: center;
-  min-height: clamp(10px, 0.68cqw, 14px);
-  margin-bottom: clamp(2px, 0.18cqw, 4px);
+  min-height: clamp(9px, 0.56cqw, 12px);
+  margin-bottom: 0;
 }
 .locker-card-group-title span {
   color: #c7d8e8;
-  font-size: clamp(5.5px, 0.42cqw, 8.5px);
+  font-size: clamp(8px, 0.58cqw, 11.5px);
   font-weight: 950;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.11em;
+  line-height: 1;
 }
 
 .locker-player-card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(4, minmax(0, 1fr));
-  gap: clamp(2px, 0.2cqw, 4px) clamp(5px, 0.42cqw, 9px);
+  gap: clamp(1px, 0.09cqw, 2px) clamp(2px, 0.16cqw, 4px);
   min-height: 0;
 }
 .locker-card-group-d .locker-player-card-grid {
@@ -879,7 +880,7 @@ h1, h2, h3, p { margin-top: 0; }
 .locker-goalie-card-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: minmax(0, 1fr);
-  width: 66.2%;
+  width: 68%;
   margin-inline: auto;
 }
 
@@ -888,17 +889,17 @@ h1, h2, h3, p { margin-top: 0; }
   grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
-  padding: clamp(2px, 0.2cqw, 4px) clamp(3px, 0.28cqw, 6px);
+  padding: clamp(1px, 0.09cqw, 2px) clamp(2px, 0.14cqw, 3px);
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.055);
-  border-radius: clamp(2px, 0.22cqw, 5px);
-  background: linear-gradient(135deg, rgba(8,19,30,0.68), rgba(3,8,13,0.48));
+  border: 1px solid rgba(255,255,255,0.045);
+  border-radius: clamp(2px, 0.16cqw, 4px);
+  background: linear-gradient(135deg, rgba(8,19,30,0.63), rgba(3,8,13,0.43));
 }
 .locker-player-card:nth-child(even) {
-  background: linear-gradient(135deg, rgba(11,24,38,0.69), rgba(3,8,13,0.5));
+  background: linear-gradient(135deg, rgba(11,24,38,0.64), rgba(3,8,13,0.45));
 }
 .locker-player-card-empty {
-  opacity: 0.44;
+  opacity: 0.42;
   border-style: dashed;
 }
 
@@ -907,20 +908,21 @@ h1, h2, h3, p { margin-top: 0; }
   min-width: 0;
   overflow: hidden;
   color: #f5f7fa;
-  font-size: clamp(6.4px, 0.49cqw, 10px);
-  line-height: 1.06;
+  font-size: clamp(12px, 1cqw, 18px);
+  font-weight: 950;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .locker-card-content {
   display: grid;
-  grid-template-columns: clamp(31px, 2.65cqw, 52px) minmax(0, 1fr);
+  grid-template-columns: clamp(50px, 4.05cqw, 78px) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(3px, 0.32cqw, 7px);
+  gap: clamp(2px, 0.14cqw, 4px);
   min-width: 0;
   min-height: 0;
-  padding-top: clamp(1px, 0.1cqw, 2px);
+  padding-top: 0;
 }
 .locker-card-portrait-stack {
   display: grid;
@@ -936,9 +938,9 @@ h1, h2, h3, p { margin-top: 0; }
   place-items: end center;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid rgba(178,204,228,0.27);
-  border-radius: clamp(1px, 0.16cqw, 3px);
-  background: radial-gradient(circle at 50% 30%, rgba(70,126,180,0.3), rgba(8,17,26,0.72));
+  border: 1px solid rgba(178,204,228,0.25);
+  border-radius: clamp(1px, 0.13cqw, 3px);
+  background: radial-gradient(circle at 50% 30%, rgba(70,126,180,0.28), rgba(8,17,26,0.68));
 }
 .locker-card-portrait-frame img,
 .locker-card-empty-portrait img {
@@ -948,41 +950,50 @@ h1, h2, h3, p { margin-top: 0; }
   object-fit: contain;
   object-position: center bottom;
 }
-.locker-card-empty-portrait img { opacity: 0.55; }
+.locker-card-empty-portrait img { opacity: 0.5; }
 .locker-card-total {
   display: block;
-  padding-top: clamp(1px, 0.1cqw, 2px);
+  padding-top: 0;
   color: #f0c96f;
-  font-size: clamp(5.8px, 0.44cqw, 9px);
+  font-size: clamp(10px, 0.78cqw, 14px);
   font-weight: 950;
   line-height: 1;
 }
 
 .locker-card-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-content: center;
-  gap: clamp(1px, 0.1cqw, 2px) clamp(3px, 0.28cqw, 6px);
+  gap: 0;
   min-width: 0;
 }
 .locker-mini-stat {
-  display: flex;
-  justify-content: space-between;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  justify-content: start;
+  align-items: baseline;
+  column-gap: clamp(2px, 0.13cqw, 4px);
   min-width: 0;
   color: #d9e3ec;
-  font-size: clamp(5.5px, 0.42cqw, 8.5px);
+  font-size: clamp(10px, 0.88cqw, 15px);
   line-height: 1.02;
+  white-space: nowrap;
 }
 .locker-mini-stat b {
   color: #91b4d5;
-  font-weight: 900;
+  font-weight: 950;
 }
 .locker-mini-stat em {
-  overflow: hidden;
   color: #f3f6f8;
   font-style: normal;
-  font-weight: 850;
+  font-weight: 900;
+}
+.locker-mini-stat small {
+  min-width: 0;
+  overflow: hidden;
+  color: #f0c96f;
+  font-size: 0.78em;
+  font-weight: 900;
   text-overflow: ellipsis;
 }
 

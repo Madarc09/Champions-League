@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 
 const TEAM_SLUG = "nick";
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
@@ -32,11 +33,20 @@ function fantasyTotal(player) {
   return Number(player?.fantasyPoints || 0).toFixed(1);
 }
 
-function Stat({ label, value }) {
+function formatFantasyValue(value) {
+  if (value === "—") return "—";
+  const number = Number(value || 0);
+  if (!Number.isFinite(number)) return "0";
+  const normalized = Object.is(number, -0) ? 0 : number;
+  return normalized.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+}
+
+function Stat({ label, value, fantasyPoints }) {
   return (
     <span className="locker-mini-stat">
       <b>{label}</b>
       <em>{value}</em>
+      <small>{formatFantasyValue(fantasyPoints)} FPTS</small>
     </span>
   );
 }
@@ -55,7 +65,7 @@ function PlayerCard({ player, goalie = false, slotNumber }) {
           </div>
           <div className="locker-card-stats" aria-hidden="true">
             {(goalie ? ["SV", "GA", "W", "G", "A"] : ["G", "A", "H", "SOG"]).map((label) => (
-              <Stat key={label} label={`${label}:`} value="—" />
+              <Stat key={label} label={`${label}:`} value="—" fantasyPoints="—" />
             ))}
           </div>
         </div>
@@ -83,18 +93,18 @@ function PlayerCard({ player, goalie = false, slotNumber }) {
         <div className="locker-card-stats">
           {goalie ? (
             <>
-              <Stat label="SV:" value={numberValue(player, "saves")} />
-              <Stat label="GA:" value={numberValue(player, "goalsAgainst")} />
-              <Stat label="W:" value={numberValue(player, "wins")} />
-              <Stat label="G:" value={numberValue(player, "goals")} />
-              <Stat label="A:" value={numberValue(player, "assists")} />
+              <Stat label="SV:" value={numberValue(player, "saves")} fantasyPoints={numberValue(player, "saves") * GOALIE_SCORING.saves} />
+              <Stat label="GA:" value={numberValue(player, "goalsAgainst")} fantasyPoints={numberValue(player, "goalsAgainst") * GOALIE_SCORING.goalsAgainst} />
+              <Stat label="W:" value={numberValue(player, "wins")} fantasyPoints={numberValue(player, "wins") * GOALIE_SCORING.wins} />
+              <Stat label="G:" value={numberValue(player, "goals")} fantasyPoints={numberValue(player, "goals") * GOALIE_SCORING.goals} />
+              <Stat label="A:" value={numberValue(player, "assists")} fantasyPoints={numberValue(player, "assists") * GOALIE_SCORING.assists} />
             </>
           ) : (
             <>
-              <Stat label="G:" value={numberValue(player, "goals")} />
-              <Stat label="A:" value={numberValue(player, "assists")} />
-              <Stat label="H:" value={numberValue(player, "hits")} />
-              <Stat label="SOG:" value={numberValue(player, "shots")} />
+              <Stat label="G:" value={numberValue(player, "goals")} fantasyPoints={numberValue(player, "goals") * SCORING.goals} />
+              <Stat label="A:" value={numberValue(player, "assists")} fantasyPoints={numberValue(player, "assists") * SCORING.assists} />
+              <Stat label="H:" value={numberValue(player, "hits")} fantasyPoints={numberValue(player, "hits") * SCORING.hits} />
+              <Stat label="SOG:" value={numberValue(player, "shots")} fantasyPoints={numberValue(player, "shots") * SCORING.shots} />
             </>
           )}
         </div>
