@@ -138,8 +138,6 @@ function RosterGroup({ title, players, type, limit }) {
 
 export default function NickLockerRoom() {
   const [players, setPlayers] = useState([]);
-  const [status, setStatus] = useState("Loading Nick's saved roster…");
-  const [updatedAt, setUpdatedAt] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -147,14 +145,7 @@ export default function NickLockerRoom() {
     async function loadRoster() {
       const local = loadLocalRoster();
       let roster = local?.players || [];
-      let rosterUpdatedAt = local?.updatedAt || null;
-      let source = roster.length ? "browser" : "none";
-
-      if (roster.length && !cancelled) {
-        setPlayers(roster);
-        setUpdatedAt(rosterUpdatedAt);
-        setStatus("Showing the roster saved in this browser.");
-      }
+      if (roster.length && !cancelled) setPlayers(roster);
 
       try {
         const response = await fetch(`/api/rosters/${TEAM_SLUG}`, {
@@ -164,8 +155,6 @@ export default function NickLockerRoom() {
         const data = await response.json();
         if (response.ok && data.roster?.players) {
           roster = data.roster.players;
-          rosterUpdatedAt = data.roster.updatedAt || rosterUpdatedAt;
-          source = "shared";
         }
       } catch {
         // Browser roster remains the fallback.
@@ -173,14 +162,6 @@ export default function NickLockerRoom() {
 
       if (cancelled) return;
       setPlayers(roster);
-      setUpdatedAt(rosterUpdatedAt);
-      if (source === "shared") {
-        setStatus("Showing Nick's shared saved roster.");
-      } else if (source === "browser") {
-        setStatus("Showing the roster saved in this browser.");
-      } else {
-        setStatus("No players have been saved yet. Add them in Nick's Draft Room.");
-      }
 
       if (!roster.length) return;
 
@@ -214,13 +195,7 @@ export default function NickLockerRoom() {
   }), [players]);
 
   return (
-    <>
-      <div className="locker-room-status">
-        <span>{status}</span>
-        {updatedAt ? <small>Last saved {new Date(updatedAt).toLocaleString()}</small> : null}
-      </div>
-
-      <div className="nick-locker-viewport" aria-label="Nick's locker room">
+    <div className="nick-locker-viewport" aria-label="Nick's locker room">
         <div className="nick-locker-stage">
           <div className="nick-locker-roster-panel">
             <div className="locker-compact-title">
@@ -234,6 +209,5 @@ export default function NickLockerRoom() {
           </div>
         </div>
       </div>
-    </>
   );
 }

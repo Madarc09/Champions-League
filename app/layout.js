@@ -1,4 +1,5 @@
 import "./globals.css";
+import SiteHeader from "@/components/SiteHeader";
 
 export const metadata = {
   title: "Champions League Fantasy Hockey",
@@ -10,16 +11,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <div className="site-shell">
-          <header className="site-header">
-            <a className="brand" href="/" aria-label="Champions League home">
-              <span className="brand-mark">CL</span>
-              <span>
-                <strong>Champions League</strong>
-                <small>Fantasy Hockey</small>
-              </span>
-            </a>
-            <a className="header-link" href="/">Standings</a>
-          </header>
+          <SiteHeader />
           <main>{children}</main>
           <footer className="site-footer">
             Champions League · 2026–27 salary-cap season

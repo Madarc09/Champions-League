@@ -28,12 +28,6 @@ export default async function TeamPage({ params }) {
           <p>
             Use the 2025–26 fantasy leaderboard to draft a legal 20-player lineup under the 2026–27 salary cap.
           </p>
-          {team.slug === "nick" ? (
-            <nav className="team-room-nav" aria-label="Nick team pages">
-              <a className="active" href="/team/nick" aria-current="page">Draft Room</a>
-              <a href="/team/nick/locker-room">Locker Room</a>
-            </nav>
-          ) : null}
         </div>
         <div className="manager-crest">{team.name.slice(0, 1)}</div>
       </section>
