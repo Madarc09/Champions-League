@@ -122,6 +122,8 @@ function RosterGroup({ title, players, type, limit, onOpen }) {
 function HockeyCardOverlay({ selection, onClose }) {
   const { player, goalie } = selection;
   const rows = statRows(player, goalie);
+  const cardNumber = String(player.playerId || "00").slice(-3).padStart(3, "0");
+  const rosterLabel = goalie ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD";
 
   useEffect(() => {
     function closeOnEscape(event) {
@@ -140,41 +142,72 @@ function HockeyCardOverlay({ selection, onClose }) {
       }}
     >
       <article
-        className="locker-hockey-card"
+        className="locker-hockey-card run-for-cup-card"
         role="dialog"
         aria-modal="true"
         aria-label={`${player.name} statistics card`}
       >
         <button className="locker-hockey-card-close" type="button" onClick={onClose} aria-label="Close player card">×</button>
 
-        <header className="locker-hockey-card-header">
-          <small>{player.teamAbbrev || player.team || "NHL"}</small>
-          <strong>{player.name}</strong>
-          <span>{goalie ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD"}</span>
+        <header className="run-card-topline">
+          <span>CL{cardNumber}</span>
+          <b>CHAMPIONS LEAGUE · CUP CHASE</b>
+          <span>2025–26</span>
         </header>
 
-        <div className="locker-hockey-card-portrait">
-          <img
-            src={player.headshot || FALLBACK_HEADSHOT}
-            alt={`${player.name} headshot`}
-            onError={handleHeadshotError}
-          />
-          <span className="locker-hockey-card-season">2025–26</span>
-        </div>
-
-        <div className="locker-hockey-card-stats">
-          {rows.map(([label, raw, points]) => (
-            <div className="locker-hockey-card-stat" key={label}>
-              <b>{label}</b>
-              <em>{raw}</em>
-              <small>{compactNumber(points)} FPTS</small>
+        <div className="run-card-main">
+          <section className="run-card-photo-side" aria-label={`${player.name} portrait`}>
+            <div className="run-card-photo-ring">
+              <div className="run-card-photo-window">
+                <img
+                  src={player.headshot || FALLBACK_HEADSHOT}
+                  alt={`${player.name} headshot`}
+                  onError={handleHeadshotError}
+                />
+              </div>
             </div>
-          ))}
+            <span className="run-card-photo-caption">RUN FOR THE CUP</span>
+          </section>
+
+          <section className="run-card-info-side">
+            <div className="run-card-player-heading">
+              <div>
+                <small>{player.teamAbbrev || player.team || "NHL"} · {rosterLabel}</small>
+                <strong>{player.name}</strong>
+              </div>
+              {player.teamLogo ? (
+                <img className="run-card-team-logo" src={player.teamLogo} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+              ) : null}
+            </div>
+
+            <p className="run-card-copy">
+              Nick&apos;s 2026 Champions League roster card, featuring the player&apos;s complete 2025–26 fantasy scoring breakdown.
+            </p>
+
+            <div className="run-card-stat-table">
+              <div className="run-card-stat-heading">
+                <span>STAT</span><span>TOTAL</span><span>FPTS</span>
+              </div>
+              {rows.map(([label, raw, points]) => (
+                <div className="run-card-stat-row" key={label}>
+                  <b>{label}</b>
+                  <em>{raw}</em>
+                  <strong>{compactNumber(points)}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="run-card-total-row">
+              <span>TOTAL FANTASY POINTS</span>
+              <strong>{fantasyTotal(player)}</strong>
+            </div>
+          </section>
         </div>
 
-        <footer className="locker-hockey-card-total">
-          <span>TOTAL FANTASY POINTS</span>
-          <strong>{fantasyTotal(player)}</strong>
+        <footer className="run-card-footer">
+          <span>NICK&apos;S LOCKER · ROSTER EDITION</span>
+          <b>{cardNumber}/2026</b>
+          <span>CHAMPIONS LEAGUE FANTASY HOCKEY</span>
         </footer>
       </article>
     </div>
@@ -241,11 +274,6 @@ export default function NickLockerRoom() {
     <div className="nick-locker-viewport" aria-label="Nick's locker room">
       <div className="nick-locker-stage">
         <div className="nick-locker-roster-panel">
-          <div className="locker-compact-title">
-            <strong>PROJECTED LINEUP</strong>
-            <span>SELECT A PLAYER FOR THE FULL HOCKEY CARD</span>
-          </div>
-
           <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
           <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
           <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />

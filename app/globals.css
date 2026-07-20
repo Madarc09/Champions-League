@@ -1454,3 +1454,343 @@ body:has(.locker-page-root) .site-header {
   .locker-hockey-card-overlay { place-items: start center; padding-top: 22px; }
   .locker-hockey-card { width: min(360px, 82vw); max-height: 92%; }
 }
+
+/* 1996-era black-and-gold cup-chase inspired roster card treatment. */
+.nick-locker-roster-panel {
+  left: 27.1%;
+  right: 24.2%;
+  grid-template-rows: minmax(0, 3.28fr) minmax(0, 2.22fr) minmax(0, 1.12fr);
+}
+
+.locker-card-group-title {
+  font-size: clamp(11px, 0.9cqw, 18px);
+}
+
+.locker-hockey-card.run-for-cup-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: clamp(560px, 49cqw, 860px);
+  max-width: 92%;
+  max-height: 82%;
+  aspect-ratio: 1.43;
+  overflow: hidden;
+  border: clamp(3px, 0.26cqw, 6px) solid #bd932b;
+  border-radius: clamp(8px, 0.62cqw, 13px);
+  color: #17120a;
+  background:
+    radial-gradient(circle at 17% 8%, rgba(255,255,255,0.8), transparent 23%),
+    linear-gradient(100deg, #f8e8a9 0%, #e4c567 47%, #f4dfa0 100%);
+  box-shadow:
+    0 34px 84px rgba(0,0,0,0.82),
+    inset 0 0 0 2px rgba(255,255,255,0.48),
+    inset 0 0 0 5px rgba(95,66,13,0.18),
+    inset 0 0 55px rgba(119,75,8,0.2);
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 97% 100%, 0 100%);
+  transform-origin: 50% 82%;
+  animation: lockerCardFlipUp 0.48s cubic-bezier(.18,.75,.25,1) both;
+}
+
+.locker-hockey-card.run-for-cup-card::before {
+  inset: clamp(7px, 0.58cqw, 12px);
+  border: 1px solid rgba(70,49,9,0.44);
+  border-radius: clamp(5px, 0.43cqw, 9px);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
+}
+
+.locker-hockey-card.run-for-cup-card::after {
+  right: -12%;
+  bottom: 4%;
+  width: 62%;
+  height: 16%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+  transform: rotate(-18deg);
+}
+
+.run-card-topline {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(8px, 0.7cqw, 14px);
+  padding: clamp(9px, 0.7cqw, 14px) clamp(17px, 1.35cqw, 27px) clamp(6px, 0.48cqw, 10px);
+  border-bottom: 1px solid rgba(75,52,11,0.35);
+  color: #2a2110;
+  font-size: clamp(8px, 0.58cqw, 12px);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+}
+
+.run-card-topline b {
+  overflow: hidden;
+  color: #161108;
+  font-size: clamp(9px, 0.68cqw, 14px);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-card-main {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 47%) minmax(0, 53%);
+  min-height: 0;
+}
+
+.run-card-photo-side {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(8px, 0.75cqw, 15px) clamp(8px, 0.75cqw, 15px) clamp(14px, 1.05cqw, 22px) clamp(12px, 1cqw, 20px);
+}
+
+.run-card-photo-ring {
+  display: grid;
+  place-items: center;
+  width: min(94%, 38cqh);
+  max-width: 100%;
+  aspect-ratio: 1;
+  padding: clamp(6px, 0.55cqw, 11px);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #7f631d, #f7e9a6 44%, #8d6b1c 70%, #f2da86);
+  box-shadow:
+    0 8px 22px rgba(50,32,4,0.34),
+    inset 0 0 0 1px rgba(255,255,255,0.72),
+    inset 0 0 22px rgba(103,70,12,0.4);
+}
+
+.run-card-photo-window {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(247,230,161,0.46);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 49% 35%, rgba(43,59,73,0.92), rgba(1,6,10,0.98) 69%),
+    #03070a;
+  box-shadow: inset 0 0 42px #000;
+}
+
+.run-card-photo-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 45% 28%, rgba(255,255,255,0.14), transparent 31%);
+  pointer-events: none;
+}
+
+.run-card-photo-window img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 92%;
+  height: 96%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: contrast(1.05) saturate(0.92) drop-shadow(0 7px 9px rgba(0,0,0,0.48));
+}
+
+.run-card-photo-caption {
+  position: absolute;
+  left: clamp(7px, 0.55cqw, 11px);
+  bottom: clamp(7px, 0.5cqw, 10px);
+  color: #3b2b0a;
+  font-size: clamp(8px, 0.58cqw, 12px);
+  font-weight: 950;
+  letter-spacing: 0.16em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.run-card-info-side {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(11px, 0.9cqw, 18px) clamp(17px, 1.4cqw, 28px) clamp(10px, 0.8cqw, 16px) clamp(8px, 0.7cqw, 14px);
+  border-left: 1px solid rgba(70,49,9,0.24);
+}
+
+.run-card-player-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(8px, 0.7cqw, 14px);
+  min-width: 0;
+}
+
+.run-card-player-heading > div {
+  min-width: 0;
+}
+
+.run-card-player-heading small {
+  display: block;
+  color: #5a4517;
+  font-size: clamp(8px, 0.62cqw, 12px);
+  font-weight: 950;
+  letter-spacing: 0.13em;
+}
+
+.run-card-player-heading strong {
+  display: block;
+  margin-top: clamp(2px, 0.15cqw, 3px);
+  overflow: hidden;
+  color: #171108;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(24px, 2.05cqw, 40px);
+  font-style: italic;
+  line-height: 0.95;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+.run-card-team-logo {
+  display: block;
+  width: clamp(33px, 2.8cqw, 54px);
+  height: clamp(33px, 2.8cqw, 54px);
+  object-fit: contain;
+  filter: sepia(0.15) saturate(0.82) contrast(1.05);
+}
+
+.run-card-copy {
+  margin: clamp(6px, 0.5cqw, 10px) 0 clamp(7px, 0.55cqw, 11px);
+  color: #443616;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(9px, 0.68cqw, 13px);
+  font-weight: 650;
+  line-height: 1.22;
+}
+
+.run-card-stat-table {
+  align-self: stretch;
+  min-height: 0;
+  border-top: 2px solid rgba(60,42,9,0.76);
+  border-bottom: 2px solid rgba(60,42,9,0.76);
+}
+
+.run-card-stat-heading,
+.run-card-stat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(46px, 0.42fr) minmax(58px, 0.56fr);
+  align-items: center;
+  gap: clamp(5px, 0.42cqw, 8px);
+}
+
+.run-card-stat-heading {
+  padding: clamp(3px, 0.28cqw, 5px) clamp(4px, 0.32cqw, 6px);
+  color: #f8e9b1;
+  background: #17130c;
+  font-size: clamp(7px, 0.52cqw, 10px);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+}
+
+.run-card-stat-heading span:nth-child(n+2) {
+  text-align: right;
+}
+
+.run-card-stat-row {
+  padding: clamp(4px, 0.32cqw, 6px) clamp(4px, 0.32cqw, 6px);
+  border-top: 1px solid rgba(67,48,13,0.22);
+  color: #2f250f;
+  font-size: clamp(10px, 0.75cqw, 14px);
+  line-height: 1;
+}
+
+.run-card-stat-row:nth-child(odd) {
+  background: rgba(255,255,255,0.17);
+}
+
+.run-card-stat-row b {
+  overflow: hidden;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-card-stat-row em,
+.run-card-stat-row strong {
+  font-style: normal;
+  font-weight: 950;
+  text-align: right;
+}
+
+.run-card-stat-row strong {
+  color: #6a4710;
+}
+
+.run-card-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: clamp(7px, 0.55cqw, 11px);
+  color: #2b210d;
+}
+
+.run-card-total-row span {
+  font-size: clamp(8px, 0.6cqw, 12px);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.run-card-total-row strong {
+  color: #171108;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 2.35cqw, 46px);
+  font-style: italic;
+  line-height: 0.9;
+}
+
+.run-card-footer {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(8px, 0.7cqw, 14px);
+  padding: clamp(7px, 0.55cqw, 11px) clamp(17px, 1.35cqw, 27px) clamp(9px, 0.7cqw, 14px);
+  border-top: 1px solid rgba(75,52,11,0.36);
+  color: #4a3813;
+  font-size: clamp(7px, 0.5cqw, 10px);
+  font-weight: 900;
+  letter-spacing: 0.075em;
+}
+
+.run-card-footer b {
+  color: #171108;
+  font-family: "Courier New", monospace;
+  font-size: clamp(13px, 1.05cqw, 20px);
+  font-style: italic;
+  transform: rotate(-4deg);
+}
+
+.run-card-footer span:last-child {
+  text-align: right;
+}
+
+.locker-hockey-card.run-for-cup-card .locker-hockey-card-close {
+  top: clamp(8px, 0.62cqw, 12px);
+  right: clamp(8px, 0.62cqw, 12px);
+  border-color: rgba(58,40,9,0.48);
+  color: #f7e8ad;
+  background: #17130c;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.32);
+}
+
+@media (max-width: 720px) {
+  .locker-hockey-card.run-for-cup-card {
+    width: min(900px, 94vw);
+    max-height: 88%;
+  }
+  .run-card-copy { display: none; }
+  .run-card-info-side { grid-template-rows: auto minmax(0, 1fr) auto; }
+}

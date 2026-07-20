@@ -165,3 +165,8 @@ Nick's Locker Room now displays compact hockey-card fronts with only the player 
 ## Nick locker card update
 
 The locker front now displays each complete NHL headshot with only the player name and total fantasy points. Selecting a player opens a large animated hockey card with the full 2025–26 stat and fantasy-point breakdown. Close the card with the × button, the Escape key, or by selecting the shaded background.
+
+## Nick locker card design update
+- Removed the projected-lineup instruction strip from the locker.
+- Shifted the full roster grid slightly left to align with the empty locker opening.
+- Reworked the player popup into an original black-and-gold, circular-photo, landscape hockey-card design inspired by premium mid-1990s cup-chase inserts. It does not use copied card artwork, logos, or scans.
