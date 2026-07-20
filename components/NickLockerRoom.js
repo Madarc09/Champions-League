@@ -6,6 +6,14 @@ import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 const TEAM_SLUG = "nick";
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
 const SLOT_LIMITS = { F: 12, D: 6, G: 2 };
+const RANKING_SOURCE_ORDER = ["nhl", "espn", "yahoo", "cbs", "champions"];
+const RANKING_LABELS = {
+  nhl: "NHL.com",
+  espn: "ESPN",
+  yahoo: "Yahoo",
+  cbs: "CBS",
+  champions: "CL Rank"
+};
 
 function localRosterKey() {
   return `champions-league:roster:${TEAM_SLUG}:2026-27`;
@@ -57,6 +65,66 @@ function statRows(player, goalie) {
     ["Hits", numberValue(player, "hits"), numberValue(player, "hits") * SCORING.hits],
     ["Shots", numberValue(player, "shots"), numberValue(player, "shots") * SCORING.shots]
   ];
+}
+
+function rankedSources(rankings) {
+  return RANKING_SOURCE_ORDER
+    .filter((source) => source !== "champions" && Number.isFinite(Number(rankings?.[source])))
+    .map((source) => ({ source, rank: Number(rankings[source]) }));
+}
+
+function sourceDisplayName(source) {
+  return RANKING_LABELS[source] || source;
+}
+
+function createPlayerSynopsis(player, goalie, rankings) {
+  const publicRanks = rankedSources(rankings);
+  const championRank = Number(rankings?.champions) || null;
+  const total = fantasyTotal(player);
+  const rows = statRows(player, goalie);
+  const positiveRows = rows.filter(([, , points]) => Number(points) > 0);
+  const leading = positiveRows.sort((a, b) => Number(b[2]) - Number(a[2]))[0] || null;
+  const parts = [];
+
+  if (publicRanks.length) {
+    const average = publicRanks.reduce((sum, item) => sum + item.rank, 0) / publicRanks.length;
+    const best = [...publicRanks].sort((a, b) => a.rank - b.rank)[0];
+    const lowest = [...publicRanks].sort((a, b) => b.rank - a.rank)[0];
+    if (publicRanks.length === 1) {
+      parts.push(`${sourceDisplayName(best.source)} currently ranks ${player.name} No. ${best.rank}.`);
+    } else if (best.source === lowest.source) {
+      parts.push(`${publicRanks.length} public rankings place ${player.name} at an average of No. ${average.toFixed(1)}.`);
+    } else {
+      parts.push(`${publicRanks.length} public rankings average ${player.name} at No. ${average.toFixed(1)}; ${sourceDisplayName(best.source)} is highest at No. ${best.rank}, while ${sourceDisplayName(lowest.source)} has him No. ${lowest.rank}.`);
+    }
+  } else {
+    parts.push(`${player.name} is not currently listed by the available public ranking sources.`);
+  }
+
+  if (Number(player?.gamesPlayed || 0) === 0 && Number(player?.fantasyPoints || 0) === 0) {
+    parts.push(`He has no 2025–26 NHL fantasy production yet, so his preseason rankings are the more useful guide.`);
+  } else {
+    const rankText = championRank ? `No. ${championRank}` : "outside the current ranked pool";
+    const driver = leading ? `, led by ${leading[0].toLowerCase()} worth ${compactNumber(leading[2])} FPTS` : "";
+    parts.push(`Under Champions League scoring, his ${total} FPTS ranked ${rankText} based on 2025–26 results${driver}.`);
+  }
+
+  return parts.join(" ");
+}
+
+function RankingTile({ source, rank, sourceInfo, loading }) {
+  const content = (
+    <>
+      <span>{sourceDisplayName(source)}</span>
+      <strong>{loading ? "…" : rank ? `#${rank}` : "NR"}</strong>
+      <small>{sourceInfo?.season || (source === "champions" ? "2025–26" : "2026–27")}</small>
+    </>
+  );
+
+  if (sourceInfo?.url) {
+    return <a className="run-card-rank-tile" href={sourceInfo.url} target="_blank" rel="noreferrer">{content}</a>;
+  }
+  return <div className="run-card-rank-tile">{content}</div>;
 }
 
 function EmptyCard({ slotNumber }) {
@@ -119,9 +187,13 @@ function RosterGroup({ title, players, type, limit, onOpen }) {
   );
 }
 
-function HockeyCardOverlay({ selection, onClose }) {
+function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading }) {
   const { player, goalie } = selection;
   const rows = statRows(player, goalie);
+  const rankings = rankingData?.players?.[player.name] || {};
+  const synopsis = rankingLoading
+    ? "Loading the latest public ranking comparison and Champions League synopsis…"
+    : createPlayerSynopsis(player, goalie, rankings);
   const cardNumber = String(player.playerId || "00").slice(-3).padStart(3, "0");
   const rosterLabel = goalie ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD";
 
@@ -180,9 +252,19 @@ function HockeyCardOverlay({ selection, onClose }) {
               ) : null}
             </div>
 
-            <p className="run-card-copy">
-              Nick&apos;s 2026 Champions League roster card, featuring the player&apos;s complete 2025–26 fantasy scoring breakdown.
-            </p>
+            <div className="run-card-rank-strip" aria-label={`${player.name} fantasy rankings`}>
+              {RANKING_SOURCE_ORDER.map((source) => (
+                <RankingTile
+                  key={source}
+                  source={source}
+                  rank={rankings[source]}
+                  sourceInfo={rankingData?.sources?.[source]}
+                  loading={rankingLoading}
+                />
+              ))}
+            </div>
+
+            <p className="run-card-copy run-card-synopsis">{synopsis}</p>
 
             <div className="run-card-stat-table">
               <div className="run-card-stat-heading">
@@ -217,6 +299,8 @@ function HockeyCardOverlay({ selection, onClose }) {
 export default function NickLockerRoom() {
   const [players, setPlayers] = useState([]);
   const [selection, setSelection] = useState(null);
+  const [rankingData, setRankingData] = useState(null);
+  const [rankingLoading, setRankingLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -264,6 +348,35 @@ export default function NickLockerRoom() {
     return () => { cancelled = true; };
   }, []);
 
+  const rosterNameKey = useMemo(
+    () => players.map((player) => player.name).filter(Boolean).sort().join("|"),
+    [players]
+  );
+
+  useEffect(() => {
+    if (!rosterNameKey) return;
+    let cancelled = false;
+    setRankingLoading(true);
+
+    fetch(`/api/rankings?name=${encodeURIComponent(rosterNameKey)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(45000)
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Rankings could not be loaded.");
+        if (!cancelled) setRankingData(data);
+      })
+      .catch((error) => {
+        console.error("Ranking synopsis unavailable:", error);
+      })
+      .finally(() => {
+        if (!cancelled) setRankingLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [rosterNameKey]);
+
   const groups = useMemo(() => ({
     F: players.filter((player) => player.rosterType === "F"),
     D: players.filter((player) => player.rosterType === "D"),
@@ -279,7 +392,14 @@ export default function NickLockerRoom() {
           <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
         </div>
 
-        {selection ? <HockeyCardOverlay selection={selection} onClose={() => setSelection(null)} /> : null}
+        {selection ? (
+          <HockeyCardOverlay
+            selection={selection}
+            onClose={() => setSelection(null)}
+            rankingData={rankingData}
+            rankingLoading={rankingLoading}
+          />
+        ) : null}
       </div>
     </div>
   );

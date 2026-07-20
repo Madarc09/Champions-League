@@ -1794,3 +1794,86 @@ body:has(.locker-page-root) .site-header {
   .run-card-copy { display: none; }
   .run-card-info-side { grid-template-rows: auto minmax(0, 1fr) auto; }
 }
+
+/* Multi-source fantasy ranking synopsis inside Nick's cup-chase card. */
+.run-card-info-side {
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+}
+
+.run-card-rank-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(3px, 0.28cqw, 6px);
+  margin: clamp(6px, 0.48cqw, 9px) 0 clamp(5px, 0.42cqw, 8px);
+}
+
+.run-card-rank-tile {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  min-width: 0;
+  padding: clamp(4px, 0.34cqw, 7px) clamp(3px, 0.28cqw, 6px);
+  overflow: hidden;
+  border: 1px solid rgba(65, 45, 10, 0.38);
+  border-radius: clamp(3px, 0.28cqw, 6px);
+  color: #241a09;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,0.34), rgba(112,75,13,0.08)),
+    rgba(247,226,154,0.42);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.24);
+  text-align: center;
+  text-decoration: none;
+}
+
+.run-card-rank-tile:hover {
+  background:
+    linear-gradient(155deg, rgba(255,255,255,0.5), rgba(112,75,13,0.12)),
+    rgba(247,226,154,0.58);
+}
+
+.run-card-rank-tile span {
+  overflow: hidden;
+  font-size: clamp(6px, 0.47cqw, 9px);
+  font-weight: 950;
+  letter-spacing: 0.035em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-card-rank-tile strong {
+  margin: clamp(2px, 0.14cqw, 3px) 0 1px;
+  color: #171108;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(16px, 1.22cqw, 24px);
+  font-style: italic;
+  line-height: 0.95;
+}
+
+.run-card-rank-tile small {
+  overflow: hidden;
+  color: #6b5118;
+  font-size: clamp(5px, 0.36cqw, 7px);
+  font-weight: 850;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-card-copy.run-card-synopsis {
+  display: -webkit-box;
+  margin: 0 0 clamp(6px, 0.46cqw, 9px);
+  overflow: hidden;
+  color: #3c2e11;
+  font-size: clamp(8px, 0.61cqw, 12px);
+  line-height: 1.18;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+@media (max-width: 720px) {
+  .run-card-copy.run-card-synopsis {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+  }
+  .run-card-rank-tile small { display: none; }
+}

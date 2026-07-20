@@ -170,3 +170,12 @@ The locker front now displays each complete NHL headshot with only the player na
 - Removed the projected-lineup instruction strip from the locker.
 - Shifted the full roster grid slightly left to align with the empty locker opening.
 - Reworked the player popup into an original black-and-gold, circular-photo, landscape hockey-card design inspired by premium mid-1990s cup-chase inserts. It does not use copied card artwork, logos, or scans.
+
+## Multi-source player rankings
+
+Nick's locker-room hockey card now compares each selected player across NHL.com,
+ESPN, Yahoo's latest public pre-rank, CBS Sports' Top 200, and the Champions
+League's own 2025-26 scoring rank. The server caches the combined snapshot in the
+existing Upstash database when those environment variables are connected. It
+also keeps verified fallbacks for key roster players when a publisher blocks an
+automated refresh.
