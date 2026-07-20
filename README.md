@@ -183,3 +183,10 @@ automated refresh.
 ## Mobile hockey-card popup
 
 The Nick Locker Room popup has a dedicated phone layout at 720px and below. It is viewport-fixed, vertically stacked, scrollable, and uses phone-sized typography rather than inheriting measurements from the wide locker canvas. Desktop presentation is unchanged.
+
+## Latest mobile card adjustment
+
+- Slightly zoomed out the phone-only player popup card.
+- Added more breathing room around the card edges.
+- Reduced the portrait and heading only enough to keep the card readable without feeling oversized.
+- Desktop card and locker layout remain unchanged.

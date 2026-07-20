@@ -329,7 +329,7 @@ h1, h2, h3, p { margin-top: 0; }
   .draft-room-panel, .lineup-board { padding: 14px; border-radius: 18px; }
   .draft-room-heading h2 { font-size: 1.65rem; }
   .lineup-row-cards.three-up { gap: 5px; }
-  .lineup-player-card { min-height: 84px; padding-inline: 7px; }
+  .lineup-player-card { min-height: 84px; padding-inline: 12px; }
   .lineup-player-card strong { font-size: 0.68rem; }
   .lineup-card-bottom { display: grid; gap: 2px; }
 }
@@ -1975,7 +1975,7 @@ body:has(.locker-page-root) .site-header {
     display: block;
     width: 100vw;
     height: 100dvh;
-    padding: max(10px, env(safe-area-inset-top)) 10px max(14px, env(safe-area-inset-bottom));
+    padding: max(14px, env(safe-area-inset-top)) 16px max(18px, env(safe-area-inset-bottom));
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -1986,7 +1986,7 @@ body:has(.locker-page-root) .site-header {
   .locker-hockey-card.run-for-cup-card {
     display: grid;
     grid-template-rows: auto auto auto;
-    width: min(100%, 430px);
+    width: min(100%, 405px);
     max-width: none;
     max-height: none;
     min-height: 0;
@@ -2056,8 +2056,8 @@ body:has(.locker-page-root) .site-header {
   }
 
   .run-card-photo-ring {
-    width: min(52vw, 205px);
-    max-width: 205px;
+    width: min(48vw, 190px);
+    max-width: 190px;
     padding: 7px;
   }
 
@@ -2098,7 +2098,7 @@ body:has(.locker-page-root) .site-header {
   .run-card-player-heading strong {
     margin-top: 3px;
     overflow: visible;
-    font-size: clamp(25px, 8.1vw, 34px);
+    font-size: clamp(24px, 7.5vw, 32px);
     line-height: 0.98;
     text-overflow: clip;
     white-space: normal;
@@ -2199,11 +2199,11 @@ body:has(.locker-page-root) .site-header {
 
 @media (max-width: 380px) {
   .locker-hockey-card-overlay {
-    padding-inline: 7px;
+    padding-inline: 12px;
   }
 
   .run-card-photo-ring {
-    width: min(49vw, 180px);
+    width: min(46vw, 172px);
   }
 
   .run-card-player-heading strong {
