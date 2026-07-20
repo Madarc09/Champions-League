@@ -1,4 +1,7 @@
-import NickLockerRoom from "@/components/NickLockerRoom";
+import LockerRoom from "@/components/LockerRoom";
+import { TEAMS } from "@/data/league-config";
+
+const team = TEAMS.find((item) => item.slug === "nick");
 
 export const metadata = {
   title: "Nick's Locker Room | Champions League",
@@ -8,7 +11,7 @@ export const metadata = {
 export default function NickLockerRoomPage() {
   return (
     <div className="locker-page-root">
-      <NickLockerRoom />
+      <LockerRoom team={team} />
     </div>
   );
 }

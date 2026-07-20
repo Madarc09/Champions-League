@@ -1,10 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { TEAMS } from "@/data/league-config";
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const isNickPage = pathname?.startsWith("/team/nick");
+  const teamMatch = pathname?.match(/^\/team\/([^/]+)/);
+  const teamSlug = teamMatch?.[1] || null;
+  const currentTeam = TEAMS.find((team) => team.slug === teamSlug);
 
   return (
     <header className="site-header">
@@ -17,17 +20,17 @@ export default function SiteHeader() {
       </a>
 
       <nav className="header-nav" aria-label="Primary navigation">
-        {isNickPage ? (
+        {currentTeam ? (
           <>
             <a
-              className={pathname === "/team/nick" ? "active" : ""}
-              href="/team/nick"
+              className={pathname === `/team/${teamSlug}` ? "active" : ""}
+              href={`/team/${teamSlug}`}
             >
               Draft Room
             </a>
             <a
-              className={pathname === "/team/nick/locker-room" ? "active" : ""}
-              href="/team/nick/locker-room"
+              className={pathname === `/team/${teamSlug}/locker-room` ? "active" : ""}
+              href={`/team/${teamSlug}/locker-room`}
             >
               Locker Room
             </a>

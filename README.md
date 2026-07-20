@@ -198,3 +198,18 @@ The Nick Locker Room popup has a dedicated phone layout at 720px and below. It i
 - Stretches the mobile locker vertically to use the visible space beneath the header.
 - Renders the player hockey-card popup directly under the document body so the scaled/scrollable locker cannot distort or clip it.
 - Desktop locker and desktop popup styling are unchanged.
+
+## Locker Room pages
+
+Every manager now has a Draft Room and Locker Room:
+
+- `/team/joe/locker-room`
+- `/team/lucas/locker-room`
+- `/team/dan/locker-room`
+- `/team/adam/locker-room`
+- `/team/darren/locker-room`
+- `/team/nick/locker-room`
+- `/team/rob/locker-room`
+- `/team/ernie/locker-room`
+
+Each page reads that manager's own saved roster, statistics, ranking cards, and total fantasy points. Until custom artwork is created for the other managers, all pages intentionally use Nick's finished locker as a temporary background. Replace individual paths in `data/locker-config.js` as each background is completed.
