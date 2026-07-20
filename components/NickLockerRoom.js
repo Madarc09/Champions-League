@@ -24,62 +24,82 @@ function handleHeadshotError(event) {
   if (!image.src.endsWith(FALLBACK_HEADSHOT)) image.src = FALLBACK_HEADSHOT;
 }
 
-function value(player, key) {
+function numberValue(player, key) {
   return Number(player?.[key] || 0);
 }
 
-function fp(player) {
+function fantasyTotal(player) {
   return Number(player?.fantasyPoints || 0).toFixed(1);
 }
 
-function PlayerRow({ player, goalie = false, slotNumber }) {
+function Stat({ label, value }) {
+  return (
+    <span className="locker-mini-stat">
+      <b>{label}</b>
+      <em>{value}</em>
+    </span>
+  );
+}
+
+function PlayerCard({ player, goalie = false, slotNumber }) {
   if (!player) {
     return (
-      <div className={`locker-player-row locker-open-row ${goalie ? "goalie-row" : ""}`}>
-        <div className="locker-player-identity">
-          <span className="locker-open-avatar">{slotNumber}</span>
-          <span className="locker-open-label">Open roster spot</span>
+      <article className="locker-player-card locker-player-card-empty">
+        <strong className="locker-card-player-name">Open spot {slotNumber}</strong>
+        <div className="locker-card-content">
+          <div className="locker-card-portrait-stack">
+            <div className="locker-card-empty-portrait">
+              <img src={FALLBACK_HEADSHOT} alt="" />
+            </div>
+            <span className="locker-card-total">—</span>
+          </div>
+          <div className="locker-card-stats" aria-hidden="true">
+            {(goalie ? ["SV", "GA", "W", "G", "A"] : ["G", "A", "H", "SOG"]).map((label) => (
+              <Stat key={label} label={`${label}:`} value="—" />
+            ))}
+          </div>
         </div>
-        <span>—</span><span>—</span><span>—</span><span>—</span><span>—</span>
-        {goalie ? <span>—</span> : null}
-      </div>
+      </article>
     );
   }
 
   return (
-    <div className={`locker-player-row ${goalie ? "goalie-row" : ""}`}>
-      <div className="locker-player-identity">
-        <img
-          src={player.headshot || FALLBACK_HEADSHOT}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          onError={handleHeadshotError}
-        />
-        <div>
-          <strong>{player.name}</strong>
-          <small>{player.team || "NHL"}</small>
+    <article className="locker-player-card">
+      <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
+      <div className="locker-card-content">
+        <div className="locker-card-portrait-stack">
+          <div className="locker-card-portrait-frame">
+            <img
+              src={player.headshot || FALLBACK_HEADSHOT}
+              alt={`${player.name} headshot`}
+              loading="lazy"
+              decoding="async"
+              onError={handleHeadshotError}
+            />
+          </div>
+          <span className="locker-card-total">{fantasyTotal(player)}</span>
+        </div>
+
+        <div className="locker-card-stats">
+          {goalie ? (
+            <>
+              <Stat label="SV:" value={numberValue(player, "saves")} />
+              <Stat label="GA:" value={numberValue(player, "goalsAgainst")} />
+              <Stat label="W:" value={numberValue(player, "wins")} />
+              <Stat label="G:" value={numberValue(player, "goals")} />
+              <Stat label="A:" value={numberValue(player, "assists")} />
+            </>
+          ) : (
+            <>
+              <Stat label="G:" value={numberValue(player, "goals")} />
+              <Stat label="A:" value={numberValue(player, "assists")} />
+              <Stat label="H:" value={numberValue(player, "hits")} />
+              <Stat label="SOG:" value={numberValue(player, "shots")} />
+            </>
+          )}
         </div>
       </div>
-      {goalie ? (
-        <>
-          <span>{value(player, "saves")}</span>
-          <span>{value(player, "goalsAgainst")}</span>
-          <span>{value(player, "wins")}</span>
-          <span>{value(player, "goals")}</span>
-          <span>{value(player, "assists")}</span>
-          <span className="locker-fpts">{fp(player)}</span>
-        </>
-      ) : (
-        <>
-          <span>{value(player, "goals")}</span>
-          <span>{value(player, "assists")}</span>
-          <span>{value(player, "hits")}</span>
-          <span>{value(player, "shots")}</span>
-          <span className="locker-fpts">{fp(player)}</span>
-        </>
-      )}
-    </div>
+    </article>
   );
 }
 
@@ -88,19 +108,13 @@ function RosterGroup({ title, players, type, limit }) {
   const filled = Array.from({ length: limit }, (_, index) => players[index] || null);
 
   return (
-    <section className={`locker-roster-group locker-type-${type.toLowerCase()} ${goalie ? "locker-goalie-group" : ""}`}>
-      <div className={`locker-group-heading ${goalie ? "goalie-heading" : ""}`}>
-        <strong>{title}</strong>
-        <span>PLAYER</span>
-        {goalie ? (
-          <><span>SV</span><span>GA</span><span>W</span><span>G</span><span>A</span><span>FPTS</span></>
-        ) : (
-          <><span>G</span><span>A</span><span>H</span><span>SOG</span><span>FPTS</span></>
-        )}
+    <section className={`locker-card-group locker-card-group-${type.toLowerCase()}`}>
+      <div className="locker-card-group-title">
+        <span>{title}</span>
       </div>
-      <div className="locker-group-rows">
+      <div className={`locker-player-card-grid ${goalie ? "locker-goalie-card-grid" : ""}`}>
         {filled.map((player, index) => (
-          <PlayerRow
+          <PlayerCard
             key={player?.playerId || `${type}-open-${index}`}
             player={player}
             goalie={goalie}
@@ -199,10 +213,9 @@ export default function NickLockerRoom() {
       <div className="nick-locker-viewport" aria-label="Nick's locker room">
         <div className="nick-locker-stage">
           <div className="nick-locker-roster-panel">
-            <div className="locker-panel-title">
-              <span>2025–26 STATS</span>
+            <div className="locker-compact-title">
               <strong>PROJECTED LINEUP</strong>
-              <small>{players.length}/20 players</small>
+              <span>2025–26 STATS</span>
             </div>
 
             <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} />

@@ -149,3 +149,6 @@ data/league-config.js               Teams, cap, roster limits, and scoring
 ## Nick's Locker Room
 
 Nick's Draft Room now includes a **Locker Room** subpage at `/team/nick/locker-room`. It loads the same saved roster from Upstash (or the browser fallback), refreshes the saved players against the current player snapshot, and displays the 2025–26 stats in the open centre of `public/nick-locker-room.png`.
+
+### Nick locker compact-card update
+Nick's Locker Room now uses a precisely aligned centre overlay with three player cards per row. Each card places the player name above a rectangular NHL headshot, compact statistics beside the image, and the fantasy-point total by itself beneath the image.
