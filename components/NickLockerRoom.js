@@ -5,6 +5,7 @@ import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 
 const TEAM_SLUG = "nick";
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
+const EMPTY_SLOT_SILHOUETTE = "/empty-slot-silhouette.svg";
 const SLOT_LIMITS = { F: 12, D: 6, G: 2 };
 const RANKING_SOURCE_ORDER = ["nhl", "espn", "yahoo", "cbs", "champions"];
 const RANKING_LABELS = {
@@ -132,7 +133,7 @@ function EmptyCard({ slotNumber }) {
     <article className="locker-roster-card locker-roster-card-empty" aria-label={`Open roster spot ${slotNumber}`}>
       <strong className="locker-card-player-name">Open spot {slotNumber}</strong>
       <div className="locker-card-photo-frame locker-card-empty-photo">
-        <img src={FALLBACK_HEADSHOT} alt="" />
+        <img src={EMPTY_SLOT_SILHOUETTE} alt="" />
       </div>
       <span className="locker-card-total">—</span>
     </article>
