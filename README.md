@@ -238,3 +238,6 @@ The home standings table now ranks all eight managers by the summed fantasy poin
 Each Locker Room displays the manager's total fantasy points and current place. The lower-left and lower-right locker links follow the live standings order: the higher-ranked neighbour is on the left and the lower-ranked neighbour is on the right. First place has no left link, and last place has no right link.
 
 Shared rosters are read from the existing Upstash connection. Browser-only roster saves are also included on that browser.
+
+## Joe concert-stage background
+Joe now uses the Oilers concert-stage artwork while retaining the shared roster overlay, standings navigation, and mobile behavior.
