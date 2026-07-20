@@ -202,8 +202,16 @@ function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading }) 
     function closeOnEscape(event) {
       if (event.key === "Escape") onClose();
     }
+
+    const mobileCard = window.matchMedia("(max-width: 720px)").matches;
+    const previousBodyOverflow = document.body.style.overflow;
+    if (mobileCard) document.body.style.overflow = "hidden";
+
     window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      if (mobileCard) document.body.style.overflow = previousBodyOverflow;
+    };
   }, [onClose]);
 
   return (

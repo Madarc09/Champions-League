@@ -1963,3 +1963,264 @@ body:has(.locker-page-root) .site-header {
 .locker-roster-card-empty .locker-card-player-name {
   color: #d6d8da;
 }
+
+/* Phone-only rebuild of the Cup Chase popup card.
+   The desktop card remains unchanged. The overlay becomes viewport-fixed so
+   its sizing is based on the phone, not the 1360px scrollable locker stage. */
+@media (max-width: 720px) {
+  .locker-hockey-card-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: block;
+    width: 100vw;
+    height: 100dvh;
+    padding: max(10px, env(safe-area-inset-top)) 10px max(14px, env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: radial-gradient(circle at 50% 18%, rgba(45, 37, 17, 0.56), rgba(0, 0, 0, 0.9) 72%);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .locker-hockey-card.run-for-cup-card {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    width: min(100%, 430px);
+    max-width: none;
+    max-height: none;
+    min-height: 0;
+    margin: 0 auto;
+    aspect-ratio: auto;
+    overflow: hidden;
+    border-width: 3px;
+    border-radius: 12px;
+    clip-path: none;
+    box-shadow:
+      0 22px 55px rgba(0, 0, 0, 0.86),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.52),
+      inset 0 0 0 4px rgba(95, 66, 13, 0.16),
+      inset 0 0 44px rgba(119, 75, 8, 0.18);
+    transform-origin: center 18%;
+  }
+
+  .locker-hockey-card.run-for-cup-card::before {
+    inset: 7px;
+    border-radius: 7px;
+  }
+
+  .locker-hockey-card.run-for-cup-card .locker-hockey-card-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    border-width: 1px;
+    font-size: 24px;
+  }
+
+  .run-card-topline {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+    min-height: 48px;
+    padding: 9px 47px 8px 13px;
+    font-size: 9px;
+    letter-spacing: 0.065em;
+  }
+
+  .run-card-topline b {
+    font-size: 10px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  .run-card-topline span:last-child {
+    display: none;
+  }
+
+  .run-card-main {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: 0;
+  }
+
+  .run-card-photo-side {
+    display: grid;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    min-height: 0;
+    padding: 14px 14px 11px;
+    border-bottom: 1px solid rgba(70, 49, 9, 0.3);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(99, 67, 10, 0.06));
+  }
+
+  .run-card-photo-ring {
+    width: min(52vw, 205px);
+    max-width: 205px;
+    padding: 7px;
+  }
+
+  .run-card-photo-window img {
+    width: 94%;
+    height: 97%;
+  }
+
+  .run-card-photo-caption {
+    position: static;
+    margin-top: 8px;
+    color: #3b2b0a;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .run-card-info-side {
+    display: grid;
+    grid-template-rows: auto auto auto auto auto;
+    min-height: 0;
+    padding: 13px 13px 12px;
+    border-top: 0;
+    border-left: 0;
+  }
+
+  .run-card-player-heading {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .run-card-player-heading small {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+
+  .run-card-player-heading strong {
+    margin-top: 3px;
+    overflow: visible;
+    font-size: clamp(25px, 8.1vw, 34px);
+    line-height: 0.98;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .run-card-team-logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .run-card-rank-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin: 11px 0 9px;
+  }
+
+  .run-card-rank-tile {
+    min-height: 58px;
+    padding: 7px 4px 5px;
+    border-radius: 5px;
+  }
+
+  .run-card-rank-tile span {
+    font-size: 8px;
+  }
+
+  .run-card-rank-tile strong {
+    margin: 3px 0 2px;
+    font-size: 22px;
+  }
+
+  .run-card-rank-tile small {
+    display: block;
+    font-size: 7px;
+  }
+
+  .run-card-copy,
+  .run-card-copy.run-card-synopsis {
+    display: block;
+    margin: 0 0 10px;
+    overflow: visible;
+    color: #3c2e11;
+    font-size: 11px;
+    line-height: 1.32;
+    -webkit-line-clamp: unset;
+  }
+
+  .run-card-stat-table {
+    min-height: 0;
+  }
+
+  .run-card-stat-heading,
+  .run-card-stat-row {
+    grid-template-columns: minmax(0, 1fr) 62px 72px;
+    gap: 6px;
+  }
+
+  .run-card-stat-heading {
+    padding: 6px 7px;
+    font-size: 8px;
+  }
+
+  .run-card-stat-row {
+    min-height: 34px;
+    padding: 7px;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .run-card-total-row {
+    gap: 10px;
+    padding-top: 11px;
+  }
+
+  .run-card-total-row span {
+    font-size: 9px;
+  }
+
+  .run-card-total-row strong {
+    font-size: 38px;
+  }
+
+  .run-card-footer {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 9px 13px 11px;
+    font-size: 8px;
+  }
+
+  .run-card-footer b {
+    font-size: 16px;
+  }
+
+  .run-card-footer span:last-child {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .locker-hockey-card-overlay {
+    padding-inline: 7px;
+  }
+
+  .run-card-photo-ring {
+    width: min(49vw, 180px);
+  }
+
+  .run-card-player-heading strong {
+    font-size: 25px;
+  }
+
+  .run-card-rank-strip {
+    gap: 4px;
+  }
+
+  .run-card-rank-tile {
+    min-height: 54px;
+    padding-inline: 2px;
+  }
+
+  .run-card-stat-heading,
+  .run-card-stat-row {
+    grid-template-columns: minmax(0, 1fr) 54px 64px;
+  }
+}

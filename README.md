@@ -179,3 +179,7 @@ League's own 2025-26 scoring rank. The server caches the combined snapshot in th
 existing Upstash database when those environment variables are connected. It
 also keeps verified fallbacks for key roster players when a publisher blocks an
 automated refresh.
+
+## Mobile hockey-card popup
+
+The Nick Locker Room popup has a dedicated phone layout at 720px and below. It is viewport-fixed, vertically stacked, scrollable, and uses phone-sized typography rather than inheriting measurements from the wide locker canvas. Desktop presentation is unchanged.
