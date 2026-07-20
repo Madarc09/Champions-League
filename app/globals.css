@@ -1877,3 +1877,43 @@ body:has(.locker-page-root) .site-header {
   }
   .run-card-rank-tile small { display: none; }
 }
+
+/* Nick locker: team fantasy-points total on the clean brown bench fascia. */
+.nick-locker-team-total {
+  position: absolute;
+  z-index: 6;
+  left: 31.4%;
+  right: 28.5%;
+  bottom: 4.1%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 1.1cqw, 24px);
+  min-height: clamp(28px, 2.55cqw, 52px);
+  padding: clamp(4px, 0.36cqw, 8px) clamp(12px, 1cqw, 22px);
+  color: #f7edcf;
+  background: linear-gradient(180deg, rgba(8, 6, 4, 0.26), rgba(8, 5, 3, 0.47));
+  border-top: 1px solid rgba(222, 177, 91, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.62);
+  box-shadow: inset 0 1px rgba(255,255,255,0.035), 0 2px 8px rgba(0,0,0,0.2);
+  text-align: center;
+  text-shadow: 0 2px 4px #000;
+  pointer-events: none;
+}
+
+.nick-locker-team-total span {
+  color: #ead7aa;
+  font-size: clamp(10px, 0.82cqw, 17px);
+  font-weight: 950;
+  letter-spacing: 0.13em;
+  line-height: 1;
+}
+
+.nick-locker-team-total strong {
+  color: #ffd36f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(20px, 1.85cqw, 38px);
+  font-style: italic;
+  font-weight: 950;
+  line-height: 0.9;
+}

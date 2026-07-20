@@ -383,6 +383,11 @@ export default function NickLockerRoom() {
     G: players.filter((player) => player.rosterType === "G")
   }), [players]);
 
+  const teamFantasyTotal = useMemo(
+    () => players.reduce((total, player) => total + Number(player?.fantasyPoints || 0), 0),
+    [players]
+  );
+
   return (
     <div className="nick-locker-viewport" aria-label="Nick's locker room">
       <div className="nick-locker-stage">
@@ -390,6 +395,11 @@ export default function NickLockerRoom() {
           <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
           <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
           <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+        </div>
+
+        <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}`}>
+          <span>TOTAL TEAM FANTASY POINTS</span>
+          <strong>{teamFantasyTotal.toFixed(1)}</strong>
         </div>
 
         {selection ? (
