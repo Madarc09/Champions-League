@@ -1,5 +1,5 @@
+import StandingsBoard from "@/components/StandingsBoard";
 import {
-  DEFAULT_STANDINGS,
   LEAGUE_NAME,
   ROSTER_LIMITS,
   SALARY_CAP,
@@ -50,42 +50,7 @@ export default function HomePage() {
           <p>Select a manager to open and edit that team&apos;s roster.</p>
         </div>
 
-        <div className="table-wrap">
-          <table className="standings-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>GP</th>
-                <th>W</th>
-                <th>L</th>
-                <th>OTL</th>
-                <th>PTS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {DEFAULT_STANDINGS.map((team, index) => (
-                <tr key={team.slug}>
-                  <td><span className="rank-badge">{index + 1}</span></td>
-                  <td>
-                    <a className="team-link" href={`/team/${team.slug}`}>
-                      <span className="team-avatar">{team.name.slice(0, 1)}</span>
-                      <span>
-                        <strong>{team.name}</strong>
-                        <small>Open roster →</small>
-                      </span>
-                    </a>
-                  </td>
-                  <td>{team.gp}</td>
-                  <td>{team.w}</td>
-                  <td>{team.l}</td>
-                  <td>{team.otl}</td>
-                  <td><strong>{team.pts}</strong></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <StandingsBoard />
       </section>
 
       <section className="rules-grid">

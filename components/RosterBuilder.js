@@ -414,6 +414,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       localRosterKey(team.slug),
       JSON.stringify({ team: team.slug, players, updatedAt: new Date().toISOString() })
     );
+    window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
   }, [players, team.slug, loadingRoster]);
 
   // Replace older saved stats, salaries, teams and photos with the current snapshots.
@@ -504,6 +505,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     setSaveStatus("Saving roster…");
     const snapshot = { team: team.slug, players, updatedAt: new Date().toISOString() };
     window.localStorage.setItem(localRosterKey(team.slug), JSON.stringify(snapshot));
+    window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
 
     try {
       const response = await fetch(`/api/rosters/${team.slug}`, {

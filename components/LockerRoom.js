@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 import { LOCKER_BACKGROUNDS } from "@/data/locker-config";
+import useLeagueStandings from "@/components/useLeagueStandings";
+import { ordinal } from "@/lib/standings";
 
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
 const EMPTY_SLOT_SILHOUETTE = "/empty-slot-silhouette.svg";
@@ -320,6 +322,7 @@ export default function LockerRoom({ team }) {
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
+  const [rosterReady, setRosterReady] = useState(false);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -359,6 +362,7 @@ export default function LockerRoom({ team }) {
 
       if (cancelled) return;
       setPlayers(roster);
+      setRosterReady(true);
       if (!roster.length) return;
 
       try {
@@ -424,6 +428,18 @@ export default function LockerRoom({ team }) {
     [players]
   );
 
+  const { standings, loaded: standingsLoaded } = useLeagueStandings({
+    currentTeamSlug: teamSlug,
+    currentPlayers: players,
+    currentRosterReady: rosterReady
+  });
+  const standingIndex = standings.findIndex((entry) => entry.slug === teamSlug);
+  const currentStanding = standingIndex >= 0 ? standings[standingIndex] : null;
+  const higherStanding = standingIndex > 0 ? standings[standingIndex - 1] : null;
+  const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1
+    ? standings[standingIndex + 1]
+    : null;
+
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
       <div className="nick-locker-stage" style={{ backgroundImage: `url("${lockerBackground}")` }}>
@@ -433,10 +449,35 @@ export default function LockerRoom({ team }) {
           <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
         </div>
 
-        <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}`}>
+        {standingsLoaded && higherStanding ? (
+          <a
+            className="locker-standing-link locker-standing-link-left"
+            href={`/team/${higherStanding.slug}/locker-room`}
+            aria-label={`Open ${higherStanding.name}'s ${ordinal(higherStanding.rank)} place locker room`}
+          >
+            <small>← {ordinal(higherStanding.rank).toUpperCase()} PLACE</small>
+            <strong>{higherStanding.name}</strong>
+            <span>{higherStanding.fantasyPoints.toFixed(1)} FPTS</span>
+          </a>
+        ) : null}
+
+        <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}${currentStanding ? `, ${ordinal(currentStanding.rank)} place` : ""}`}>
           <span>TOTAL TEAM FANTASY POINTS</span>
           <strong>{teamFantasyTotal.toFixed(1)}</strong>
+          <em>{standingsLoaded && currentStanding ? `${ordinal(currentStanding.rank).toUpperCase()} PLACE` : "RANKING…"}</em>
         </div>
+
+        {standingsLoaded && lowerStanding ? (
+          <a
+            className="locker-standing-link locker-standing-link-right"
+            href={`/team/${lowerStanding.slug}/locker-room`}
+            aria-label={`Open ${lowerStanding.name}'s ${ordinal(lowerStanding.rank)} place locker room`}
+          >
+            <small>{ordinal(lowerStanding.rank).toUpperCase()} PLACE →</small>
+            <strong>{lowerStanding.name}</strong>
+            <span>{lowerStanding.fantasyPoints.toFixed(1)} FPTS</span>
+          </a>
+        ) : null}
 
         {selection ? (
           <HockeyCardOverlay
