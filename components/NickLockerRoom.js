@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 
 const TEAM_SLUG = "nick";
@@ -306,10 +306,28 @@ function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading }) 
 }
 
 export default function NickLockerRoom() {
+  const viewportRef = useRef(null);
   const [players, setPlayers] = useState([]);
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+
+    function centreMobileLocker() {
+      if (!window.matchMedia("(max-width: 720px)").matches) return;
+      viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+    }
+
+    const animationFrame = window.requestAnimationFrame(centreMobileLocker);
+    window.addEventListener("resize", centreMobileLocker);
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("resize", centreMobileLocker);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -398,7 +416,7 @@ export default function NickLockerRoom() {
   );
 
   return (
-    <div className="nick-locker-viewport" aria-label="Nick's locker room">
+    <div ref={viewportRef} className="nick-locker-viewport" aria-label="Nick's locker room">
       <div className="nick-locker-stage">
         <div className="nick-locker-roster-panel">
           <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />

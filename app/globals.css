@@ -2224,3 +2224,30 @@ body:has(.locker-page-root) .site-header {
     grid-template-columns: minmax(0, 1fr) 54px 64px;
   }
 }
+
+
+/* Mobile-only locker perspective adjustment.
+   Shrink the complete stage so most of the centre roster is visible at once,
+   while preserving horizontal scrolling to both decorated side lockers. */
+@media (max-width: 720px) {
+  .locker-page-root .nick-locker-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .locker-page-root .nick-locker-stage {
+    width: 860px;
+    min-width: 860px;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+@media (max-width: 390px) {
+  .locker-page-root .nick-locker-stage {
+    width: 825px;
+    min-width: 825px;
+  }
+}

@@ -184,9 +184,10 @@ automated refresh.
 
 The Nick Locker Room popup has a dedicated phone layout at 720px and below. It is viewport-fixed, vertically stacked, scrollable, and uses phone-sized typography rather than inheriting measurements from the wide locker canvas. Desktop presentation is unchanged.
 
-## Latest mobile card adjustment
 
-- Slightly zoomed out the phone-only player popup card.
-- Added more breathing room around the card edges.
-- Reduced the portrait and heading only enough to keep the card readable without feeling oversized.
-- Desktop card and locker layout remain unchanged.
+## Latest mobile locker update
+
+- The complete Nick locker stage is scaled down on phones so substantially more of the roster is visible at once.
+- The phone view opens centred on the projected roster.
+- Horizontal touch scrolling remains enabled so either side locker can still be viewed.
+- Desktop sizing and the mobile player popup card are unchanged.
