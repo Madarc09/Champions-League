@@ -1111,3 +1111,244 @@ body:has(.locker-page-root) .site-header {
     border-radius: 0 0 12px 12px;
   }
 }
+
+/* Nick locker hockey-card redesign: clean fronts with click-to-flip stat backs. */
+.nick-locker-roster-panel {
+  grid-template-rows: auto minmax(0, 4.05fr) minmax(0, 2.05fr) minmax(0, 1.15fr);
+  padding: clamp(4px, 0.31cqw, 7px) clamp(6px, 0.43cqw, 10px) clamp(5px, 0.34cqw, 8px);
+  overflow: visible;
+}
+
+.locker-compact-title {
+  justify-content: center;
+  gap: clamp(10px, 1.1cqw, 22px);
+  padding-bottom: clamp(3px, 0.22cqw, 5px);
+}
+.locker-compact-title strong {
+  font-size: clamp(13px, 1.06cqw, 21px);
+  text-align: center;
+}
+.locker-compact-title span {
+  color: #d0aa58;
+  font-size: clamp(6px, 0.46cqw, 9px);
+  letter-spacing: 0.08em;
+}
+
+.locker-card-group {
+  padding-top: clamp(2px, 0.14cqw, 4px);
+}
+.locker-card-group-title {
+  display: block;
+  min-height: 0;
+  margin: 0 0 clamp(2px, 0.16cqw, 4px);
+  color: #e7edf5;
+  font-size: clamp(11px, 0.88cqw, 17px);
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-align: center;
+}
+
+.locker-player-card-grid {
+  gap: clamp(2px, 0.16cqw, 4px) clamp(4px, 0.31cqw, 7px);
+  overflow: visible;
+}
+.locker-goalie-card-grid {
+  width: 72%;
+}
+
+.locker-flip-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  perspective: 900px;
+  z-index: 1;
+}
+.locker-flip-card.is-flipped {
+  z-index: 40;
+}
+.locker-flip-button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.locker-flip-button:focus-visible {
+  border-radius: clamp(3px, 0.22cqw, 5px);
+  box-shadow: 0 0 0 2px #f0c96f;
+}
+.locker-flip-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.48s cubic-bezier(.2,.72,.2,1), filter 0.25s ease;
+}
+.locker-flip-card.is-flipped .locker-flip-card-inner {
+  transform: rotateY(180deg) scale(1.42);
+  filter: drop-shadow(0 12px 18px rgba(0,0,0,0.62));
+}
+.locker-card-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(194,215,235,0.18);
+  border-radius: clamp(3px, 0.25cqw, 6px);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.locker-card-front {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: clamp(2px, 0.16cqw, 4px);
+  background:
+    linear-gradient(180deg, rgba(15,35,54,0.88), rgba(5,13,21,0.91)),
+    radial-gradient(circle at 50% 20%, rgba(68,126,181,0.34), transparent 65%);
+  box-shadow: inset 0 0 14px rgba(0,0,0,0.35);
+}
+.locker-flip-card:nth-child(even) .locker-card-front {
+  background:
+    linear-gradient(180deg, rgba(20,42,63,0.9), rgba(5,13,21,0.91)),
+    radial-gradient(circle at 50% 20%, rgba(68,126,181,0.34), transparent 65%);
+}
+.locker-card-player-name {
+  min-width: 0;
+  padding: 0 1px clamp(1px, 0.08cqw, 2px);
+  overflow: hidden;
+  color: #f7f9fb;
+  font-size: clamp(10px, 0.82cqw, 16px);
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.locker-card-photo-frame {
+  display: grid;
+  place-items: end center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: clamp(2px, 0.18cqw, 4px);
+  background: radial-gradient(circle at 50% 36%, rgba(105,160,207,0.34), rgba(4,12,20,0.42) 68%);
+}
+.locker-card-photo-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: scale(1.08);
+  transform-origin: center bottom;
+}
+.locker-card-total {
+  padding-top: clamp(1px, 0.08cqw, 2px);
+  color: #ffd36f;
+  font-size: clamp(11px, 0.89cqw, 17px);
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 1px 3px #000;
+}
+
+.locker-card-back {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: clamp(3px, 0.24cqw, 6px);
+  transform: rotateY(180deg);
+  color: #f6f8fb;
+  background:
+    linear-gradient(145deg, rgba(8,31,53,0.98), rgba(3,10,17,0.99)),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 7px);
+  box-shadow: inset 0 0 0 1px rgba(240,201,111,0.22), inset 0 0 24px rgba(36,99,151,0.2);
+}
+.locker-card-back-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px;
+  padding-bottom: clamp(1px, 0.1cqw, 2px);
+  border-bottom: 1px solid rgba(240,201,111,0.25);
+}
+.locker-card-back-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: clamp(7px, 0.57cqw, 11px);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.locker-card-back-heading small {
+  color: #8fb6d8;
+  font-size: clamp(5px, 0.4cqw, 8px);
+  font-weight: 950;
+}
+.locker-card-back-stats {
+  display: grid;
+  align-content: center;
+  gap: clamp(1px, 0.07cqw, 2px);
+  min-height: 0;
+}
+.locker-card-back-stat {
+  display: grid;
+  grid-template-columns: minmax(18px, auto) minmax(18px, auto) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: clamp(2px, 0.15cqw, 4px);
+  min-width: 0;
+  font-size: clamp(6px, 0.49cqw, 9.5px);
+  line-height: 1;
+}
+.locker-card-back-stat b {
+  color: #8fb6d8;
+  font-weight: 950;
+}
+.locker-card-back-stat em {
+  color: white;
+  font-style: normal;
+  font-weight: 900;
+}
+.locker-card-back-stat small {
+  color: #ffd36f;
+  font-size: 1em;
+  font-weight: 950;
+  text-align: right;
+  white-space: nowrap;
+}
+.locker-card-back-total {
+  padding-top: clamp(1px, 0.1cqw, 2px);
+  border-top: 1px solid rgba(240,201,111,0.25);
+  color: #ffd36f;
+  font-size: clamp(7px, 0.56cqw, 11px);
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+}
+
+.locker-flip-card-empty {
+  opacity: 0.34;
+}
+.locker-flip-card-empty .locker-card-front {
+  position: absolute;
+  inset: 0;
+  border-style: dashed;
+}
+.locker-card-empty-photo img {
+  opacity: 0.45;
+  transform: scale(0.72);
+}
+
+@media (max-width: 720px) {
+  .locker-flip-card.is-flipped .locker-flip-card-inner {
+    transform: rotateY(180deg) scale(1.18);
+  }
+}
