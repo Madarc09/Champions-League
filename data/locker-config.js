@@ -1,12 +1,12 @@
-// Temporary Locker Room artwork. Each manager currently uses Nick's completed
-// locker until their individual background is created and replaced here.
+// Manager-specific Locker Room artwork. All images use the same dimensions
+// and centre-locker boundaries, so the projected roster remains aligned.
 export const LOCKER_BACKGROUNDS = {
-  joe: "/nick-locker-room.png",
-  lucas: "/nick-locker-room.png",
-  dan: "/nick-locker-room.png",
-  adam: "/nick-locker-room.png",
-  darren: "/nick-locker-room.png",
+  joe: "/joe-locker-room.png",
+  lucas: "/lucas-locker-room.png",
+  dan: "/dan-locker-room.png",
+  adam: "/adam-locker-room.png",
+  darren: "/darren-locker-room.png",
   nick: "/nick-locker-room.png",
-  rob: "/nick-locker-room.png",
-  ernie: "/nick-locker-room.png"
+  rob: "/rob-locker-room.png",
+  ernie: "/ernie-locker-room.png"
 };

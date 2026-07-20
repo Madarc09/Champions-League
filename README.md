@@ -213,3 +213,20 @@ Every manager now has a Draft Room and Locker Room:
 - `/team/ernie/locker-room`
 
 Each page reads that manager's own saved roster, statistics, ranking cards, and total fantasy points. Until custom artwork is created for the other managers, all pages intentionally use Nick's finished locker as a temporary background. Replace individual paths in `data/locker-config.js` as each background is completed.
+
+## Individual Locker Room backgrounds
+
+Each manager now has a separate 1672×941 background in `public/`, selected in
+`data/locker-config.js`. The centre roster area stays in the same location on
+every image, so future artwork changes do not require changing the roster CSS.
+
+Current themes:
+- Joe: Edmonton/Oilers wall, three Basement Bar championships.
+- Lucas: retired dirty-moustache room, three Basement Bar championships.
+- Dan: retired dirty-moustache room, one Basement Bar championship.
+- Adam: retired gaming/hockey room. The exact title count was not supplied, so
+  the header currently says only `CHAMPION` rather than inventing a number.
+- Darren: Vegas-style wall, one Forever League championship.
+- Rob: Matthew Knies/Leafs room, one Basement Bar championship and no Forever title.
+- Ernie: Blues Brothers/St. Louis room, one Forever League championship.
+- Nick: existing custom locker retained unchanged.
