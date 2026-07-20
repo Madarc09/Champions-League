@@ -736,3 +736,252 @@ h1, h2, h3, p { margin-top: 0; }
   .draft-filter-group { display: grid; grid-template-columns: 1fr; }
   .team-filter-select { min-height: 48px; }
 }
+
+/* Nick's custom Locker Room */
+.team-room-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 20px;
+}
+.team-room-nav a {
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #c4cfdd;
+  background: rgba(255,255,255,0.035);
+  font-size: 0.83rem;
+  font-weight: 900;
+  transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+.team-room-nav a:hover {
+  color: var(--gold-2);
+  border-color: rgba(232,187,96,0.42);
+}
+.team-room-nav a.active {
+  color: #07111f;
+  border-color: transparent;
+  background: linear-gradient(145deg, var(--gold-2), #d29a39);
+}
+
+.locker-page-hero { padding-bottom: 24px; }
+.locker-room-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(232,187,96,0.18);
+  border-radius: 13px;
+  color: #dce6f2;
+  background: rgba(10,20,33,0.8);
+  font-size: 0.78rem;
+}
+.locker-room-status small { color: var(--muted); }
+.nick-locker-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid rgba(232,187,96,0.22);
+  border-radius: 20px;
+  background: #030506;
+  box-shadow: 0 28px 80px rgba(0,0,0,0.48);
+  scrollbar-color: #a77a35 #07111f;
+}
+.nick-locker-stage {
+  position: relative;
+  width: max(100%, 1220px);
+  max-width: 1536px;
+  margin: 0 auto;
+  aspect-ratio: 3 / 2;
+  background-image: url('/nick-locker-room.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+.nick-locker-roster-panel {
+  position: absolute;
+  top: 11.2%;
+  right: 33.55%;
+  bottom: 11.65%;
+  left: 30.45%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(6px, 0.68vw, 11px);
+  overflow: hidden;
+  border: 1px solid rgba(141,184,232,0.24);
+  border-radius: clamp(4px, 0.55vw, 9px);
+  background:
+    linear-gradient(180deg, rgba(7,19,32,0.92), rgba(3,9,16,0.89)),
+    repeating-linear-gradient(0deg, transparent 0 28px, rgba(255,255,255,0.018) 28px 29px);
+  box-shadow:
+    inset 0 0 38px rgba(30,80,132,0.11),
+    0 10px 32px rgba(0,0,0,0.46);
+  backdrop-filter: blur(1.5px);
+}
+.locker-panel-title {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 0 8px;
+  flex: 0 0 auto;
+  padding: 0 clamp(3px, 0.35vw, 6px) clamp(5px, 0.5vw, 8px);
+  border-bottom: 1px solid rgba(255,255,255,0.16);
+}
+.locker-panel-title span {
+  grid-column: 1;
+  color: #8eb6e2;
+  font-size: clamp(6px, 0.52vw, 8px);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.locker-panel-title strong {
+  grid-column: 1;
+  color: #f3f7fb;
+  font-size: clamp(10px, 1.03vw, 16px);
+  line-height: 1.05;
+  letter-spacing: 0.06em;
+}
+.locker-panel-title small {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+  padding: clamp(3px, 0.32vw, 5px) clamp(5px, 0.45vw, 7px);
+  border-radius: 99px;
+  color: #f5d58f;
+  background: rgba(232,187,96,0.11);
+  font-size: clamp(6px, 0.48vw, 8px);
+  font-weight: 900;
+}
+.locker-roster-group {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: clamp(4px, 0.45vw, 7px);
+}
+.locker-roster-group + .locker-roster-group {
+  padding-top: clamp(3px, 0.36vw, 6px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.locker-group-heading,
+.locker-player-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(5, minmax(20px, 0.12fr));
+  align-items: center;
+  min-width: 0;
+}
+.locker-group-heading.goalie-heading,
+.locker-player-row.goalie-row {
+  grid-template-columns: minmax(0, 1fr) repeat(6, minmax(18px, 0.1fr));
+}
+.locker-group-heading {
+  flex: 0 0 auto;
+  min-height: clamp(15px, 1.32vw, 21px);
+  padding: 0 clamp(3px, 0.32vw, 5px);
+  border-radius: 3px;
+  color: #c3d2e2;
+  background: linear-gradient(90deg, rgba(18,62,105,0.9), rgba(9,36,64,0.82));
+  font-size: clamp(5px, 0.48vw, 7.5px);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+.locker-group-heading strong {
+  color: white;
+  font-size: clamp(7px, 0.68vw, 10.5px);
+  letter-spacing: 0.06em;
+  text-align: left;
+}
+.locker-group-heading span:nth-child(2) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+}
+.locker-group-rows {
+  display: grid;
+  flex: 1 1 auto;
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+.locker-player-row {
+  min-height: 0;
+  padding: 0 clamp(3px, 0.32vw, 5px);
+  border-bottom: 1px solid rgba(255,255,255,0.055);
+  color: #e6edf5;
+  font-size: clamp(5.5px, 0.53vw, 8.2px);
+  text-align: center;
+}
+.locker-player-row:last-child { border-bottom: 0; }
+.locker-player-row:nth-child(even) { background: rgba(255,255,255,0.022); }
+.locker-player-identity {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: clamp(3px, 0.35vw, 6px);
+  text-align: left;
+}
+.locker-player-identity img {
+  flex: 0 0 auto;
+  width: clamp(17px, 1.82vw, 28px);
+  height: clamp(17px, 1.82vw, 28px);
+  border-radius: 50%;
+  object-fit: contain;
+  object-position: center bottom;
+  background: radial-gradient(circle at 50% 32%, rgba(102,164,228,0.22), rgba(255,255,255,0.03));
+}
+.locker-player-identity div { min-width: 0; }
+.locker-player-identity strong,
+.locker-player-identity small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.locker-player-identity strong {
+  color: #fff;
+  font-size: clamp(6.5px, 0.65vw, 10px);
+  line-height: 1.05;
+}
+.locker-player-identity small {
+  margin-top: 1px;
+  color: #88a6c3;
+  font-size: clamp(4.5px, 0.42vw, 6.5px);
+  font-weight: 850;
+}
+.locker-fpts {
+  color: #f3cf7f;
+  font-weight: 950;
+}
+.locker-open-row { color: rgba(210,222,235,0.36); }
+.locker-open-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: clamp(15px, 1.55vw, 24px);
+  height: clamp(15px, 1.55vw, 24px);
+  border: 1px dashed rgba(255,255,255,0.16);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.32);
+  font-size: clamp(5px, 0.45vw, 7px);
+}
+.locker-open-label {
+  overflow: hidden;
+  color: rgba(204,218,232,0.38);
+  font-size: clamp(5.5px, 0.52vw, 8px);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .locker-room-status { display: grid; }
+  .nick-locker-viewport { border-radius: 12px; }
+}
+.locker-roster-group.locker-type-f { flex: 12.9 1 0; }
+.locker-roster-group.locker-type-d { flex: 6.9 1 0; }
+.locker-roster-group.locker-type-g { flex: 2.9 1 0; }

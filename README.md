@@ -145,3 +145,7 @@ data/league-config.js               Teams, cap, roster limits, and scoring
 
 
 - Filter the draft board with an NHL team dropdown beside the position buttons.
+
+## Nick's Locker Room
+
+Nick's Draft Room now includes a **Locker Room** subpage at `/team/nick/locker-room`. It loads the same saved roster from Upstash (or the browser fallback), refreshes the saved players against the current player snapshot, and displays the 2025–26 stats in the open centre of `public/nick-locker-room.png`.
