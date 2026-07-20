@@ -191,3 +191,10 @@ The Nick Locker Room popup has a dedicated phone layout at 720px and below. It i
 - The phone view opens centred on the projected roster.
 - Horizontal touch scrolling remains enabled so either side locker can still be viewed.
 - Desktop sizing and the mobile player popup card are unchanged.
+
+## Mobile locker/card follow-up
+
+- Keeps the zoomed-out mobile locker width and horizontal scrolling.
+- Stretches the mobile locker vertically to use the visible space beneath the header.
+- Renders the player hockey-card popup directly under the document body so the scaled/scrollable locker cannot distort or clip it.
+- Desktop locker and desktop popup styling are unchanged.

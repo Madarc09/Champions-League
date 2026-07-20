@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 
 const TEAM_SLUG = "nick";
@@ -214,7 +215,7 @@ function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading }) 
     };
   }, [onClose]);
 
-  return (
+  const cardMarkup = (
     <div
       className="locker-hockey-card-overlay"
       role="presentation"
@@ -303,6 +304,11 @@ function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading }) 
       </article>
     </div>
   );
+
+  const useMobilePortal = typeof window !== "undefined"
+    && window.matchMedia("(max-width: 720px)").matches;
+
+  return useMobilePortal ? createPortal(cardMarkup, document.body) : cardMarkup;
 }
 
 export default function NickLockerRoom() {

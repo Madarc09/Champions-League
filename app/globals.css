@@ -2251,3 +2251,26 @@ body:has(.locker-page-root) .site-header {
     min-width: 825px;
   }
 }
+
+/* Mobile locker follow-up: preserve the zoomed-out width, use the available
+   phone height, and keep the popup card outside the scaled locker stage. */
+@media (max-width: 720px) {
+  .locker-page-root .nick-locker-viewport {
+    height: calc(100dvh - 64px);
+    min-height: 560px;
+  }
+
+  .locker-page-root .nick-locker-stage {
+    height: 100%;
+    min-height: 100%;
+    aspect-ratio: auto;
+  }
+}
+
+@supports not (height: 100dvh) {
+  @media (max-width: 720px) {
+    .locker-page-root .nick-locker-viewport {
+      height: calc(100vh - 64px);
+    }
+  }
+}
