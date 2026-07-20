@@ -47,6 +47,11 @@ function PlayerHeadshot({ player, className = "", alt = null }) {
 }
 
 function playerMeta(player) {
+  if (Number(player.gamesPlayed || 0) === 0) {
+    return player.draftYear
+      ? `${player.draftYear} draft pick · 0 NHL GP`
+      : "Rookie · 0 NHL GP";
+  }
   if (player.rosterType === "G") {
     return `${player.gamesPlayed} GP · ${player.saves || 0} SV · ${player.goalsAgainst || 0} GA · ${player.wins || 0} W`;
   }
@@ -333,6 +338,7 @@ function LineupCard({ players, onRemove, salaryCap, totalCap, capRemaining }) {
 export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, goalieScoring }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("ALL");
+  const [nhlTeam, setNhlTeam] = useState("ALL");
   const [poolPlayers, setPoolPlayers] = useState([]);
   const [players, setPlayers] = useState([]);
   const [loadingPool, setLoadingPool] = useState(true);
@@ -439,16 +445,22 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     });
   }, [loadingRoster, poolPlayers, players.length]);
 
+  const teamOptions = useMemo(() => (
+    Array.from(new Set(poolPlayers.map((player) => String(player.team || "").trim()).filter(Boolean)))
+      .sort((left, right) => left.localeCompare(right, "en", { sensitivity: "base" }))
+  ), [poolPlayers]);
+
   const filteredPlayers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     return poolPlayers.filter((player) => {
       const matchesPosition = position === "ALL" || player.rosterType === position;
+      const matchesTeam = nhlTeam === "ALL" || String(player.team || "") === nhlTeam;
       const matchesQuery = !normalizedQuery
         || player.name.toLowerCase().includes(normalizedQuery)
         || String(player.team || "").toLowerCase().includes(normalizedQuery);
-      return matchesPosition && matchesQuery;
+      return matchesPosition && matchesTeam && matchesQuery;
     });
-  }, [poolPlayers, position, query]);
+  }, [poolPlayers, position, nhlTeam, query]);
 
   const counts = useMemo(() => players.reduce((acc, player) => {
     acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
@@ -590,17 +602,28 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
                 onChange={(event) => setQuery(event.target.value)}
               />
             </div>
-            <div className="filter-tabs draft-filter-tabs" role="group" aria-label="Position filter">
-              {[["ALL", "All"], ["F", "Forwards"], ["D", "Defence"], ["G", "Goalies"]].map(([value, label]) => (
-                <button
-                  type="button"
-                  key={value}
-                  className={position === value ? "active" : ""}
-                  onClick={() => setPosition(value)}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="draft-filter-group">
+              <div className="filter-tabs draft-filter-tabs" role="group" aria-label="Position filter">
+                {[["ALL", "All"], ["F", "Forwards"], ["D", "Defence"], ["G", "Goalies"]].map(([value, label]) => (
+                  <button
+                    type="button"
+                    key={value}
+                    className={position === value ? "active" : ""}
+                    onClick={() => setPosition(value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <label className="team-filter-select">
+                <span>NHL team</span>
+                <select value={nhlTeam} onChange={(event) => setNhlTeam(event.target.value)}>
+                  <option value="ALL">All teams</option>
+                  {teamOptions.map((teamCode) => (
+                    <option key={teamCode} value={teamCode}>{teamCode}</option>
+                  ))}
+                </select>
+              </label>
             </div>
           </div>
 

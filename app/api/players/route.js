@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
+import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
 import {
   canonicalPlayerName,
   getCapSpaceSalarySnapshot
@@ -68,9 +69,11 @@ export async function GET(request) {
   const storedOverrides = await getSalaryRecords(rankedMatches.map((player) => player.playerId));
 
   const players = rankedMatches.map((player) => {
-    const publicRecord = salarySnapshot?.byName?.[canonicalPlayerName(player.name)] || null;
+    const canonicalName = canonicalPlayerName(player.name);
+    const publicRecord = salarySnapshot?.byName?.[canonicalName] || null;
+    const rookieSeed = SEED_SALARIES_BY_NAME[canonicalName] || null;
     const override = trustedSalaryOverride(storedOverrides[String(player.playerId)]);
-    const selected = override || publicRecord;
+    const selected = override || publicRecord || rookieSeed;
     const demoCapHit = player.capHit != null ? Number(player.capHit) : null;
     const capHit = selected?.capHit != null ? Number(selected.capHit) : demoCapHit;
 

@@ -6,11 +6,11 @@ A Vercel-ready Next.js site for the Champions League salary-cap fantasy league.
 
 - Home page standings with links for Joe, Lucas, Dan, Adam, Darren, Nick, Rob, and Ernie.
 - Individual draft room and saved roster page for every manager.
-- Complete 2025–26 NHL regular-season player leaderboard.
+- Complete 2025–26 NHL regular-season leaderboard plus current zero-game rookies and recent 2024–2026 NHL draft picks.
 - Click a player name to add him; click his NHL headshot on the projected roster to remove him.
 - Search by player or NHL team.
 - Filters for all players, forwards, defence, and goalies.
-- NHL.com player headshots and current team information appear directly on the draft board.
+- NHL.com player headshots and current team information appear directly on the draft board when available. Zero-game prospects fall back to the player silhouette until NHL publishes a headshot.
 - Every statistical leaderboard category is sortable:
   - Player name
   - 2026–27 salary
@@ -70,7 +70,7 @@ data/league-config.js
 
 The NHL statistics service does not include contracts or cap hits. This build uses the open-source **CapSpace** project that was shared through the hockey development community on Reddit.
 
-The server loads all 32 CapSpace team contract pages together, reads the first 2026–27 cap-hit column in each NHL roster table, combines the results into one salary snapshot, and caches that snapshot. This avoids the old per-player lookup that blocked the Draft action and returned inconsistent values.
+The server loads all 32 CapSpace team contract pages together, reads the first 2026–27 cap-hit column in both the NHL roster and signed non-roster sections, combines the results into one salary snapshot, and caches that snapshot. This includes signed rookies who have not played an NHL game. This avoids the old per-player lookup that blocked the Draft action and returned inconsistent values.
 
 Salary snapshot behaviour:
 
@@ -138,7 +138,10 @@ components/RosterBuilder.js         Sortable draft room and projected lineup
 app/api/players/route.js            NHL stats plus full salary snapshot
 app/api/rosters/[team]/route.js     Shared roster loading and saving
 app/api/salaries/refresh/route.js   Forced salary refresh for an administrator
-lib/nhl.js                          2025–26 NHL stats plus official NHL roster/headshot integration
+lib/nhl.js                          NHL stats, current zero-game rookies, recent draft classes, rosters, and headshots
 lib/capspace-snapshot.js            League-wide 2026–27 salary loader and cache
 data/league-config.js               Teams, cap, roster limits, and scoring
 ```
+
+
+- Filter the draft board with an NHL team dropdown beside the position buttons.

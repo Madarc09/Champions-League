@@ -679,3 +679,60 @@ h1, h2, h3, p { margin-top: 0; }
   .empty-lineup-face { height: 92px; }
   .empty-lineup-face img { width: 54px; height: 54px; }
 }
+
+/* NHL team dropdown beside the position filter */
+.draft-filter-group {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+.team-filter-select {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-width: 132px;
+  padding: 5px 12px 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.025);
+}
+.team-filter-select span {
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.team-filter-select select {
+  width: 100%;
+  margin-top: 3px;
+  padding: 0 20px 0 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.team-filter-select select option {
+  color: #081321;
+  background: #f4f7fb;
+}
+.team-filter-select:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(232,187,96,0.12);
+}
+
+@media (max-width: 980px) {
+  .draft-filter-group { flex-wrap: wrap; }
+  .draft-filter-tabs { flex: 1 1 340px; }
+  .team-filter-select { flex: 1 1 132px; }
+}
+
+@media (max-width: 560px) {
+  .draft-filter-group { display: grid; grid-template-columns: 1fr; }
+  .team-filter-select { min-height: 48px; }
+}
