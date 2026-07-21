@@ -191,7 +191,7 @@ function RosterGroup({ title, players, type, limit, onOpen }) {
   );
 }
 
-function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading, teamName }) {
+export function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading, teamName }) {
   const { player, goalie } = selection;
   const rows = statRows(player, goalie);
   const rankings = rankingData?.players?.[player.name] || {};

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import useLeagueStandings from "@/components/useLeagueStandings";
+import { HockeyCardOverlay } from "@/components/LockerRoom";
 import { TEAMS } from "@/data/league-config";
 import { newerRoster, rosterStorageKey } from "@/lib/standings";
 
@@ -41,6 +42,9 @@ export default function HomeDashboard() {
   const { standings, loaded: standingsLoaded } = useLeagueStandings();
   const scrollerRef = useRef(null);
   const [activePanel, setActivePanel] = useState("forwards");
+  const [selection, setSelection] = useState(null);
+  const [rankingData, setRankingData] = useState(null);
+  const [rankingLoading, setRankingLoading] = useState(false);
   const [dashboard, setDashboard] = useState({
     performers: { forwards: [], defence: [], goalies: [], rookies: [] },
     rosters: {},
@@ -105,6 +109,33 @@ export default function HomeDashboard() {
     () => dashboard.performers?.[activePanel] || [],
     [dashboard.performers, activePanel]
   );
+
+  useEffect(() => {
+    const playerName = selection?.player?.name;
+    if (!playerName) return undefined;
+
+    let cancelled = false;
+    setRankingLoading(true);
+    setRankingData(null);
+
+    fetch(`/api/rankings?name=${encodeURIComponent(playerName)}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(45000)
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Rankings could not be loaded.");
+        if (!cancelled) setRankingData(data);
+      })
+      .catch((error) => {
+        console.error("Home-page hockey card rankings unavailable:", error);
+      })
+      .finally(() => {
+        if (!cancelled) setRankingLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [selection?.player?.name]);
 
   return (
     <div className="champions-home">
@@ -173,27 +204,42 @@ export default function HomeDashboard() {
                   <p className="home-dashboard-message">No players are available for this category.</p>
                 ) : (
                   activePlayers.map((player, index) => (
-                    <article className="performer-row" key={`${activePanel}-${player.playerId}`}>
+                    <button
+                      className="performer-row"
+                      key={`${activePanel}-${player.playerId}`}
+                      type="button"
+                      onClick={() => setSelection({ player, goalie: player.rosterType === "G" })}
+                      aria-label={`Open ${player.name} hockey card`}
+                    >
                       <span className="performer-rank">{index + 1}</span>
                       <img
                         className="performer-photo"
                         src={player.headshot || "/player-silhouette.svg"}
                         alt=""
                       />
-                      <div className="performer-identity">
+                      <span className="performer-identity">
                         <strong>{player.name}</strong>
                         <span>{player.team} · {ownerNames(player.playerId, dashboard.rosters)}</span>
-                      </div>
+                      </span>
                       <strong className="performer-points">{formatPoints(player.fantasyPoints)}</strong>
-                    </article>
+                    </button>
                   ))
                 )}
               </div>
             </section>
           </div>
+
+          {selection ? (
+            <HockeyCardOverlay
+              selection={selection}
+              onClose={() => setSelection(null)}
+              rankingData={rankingData}
+              rankingLoading={rankingLoading}
+              teamName="Champions League"
+            />
+          ) : null}
         </section>
       </div>
-      <p className="home-mobile-hint">Swipe left or right to explore the full arena dashboard.</p>
     </div>
   );
 }

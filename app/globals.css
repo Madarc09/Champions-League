@@ -2857,3 +2857,172 @@ body:has(.champions-home) .site-footer {
     display: block;
   }
 }
+
+/* Home performer rows open the same full hockey card used in Locker Rooms. */
+button.performer-row {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+button.performer-row:hover,
+button.performer-row:focus-visible {
+  background: rgba(228, 178, 82, 0.12);
+  outline: 1px solid rgba(233, 189, 98, 0.45);
+  outline-offset: -1px;
+}
+
+/* Mobile home dashboard: fit the FPTS column within the phone instead of
+   requiring horizontal scrolling. The right-side player board stacks below. */
+@media (max-width: 900px) {
+  .champions-home {
+    overflow: visible;
+  }
+
+  .champions-home-scroller {
+    overflow: visible;
+  }
+
+  .champions-home-stage {
+    width: 100%;
+    min-width: 0;
+    min-height: 1380px;
+    aspect-ratio: auto;
+    overflow: visible;
+    background-position: center top;
+    background-size: auto 100%;
+  }
+
+  .champions-home-watermark {
+    position: absolute;
+    top: 2.2%;
+    left: 50%;
+    width: 58%;
+    height: 165px;
+    transform: translateX(-50%);
+    opacity: 0.075;
+  }
+
+  .champions-board-grid {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 54px 10px 300px;
+  }
+
+  .home-live-board {
+    width: 100%;
+    background: linear-gradient(180deg, rgba(3, 9, 16, 0.9), rgba(3, 8, 14, 0.84));
+    backdrop-filter: blur(2px);
+  }
+
+  .home-standings-board {
+    height: 510px;
+  }
+
+  .home-board-title {
+    height: 74px;
+    min-height: 74px;
+    padding: 10px 13px;
+  }
+
+  .home-board-title span,
+  .performers-heading span {
+    font-size: 0.58rem;
+  }
+
+  .home-board-title h1 {
+    font-size: 1.04rem;
+  }
+
+  .home-board-title > strong {
+    font-size: 0.8rem;
+  }
+
+  .home-standings-list {
+    height: calc(100% - 74px);
+  }
+
+  .home-standing-row a {
+    grid-template-columns: 40px minmax(0, 1fr) 92px;
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .home-standing-rank {
+    width: 29px;
+    font-size: 0.78rem;
+  }
+
+  .home-standing-name {
+    font-size: 0.91rem;
+  }
+
+  .home-standing-points {
+    font-size: 0.84rem;
+  }
+
+  .home-performers-board {
+    height: 700px;
+  }
+
+  .performers-heading {
+    height: 66px;
+    min-height: 66px;
+    padding: 9px 12px;
+  }
+
+  .performers-heading h2 {
+    font-size: 1rem;
+  }
+
+  .performer-tabs {
+    height: 58px;
+  }
+
+  .performer-tabs button strong {
+    font-size: 0.62rem;
+  }
+
+  .performer-list {
+    height: calc(100% - 124px);
+  }
+
+  .performer-row {
+    grid-template-columns: 24px 42px minmax(0, 1fr) 70px;
+    gap: 7px;
+    padding: 0 9px;
+  }
+
+  .performer-rank {
+    font-size: 0.67rem;
+  }
+
+  .performer-photo {
+    height: 92%;
+  }
+
+  .performer-identity strong {
+    font-size: 0.72rem;
+  }
+
+  .performer-identity span {
+    font-size: 0.52rem;
+  }
+
+  .performer-points {
+    font-size: 0.7rem;
+  }
+
+  .home-mobile-hint {
+    display: none;
+  }
+}
