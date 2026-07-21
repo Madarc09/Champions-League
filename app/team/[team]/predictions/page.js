@@ -1,10 +1,9 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import FuturePredictions from "@/components/FuturePredictions";
 import { TEAMS } from "@/data/league-config";
+import { currentManager } from "@/lib/auth";
 
-export function generateStaticParams() {
-  return TEAMS.map((team) => ({ team: team.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { team: slug } = await params;
@@ -21,6 +20,10 @@ export default async function PredictionsPage({ params }) {
   const { team: slug } = await params;
   const team = TEAMS.find((item) => item.slug === slug);
   if (!team) notFound();
+
+  const manager = await currentManager();
+  if (!manager) redirect(`/login?next=/team/${slug}/predictions`);
+  if (manager.slug !== slug) redirect(`/team/${manager.slug}/predictions`);
 
   return <FuturePredictions team={team} />;
 }

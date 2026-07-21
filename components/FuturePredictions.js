@@ -110,7 +110,7 @@ export default function FuturePredictions({ team }) {
   const [loading, setLoading] = useState(true);
   const [poolLoading, setPoolLoading] = useState(true);
   const [status, setStatus] = useState("Loading predictions…");
-  const [persistence, setPersistence] = useState("local");
+  const [persistence, setPersistence] = useState("private");
 
   useEffect(() => {
     let cancelled = false;
@@ -141,22 +141,50 @@ export default function FuturePredictions({ team }) {
     let cancelled = false;
 
     async function loadPredictions() {
-      const local = readLocal(team.slug);
+      const legacyLocal = readLocal(team.slug);
+
       try {
         const response = await fetch(`/api/predictions/${team.slug}`, { cache: "no-store" });
         const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "The private predictions could not be loaded.");
         if (cancelled) return;
-        const selected = newerPrediction(data.predictions || null, local);
-        setPredictions(normalizedPredictions(selected));
-        setPersistence(data.predictions && selected === data.predictions ? "shared" : "local");
-        setStatus(selected?.updatedAt
-          ? `Predictions loaded · ${new Date(selected.updatedAt).toLocaleString()}`
-          : "No predictions saved yet. Make selections and save when ready.");
-      } catch {
+
+        if (data.predictions) {
+          setPredictions(normalizedPredictions(data.predictions));
+          setPersistence("private");
+          window.localStorage.removeItem(localKey(team.slug));
+          setStatus(`Private predictions loaded · ${new Date(data.predictions.updatedAt).toLocaleString()}`);
+        } else if (legacyLocal) {
+          const legacyPredictions = normalizedPredictions(legacyLocal);
+          setPredictions(legacyPredictions);
+          setStatus("Moving the predictions previously saved in this browser into your private account…");
+
+          const migrateResponse = await fetch(`/api/predictions/${team.slug}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(legacyPredictions)
+          });
+          const migrateData = await migrateResponse.json();
+          if (!migrateResponse.ok) throw new Error(migrateData.error || "The old browser predictions could not be moved to Upstash.");
+          if (cancelled) return;
+
+          setPredictions(normalizedPredictions(migrateData.predictions));
+          setPersistence("private");
+          window.localStorage.removeItem(localKey(team.slug));
+          setStatus(`Predictions moved into your private account · ${new Date(migrateData.predictions.updatedAt).toLocaleString()}`);
+        } else {
+          setPredictions(normalizedPredictions(null));
+          setPersistence("private");
+          setStatus("No private predictions saved yet. Make selections and save when ready.");
+        }
+      } catch (error) {
         if (cancelled) return;
-        setPredictions(normalizedPredictions(local));
-        setPersistence("local");
-        setStatus(local ? "Using the predictions saved in this browser." : "Browser saving is active.");
+        if (legacyLocal) {
+          setPredictions(normalizedPredictions(legacyLocal));
+          setStatus(`${error.message} Your older browser copy is still available on this device and has not been deleted.`);
+        } else {
+          setStatus(error.message || "The private predictions could not be loaded.");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -165,12 +193,6 @@ export default function FuturePredictions({ team }) {
     loadPredictions();
     return () => { cancelled = true; };
   }, [team.slug]);
-
-  useEffect(() => {
-    if (loading) return;
-    const snapshot = { team: team.slug, ...predictions, updatedAt: new Date().toISOString() };
-    window.localStorage.setItem(localKey(team.slug), JSON.stringify(snapshot));
-  }, [predictions, team.slug, loading]);
 
   const sortedPlayers = useMemo(() => (
     [...players].sort((left, right) => left.name.localeCompare(right.name, "en", { sensitivity: "base" }))
@@ -203,8 +225,7 @@ export default function FuturePredictions({ team }) {
       teamAwards: predictions.teamAwards,
       updatedAt: new Date().toISOString()
     };
-    window.localStorage.setItem(localKey(team.slug), JSON.stringify(snapshot));
-    setStatus("Saving predictions…");
+    setStatus("Saving privately to your account…");
 
     try {
       const response = await fetch(`/api/predictions/${team.slug}`, {
@@ -214,16 +235,15 @@ export default function FuturePredictions({ team }) {
       });
       const data = await response.json();
       if (!response.ok) {
-        setPersistence("local");
-        setStatus(data.error || "Saved in this browser only.");
+        setStatus(data.error || "The private predictions could not be saved.");
         return;
       }
       setPredictions(normalizedPredictions(data.predictions));
-      setPersistence("shared");
-      setStatus(`Shared predictions saved · ${new Date(data.predictions.updatedAt).toLocaleString()}`);
+      setPersistence("private");
+      window.localStorage.removeItem(localKey(team.slug));
+      setStatus(`Private predictions saved · ${new Date(data.predictions.updatedAt).toLocaleString()}`);
     } catch {
-      setPersistence("local");
-      setStatus("Saved in this browser. The shared database was unavailable.");
+      setStatus("The private predictions could not be saved. Check the Upstash connection and try again.");
     }
   }
 
@@ -325,7 +345,7 @@ export default function FuturePredictions({ team }) {
 
       <footer className="prediction-save-bar">
         <div>
-          <strong>{persistence === "shared" ? "Shared predictions" : "Browser predictions"}</strong>
+          <strong>{persistence === "private" ? "Private Upstash predictions" : "Predictions unavailable"}</strong>
           <span>{status}</span>
         </div>
         <button className="primary-button" type="button" onClick={savePredictions} disabled={loading || poolLoading}>

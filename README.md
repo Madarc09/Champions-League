@@ -106,6 +106,7 @@ Copy both values from the existing Upstash Redis database, apply them to Product
 Upstash stores:
 
 - Shared manager rosters.
+- Manager login records and server-side sessions.
 - The latest complete salary snapshot, including a stale fallback if the live source is temporarily unavailable.
 
 Without Upstash, rosters still save in the current browser and salary requests still use Next.js/Vercel caching.
@@ -271,3 +272,51 @@ The page saves six player-award predictions and four NHL team predictions. It us
 ## Mobile home page
 
 The mobile home page retains the original horizontally scrollable arena composition. Its standings panel has been narrowed so the complete manager name and FPTS column open together on a phone; the Top Performers panel remains one horizontal swipe to the right.
+
+## Manager login database
+
+The Draft Room and Future Predictions pages now require a manager login. Locker Rooms and the public standings remain viewable by everyone.
+
+Manager accounts are automatically seeded into the existing Upstash Redis database the first time someone signs in. Passwords are stored as salted `scrypt` hashes; plaintext passwords are never written to Redis.
+
+Temporary starter credentials are case-insensitive:
+
+| Username | Starter password |
+|---|---|
+| Joe | `eoj` |
+| Lucas | `sacul` |
+| Dan | `nad` |
+| Adam | `mada` |
+| Darren | `nerrad` |
+| Nick | `kcin` |
+| Rob | `bor` |
+| Ernie | `einre` |
+
+Each password is simply the manager name written backwards. These intentionally simple starter passwords should be replaced with manager-selected passwords after the login flow is confirmed.
+
+Authentication behaviour:
+
+- Login page: `/login`
+- Sessions are random, server-side Upstash records lasting 30 days.
+- The browser receives only a secure, HTTP-only session cookie.
+- A manager can save only their own roster and predictions.
+- Visiting another manager's Draft Room or Predictions page redirects to the signed-in manager's page.
+- Other managers' Locker Rooms remain public for standings navigation.
+- Logging out destroys the server-side session.
+
+Upstash is required for authentication. The existing `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` environment variables are reused; no additional database is needed.
+
+## Private Upstash manager data
+
+The site accepts either Vercel/Upstash credential naming convention:
+
+- `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
+- `KV_REST_API_URL` + `KV_REST_API_TOKEN`
+
+Roster selections (draft picks), Locker Rooms, and Future Predictions are private to the authenticated manager. The roster and predictions API routes verify the server-side session on both reads and writes; changing the URL cannot reveal another manager's data.
+
+The public home page receives only aggregate team fantasy-point totals. It does not receive roster player IDs, player ownership, predictions, or full roster objects. Player ownership on the Top Performers panel is therefore labelled private.
+
+Older browser-only roster and prediction saves are migrated once into the signed-in manager's private Upstash records. The browser copy is deleted only after the migration succeeds. New versions no longer use browser storage as a save fallback.
+
+Locker Rooms now require login and redirect managers back to their own room if they try another manager's URL. Neighbouring standings positions may still be shown visually at the bottom of the locker, but they are no longer clickable roster links.

@@ -346,7 +346,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [salaryData, setSalaryData] = useState(null);
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
-  const [persistence, setPersistence] = useState("local");
+  const [persistence, setPersistence] = useState("private");
 
   useEffect(() => {
     let cancelled = false;
@@ -377,28 +377,51 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     let cancelled = false;
 
     async function loadRoster() {
-      const local = loadJson(localRosterKey(team.slug), null);
+      const legacyLocal = loadJson(localRosterKey(team.slug), null);
 
       try {
         const response = await fetch(`/api/rosters/${team.slug}`, { cache: "no-store" });
         const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "The private roster could not be loaded.");
         if (cancelled) return;
 
         if (data.roster?.players) {
           setPlayers(data.roster.players);
-          setPersistence("shared");
-          setSaveStatus(`Shared roster loaded${data.roster.updatedAt ? ` · updated ${new Date(data.roster.updatedAt).toLocaleString()}` : ""}.`);
-        } else if (local?.players) {
-          setPlayers(local.players);
-          setPersistence("local");
-          setSaveStatus("Browser roster loaded. Connect Upstash for shared saving.");
+          setPersistence("private");
+          window.localStorage.removeItem(localRosterKey(team.slug));
+          setSaveStatus(`Private roster loaded${data.roster.updatedAt ? ` · updated ${new Date(data.roster.updatedAt).toLocaleString()}` : ""}.`);
+        } else if (legacyLocal?.players) {
+          // One-time migration from the pre-login browser save into the manager's
+          // private Upstash record. The browser copy is deleted only after success.
+          setPlayers(legacyLocal.players);
+          setSaveStatus("Moving the roster previously saved in this browser into your private account…");
+
+          const migrateResponse = await fetch(`/api/rosters/${team.slug}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ players: legacyLocal.players })
+          });
+          const migrateData = await migrateResponse.json();
+          if (!migrateResponse.ok) throw new Error(migrateData.error || "The old browser roster could not be moved to Upstash.");
+          if (cancelled) return;
+
+          setPlayers(migrateData.roster.players || legacyLocal.players);
+          setPersistence("private");
+          window.localStorage.removeItem(localRosterKey(team.slug));
+          window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
+          setSaveStatus(`Roster moved into your private account · ${new Date(migrateData.roster.updatedAt).toLocaleString()}`);
         } else {
-          setPersistence(data.persistence || "local");
-          setSaveStatus(data.persistence === "shared" ? "No roster saved yet." : "Browser saving is active until Upstash is connected.");
+          setPersistence("private");
+          setSaveStatus("No private roster saved yet.");
         }
-      } catch {
-        if (!cancelled && local?.players) setPlayers(local.players);
-        if (!cancelled) setSaveStatus("Using the roster saved in this browser.");
+      } catch (error) {
+        if (cancelled) return;
+        if (legacyLocal?.players) {
+          setPlayers(legacyLocal.players);
+          setSaveStatus(`${error.message} Your older browser copy is still available on this device and has not been deleted.`);
+        } else {
+          setSaveStatus(error.message || "The private roster could not be loaded.");
+        }
       } finally {
         if (!cancelled) setLoadingRoster(false);
       }
@@ -407,15 +430,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     loadRoster();
     return () => { cancelled = true; };
   }, [team.slug]);
-
-  useEffect(() => {
-    if (loadingRoster) return;
-    window.localStorage.setItem(
-      localRosterKey(team.slug),
-      JSON.stringify({ team: team.slug, players, updatedAt: new Date().toISOString() })
-    );
-    window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
-  }, [players, team.slug, loadingRoster]);
 
   // Replace older saved stats, salaries, teams and photos with the current snapshots.
   useEffect(() => {
@@ -502,10 +516,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   }
 
   async function saveRoster() {
-    setSaveStatus("Saving roster…");
-    const snapshot = { team: team.slug, players, updatedAt: new Date().toISOString() };
-    window.localStorage.setItem(localRosterKey(team.slug), JSON.stringify(snapshot));
-    window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
+    setSaveStatus("Saving privately to your account…");
 
     try {
       const response = await fetch(`/api/rosters/${team.slug}`, {
@@ -516,16 +527,16 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
       const data = await response.json();
 
       if (!response.ok) {
-        setPersistence("local");
-        setSaveStatus(data.error || "Saved in this browser only.");
+        setSaveStatus(data.error || "The private roster could not be saved.");
         return;
       }
 
-      setPersistence("shared");
-      setSaveStatus(`Shared roster saved · ${new Date(data.roster.updatedAt).toLocaleString()}`);
+      setPersistence("private");
+      window.localStorage.removeItem(localRosterKey(team.slug));
+      window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
+      setSaveStatus(`Private roster saved · ${new Date(data.roster.updatedAt).toLocaleString()}`);
     } catch {
-      setPersistence("local");
-      setSaveStatus("Saved in this browser only. Shared database was unavailable.");
+      setSaveStatus("The private roster could not be saved. Check the Upstash connection and try again.");
     }
   }
 
@@ -564,7 +575,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         <div className="dashboard-stats">
           <span><strong>{players.length}/20</strong> rostered</span>
           <span><strong>{totalFantasyPoints.toFixed(1)}</strong> 2025–26 FP</span>
-          <span><strong>{persistence === "shared" ? "Shared" : "Browser"}</strong> storage</span>
+          <span><strong>{persistence === "private" ? "Private Upstash" : "Unavailable"}</strong> storage</span>
           <span className={rosterComplete ? "legal-status complete" : "legal-status"}>
             <strong>{rosterComplete && capRemaining >= 0 ? "Legal" : "Building"}</strong> roster status
           </span>

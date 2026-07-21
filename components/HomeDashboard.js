@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { HockeyCardOverlay } from "@/components/LockerRoom";
-import { TEAMS } from "@/data/league-config";
-import { newerRoster, rosterStorageKey } from "@/lib/standings";
 
 const PANELS = [
   { key: "forwards", label: "Forwards", shortLabel: "F", count: 10 },
@@ -12,24 +10,6 @@ const PANELS = [
   { key: "goalies", label: "Goalies", shortLabel: "G", count: 10 },
   { key: "rookies", label: "Rookie Race", shortLabel: "R", count: 5 }
 ];
-
-function readLocalRoster(teamSlug) {
-  try {
-    const raw = window.localStorage.getItem(rosterStorageKey(teamSlug));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function ownerNames(playerId, rosters) {
-  const owners = TEAMS.filter((team) => (
-    Array.isArray(rosters?.[team.slug]?.players)
-    && rosters[team.slug].players.some((player) => String(player.playerId) === String(playerId))
-  )).map((team) => team.name);
-
-  return owners.length ? owners.join(" · ") : "Undrafted";
-}
 
 function formatPoints(value) {
   return Number(value || 0).toLocaleString("en-CA", {
@@ -47,7 +27,6 @@ export default function HomeDashboard() {
   const [rankingLoading, setRankingLoading] = useState(false);
   const [dashboard, setDashboard] = useState({
     performers: { forwards: [], defence: [], goalies: [], rookies: [] },
-    rosters: {},
     loaded: false,
     error: null
   });
@@ -75,17 +54,8 @@ export default function HomeDashboard() {
         if (!response.ok) throw new Error(data.error || "The NHL leaderboard could not be loaded.");
         if (cancelled) return;
 
-        const rosters = {};
-        for (const team of TEAMS) {
-          rosters[team.slug] = newerRoster(
-            data.rosters?.[team.slug] || null,
-            readLocalRoster(team.slug)
-          );
-        }
-
         setDashboard({
           performers: data.performers || {},
-          rosters,
           loaded: true,
           error: null,
           updatedAt: data.updatedAt || null,
@@ -159,13 +129,13 @@ export default function HomeDashboard() {
               <ol className="home-standings-list">
                 {standings.map((team) => (
                   <li key={team.slug} className={`home-standing-row rank-${team.rank}`}>
-                    <a href={`/team/${team.slug}/locker-room`} aria-label={`Open ${team.name}'s locker room`}>
+                    <div className="home-standing-private" aria-label={`${team.name}, ${formatPoints(team.fantasyPoints)} fantasy points`}>
                       <span className="home-standing-rank">{team.rank}</span>
                       <span className="home-standing-name">{team.name}</span>
                       <span className="home-standing-points">
                         {standingsLoaded ? formatPoints(team.fantasyPoints) : "—"}
                       </span>
-                    </a>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -220,7 +190,7 @@ export default function HomeDashboard() {
                       />
                       <span className="performer-identity">
                         <strong>{player.name}</strong>
-                        <span>{player.team} · {ownerNames(player.playerId, dashboard.rosters)}</span>
+                        <span>{player.team} · roster ownership private</span>
                       </span>
                       <strong className="performer-points">{formatPoints(player.fantasyPoints)}</strong>
                     </button>

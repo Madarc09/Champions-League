@@ -1,12 +1,9 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import LockerRoom from "@/components/LockerRoom";
 import { TEAMS } from "@/data/league-config";
+import { currentManager } from "@/lib/auth";
 
-export function generateStaticParams() {
-  return TEAMS
-    .filter((team) => team.slug !== "nick")
-    .map((team) => ({ team: team.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { team: slug } = await params;
@@ -16,7 +13,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${team.name}'s Locker Room | Champions League`,
-    description: `${team.name}'s Champions League projected roster inside a custom locker.`
+    description: `${team.name}'s private Champions League projected roster.`
   };
 }
 
@@ -24,6 +21,10 @@ export default async function TeamLockerRoomPage({ params }) {
   const { team: slug } = await params;
   const team = TEAMS.find((item) => item.slug === slug);
   if (!team || team.slug === "nick") notFound();
+
+  const manager = await currentManager();
+  if (!manager) redirect(`/login?next=/team/${slug}/locker-room`);
+  if (manager.slug !== slug) redirect(`/team/${manager.slug}/locker-room`);
 
   return (
     <div className="locker-page-root">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ROSTER_LIMITS, SALARY_CAP, TEAMS } from "@/data/league-config";
 import { getRedis } from "@/lib/redis";
+import { managerFromRequest } from "@/lib/auth";
 
 function validTeam(team) {
   return TEAMS.some((item) => item.slug === team);
@@ -41,27 +42,37 @@ function validateRoster(players) {
   return null;
 }
 
-export async function GET(_request, context) {
+export async function GET(request, context) {
   const { team } = await context.params;
   if (!validTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
 
+  const manager = await managerFromRequest(request);
+  if (!manager) return NextResponse.json({ error: "Sign in to view this private roster." }, { status: 401 });
+  if (manager.slug !== team) return NextResponse.json({ error: "This roster is private to its manager." }, { status: 403 });
+
   const redis = getRedis();
   if (!redis) {
-    return NextResponse.json({ roster: null, persistence: "local" });
+    return NextResponse.json({ error: "Upstash is not connected to this Vercel project." }, { status: 503 });
   }
 
   try {
     const roster = await redis.get(rosterKey(team));
-    return NextResponse.json({ roster: roster || null, persistence: "shared" });
+    return NextResponse.json({ roster: roster || null, persistence: "private" }, {
+      headers: { "Cache-Control": "no-store, private" }
+    });
   } catch (error) {
     console.error("Roster read failed:", error);
-    return NextResponse.json({ roster: null, persistence: "local" });
+    return NextResponse.json({ error: "The private roster could not be loaded." }, { status: 500 });
   }
 }
 
 export async function POST(request, context) {
   const { team } = await context.params;
   if (!validTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
+
+  const manager = await managerFromRequest(request);
+  if (!manager) return NextResponse.json({ error: "Sign in before saving a roster." }, { status: 401 });
+  if (manager.slug !== team) return NextResponse.json({ error: "You can only save your own roster." }, { status: 403 });
 
   const body = await request.json();
   const error = validateRoster(body.players);
@@ -76,11 +87,13 @@ export async function POST(request, context) {
   const redis = getRedis();
   if (!redis) {
     return NextResponse.json(
-      { error: "Upstash is not connected. Save this roster in the browser instead.", roster },
+      { error: "Upstash is not connected to this Vercel project.", roster },
       { status: 503 }
     );
   }
 
   await redis.set(rosterKey(team), roster);
-  return NextResponse.json({ roster, persistence: "shared" });
+  return NextResponse.json({ roster, persistence: "private" }, {
+    headers: { "Cache-Control": "no-store, private" }
+  });
 }

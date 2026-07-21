@@ -1,20 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TEAMS } from "@/data/league-config";
-import {
-  buildLeagueStandings,
-  newerRoster,
-  rosterStorageKey
-} from "@/lib/standings";
 
-function readLocalRoster(teamSlug) {
-  try {
-    const raw = window.localStorage.getItem(rosterStorageKey(teamSlug));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+function totalFantasyPoints(players = []) {
+  return Math.round(
+    players.reduce((sum, player) => sum + Number(player?.fantasyPoints || 0), 0) * 10
+  ) / 10;
+}
+
+function rankStandings(entries = []) {
+  return [...entries]
+    .sort((left, right) => (
+      Number(right.fantasyPoints || 0) - Number(left.fantasyPoints || 0)
+      || Number(left.originalIndex || 0) - Number(right.originalIndex || 0)
+    ))
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
 }
 
 export default function useLeagueStandings({
@@ -23,52 +23,33 @@ export default function useLeagueStandings({
   currentRosterReady = false
 } = {}) {
   const [snapshot, setSnapshot] = useState({
-    rosters: {},
-    liveFantasyPoints: {},
+    standings: [],
     loaded: false,
-    persistence: "local"
+    persistence: "private"
   });
 
   const refresh = useCallback(async () => {
-    let serverData = {
-      rosters: {},
-      liveFantasyPoints: {},
-      persistence: "local"
-    };
-
     try {
       const response = await fetch("/api/standings", {
         cache: "no-store",
         signal: AbortSignal.timeout(60000)
       });
       const data = await response.json();
-      if (response.ok) serverData = data;
+      if (!response.ok) throw new Error(data.error || "Standings could not be loaded.");
+
+      setSnapshot({
+        standings: Array.isArray(data.standings) ? data.standings : [],
+        loaded: true,
+        persistence: data.persistence || "private"
+      });
     } catch {
-      // Browser saves below remain a complete fallback.
+      setSnapshot((current) => ({ ...current, loaded: true }));
     }
-
-    const rosters = {};
-    for (const team of TEAMS) {
-      rosters[team.slug] = newerRoster(
-        serverData.rosters?.[team.slug] || null,
-        readLocalRoster(team.slug)
-      );
-    }
-
-    setSnapshot({
-      rosters,
-      liveFantasyPoints: serverData.liveFantasyPoints || {},
-      loaded: true,
-      persistence: serverData.persistence || "local"
-    });
   }, []);
 
   useEffect(() => {
     refresh();
 
-    function handleStorage(event) {
-      if (!event.key || event.key.startsWith("champions-league:roster:")) refresh();
-    }
     function handleRosterUpdate() {
       refresh();
     }
@@ -76,26 +57,22 @@ export default function useLeagueStandings({
       refresh();
     }
 
-    window.addEventListener("storage", handleStorage);
     window.addEventListener("champions-league:roster-updated", handleRosterUpdate);
     window.addEventListener("focus", handleFocus);
     return () => {
-      window.removeEventListener("storage", handleStorage);
       window.removeEventListener("champions-league:roster-updated", handleRosterUpdate);
       window.removeEventListener("focus", handleFocus);
     };
   }, [refresh]);
 
   const standings = useMemo(() => {
-    const rosters = { ...snapshot.rosters };
+    const base = snapshot.standings.map((entry, originalIndex) => ({ ...entry, originalIndex }));
     if (currentTeamSlug && currentRosterReady) {
-      rosters[currentTeamSlug] = {
-        team: currentTeamSlug,
-        players: currentPlayers
-      };
+      const current = base.find((entry) => entry.slug === currentTeamSlug);
+      if (current) current.fantasyPoints = totalFantasyPoints(currentPlayers);
     }
-    return buildLeagueStandings(rosters, snapshot.liveFantasyPoints);
-  }, [snapshot.rosters, snapshot.liveFantasyPoints, currentTeamSlug, currentPlayers, currentRosterReady]);
+    return rankStandings(base).map(({ originalIndex: _originalIndex, ...entry }) => entry);
+  }, [snapshot.standings, currentTeamSlug, currentPlayers, currentRosterReady]);
 
   return {
     standings,

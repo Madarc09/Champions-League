@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { STATS_SEASON_ID, TEAMS } from "@/data/league-config";
+import { STATS_SEASON_ID } from "@/data/league-config";
 import { getPlayerPool } from "@/lib/nhl";
-import { getRedis } from "@/lib/redis";
-import { rosterStorageKey } from "@/lib/standings";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -104,19 +102,6 @@ export async function GET() {
     })
   ]);
 
-  const redis = getRedis();
-  const rosters = {};
-  if (redis) {
-    const rosterResults = await Promise.allSettled(
-      TEAMS.map(async (team) => [team.slug, await redis.get(rosterStorageKey(team.slug))])
-    );
-    for (const result of rosterResults) {
-      if (result.status !== "fulfilled") continue;
-      const [slug, roster] = result.value;
-      rosters[slug] = roster || null;
-    }
-  }
-
   const players = poolResult.players || [];
   const rookiePlayers = players
     .filter((player) => {
@@ -135,8 +120,6 @@ export async function GET() {
       goalies: topPlayers(players, "G", 10),
       rookies: rookiePlayers
     },
-    rosters,
-    persistence: redis ? "shared" : "local",
     source: poolResult.source,
     updatedAt: poolResult.updatedAt,
     stale: Boolean(poolResult.stale)

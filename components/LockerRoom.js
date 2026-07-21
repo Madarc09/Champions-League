@@ -19,19 +19,6 @@ const RANKING_LABELS = {
   champions: "CL Rank"
 };
 
-function localRosterKey(teamSlug) {
-  return `champions-league:roster:${teamSlug}:2026-27`;
-}
-
-function loadLocalRoster(teamSlug) {
-  try {
-    const value = window.localStorage.getItem(localRosterKey(teamSlug));
-    return value ? JSON.parse(value) : null;
-  } catch {
-    return null;
-  }
-}
-
 function handleHeadshotError(event) {
   const image = event.currentTarget;
   if (!image.src.endsWith(FALLBACK_HEADSHOT)) image.src = FALLBACK_HEADSHOT;
@@ -345,19 +332,18 @@ export default function LockerRoom({ team }) {
     let cancelled = false;
 
     async function loadRoster() {
-      const local = loadLocalRoster(teamSlug);
-      let roster = local?.players || [];
-      if (roster.length && !cancelled) setPlayers(roster);
+      let roster = [];
 
       try {
         const response = await fetch(`/api/rosters/${teamSlug}`, {
           cache: "no-store",
-          signal: AbortSignal.timeout(8000)
+          signal: AbortSignal.timeout(10000)
         });
         const data = await response.json();
-        if (response.ok && data.roster?.players) roster = data.roster.players;
-      } catch {
-        // Browser roster remains the fallback.
+        if (!response.ok) throw new Error(data.error || "The private roster could not be loaded.");
+        roster = data.roster?.players || [];
+      } catch (error) {
+        console.error("Private locker roster unavailable:", error);
       }
 
       if (cancelled) return;
@@ -380,7 +366,7 @@ export default function LockerRoom({ team }) {
           if (!cancelled) setPlayers(refreshed);
         }
       } catch {
-        // Saved roster already includes the last successfully loaded stats and headshots.
+        // The private saved roster already contains its most recent stats and photos.
       }
     }
 
@@ -450,15 +436,14 @@ export default function LockerRoom({ team }) {
         </div>
 
         {standingsLoaded && higherStanding ? (
-          <a
-            className="locker-standing-link locker-standing-link-left"
-            href={`/team/${higherStanding.slug}/locker-room`}
-            aria-label={`Open ${higherStanding.name}'s ${ordinal(higherStanding.rank)} place locker room`}
+          <div
+            className="locker-standing-link locker-standing-link-left locker-standing-private"
+            aria-label={`${higherStanding.name} is in ${ordinal(higherStanding.rank)} place; roster private`}
           >
             <small>← {ordinal(higherStanding.rank).toUpperCase()} PLACE</small>
             <strong>{higherStanding.name}</strong>
             <span>{higherStanding.fantasyPoints.toFixed(1)} FPTS</span>
-          </a>
+          </div>
         ) : null}
 
         <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}${currentStanding ? `, ${ordinal(currentStanding.rank)} place` : ""}`}>
@@ -468,15 +453,14 @@ export default function LockerRoom({ team }) {
         </div>
 
         {standingsLoaded && lowerStanding ? (
-          <a
-            className="locker-standing-link locker-standing-link-right"
-            href={`/team/${lowerStanding.slug}/locker-room`}
-            aria-label={`Open ${lowerStanding.name}'s ${ordinal(lowerStanding.rank)} place locker room`}
+          <div
+            className="locker-standing-link locker-standing-link-right locker-standing-private"
+            aria-label={`${lowerStanding.name} is in ${ordinal(lowerStanding.rank)} place; roster private`}
           >
             <small>{ordinal(lowerStanding.rank).toUpperCase()} PLACE →</small>
             <strong>{lowerStanding.name}</strong>
             <span>{lowerStanding.fantasyPoints.toFixed(1)} FPTS</span>
-          </a>
+          </div>
         ) : null}
 
         {selection ? (

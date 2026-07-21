@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import RosterBuilder from "@/components/RosterBuilder";
 import {
   GOALIE_SCORING,
@@ -8,15 +8,18 @@ import {
   SEASON_LABEL,
   TEAMS
 } from "@/data/league-config";
+import { currentManager } from "@/lib/auth";
 
-export function generateStaticParams() {
-  return TEAMS.map((team) => ({ team: team.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function TeamPage({ params }) {
   const { team: slug } = await params;
   const team = TEAMS.find((item) => item.slug === slug);
   if (!team) notFound();
+
+  const manager = await currentManager();
+  if (!manager) redirect(`/login?next=/team/${slug}`);
+  if (manager.slug !== slug) redirect(`/team/${manager.slug}`);
 
   return (
     <>

@@ -24,7 +24,7 @@ export default function StandingsBoard() {
                   <span className="team-avatar">{team.name.slice(0, 1)}</span>
                   <span>
                     <strong>{team.name}</strong>
-                    <small>Open draft room →</small>
+                    <small>Private manager area →</small>
                   </span>
                 </a>
               </td>

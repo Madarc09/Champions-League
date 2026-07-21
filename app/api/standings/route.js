@@ -41,11 +41,13 @@ export async function GET() {
     console.error("Standings player refresh failed:", error);
   }
 
+  // Only aggregate totals leave the server. Individual rosters and player IDs
+  // remain private inside Upstash.
   return NextResponse.json({
     standings: buildLeagueStandings(rosters, liveFantasyPoints),
-    rosters,
-    liveFantasyPoints,
-    persistence: redis ? "shared" : "local",
+    persistence: redis ? "private" : "unavailable",
     statsUpdatedAt
+  }, {
+    headers: { "Cache-Control": "no-store" }
   });
 }
