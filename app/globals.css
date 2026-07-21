@@ -4484,3 +4484,18 @@ body.prediction-editor-open {
     padding: 9px 12px;
   }
 }
+
+/* Joe and Darren custom backgrounds use narrower outer prediction wells than
+   the original shared locker template. Keep both live prediction grids fully
+   outside the centre roster opening while preserving their existing sizing. */
+.locker-team-joe .locker-prediction-panel-left,
+.locker-team-darren .locker-prediction-panel-left {
+  left: 5.75%;
+  width: 20.5%;
+}
+
+.locker-team-joe .locker-prediction-panel-right,
+.locker-team-darren .locker-prediction-panel-right {
+  right: 5.75%;
+  width: 20.5%;
+}
