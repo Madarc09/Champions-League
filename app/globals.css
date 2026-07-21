@@ -3802,3 +3802,90 @@ button.performer-row:focus-visible {
   .locker-prediction-tile strong { font-size: 7px; }
   .locker-prediction-tile small { font-size: 6px; }
 }
+
+/* Nick drive-in/Sundin background alignment (2026-07-21).
+   Match Joe's non-overlapping vertical framework while respecting the
+   narrower centre opening and the two blank prediction panels. */
+.locker-team-nick .nick-locker-roster-panel {
+  top: 12.1%;
+  right: 28.8%;
+  bottom: 13.9%;
+  left: 28.8%;
+  padding: clamp(3px, 0.22cqw, 6px) clamp(4px, 0.28cqw, 7px) clamp(4px, 0.25cqw, 7px);
+  border-color: rgba(223, 188, 124, 0.10);
+  background: linear-gradient(180deg, rgba(6, 7, 8, 0.22), rgba(3, 4, 5, 0.12));
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.14);
+}
+
+.locker-team-nick .locker-prediction-panel {
+  top: 29.1%;
+  bottom: 22.2%;
+}
+
+.locker-team-nick .locker-prediction-panel-left {
+  left: 5.65%;
+  width: 21.3%;
+}
+
+.locker-team-nick .locker-prediction-panel-right {
+  right: 5.65%;
+  width: 21.3%;
+}
+
+.locker-team-nick .nick-locker-team-total {
+  left: 29.05%;
+  right: 29.05%;
+  bottom: 3.15%;
+  height: 8.6%;
+  min-height: 0;
+  padding: clamp(4px, 0.34cqw, 8px) clamp(8px, 0.7cqw, 16px);
+  background: linear-gradient(180deg, rgba(5, 4, 3, 0.42), rgba(2, 2, 2, 0.62));
+  border: 1px solid rgba(218, 181, 112, 0.18);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.34);
+}
+
+.locker-team-nick .nick-locker-team-total span {
+  display: block;
+  flex: 1 0 100%;
+  font-size: clamp(8px, 0.61cqw, 13px);
+}
+
+.locker-team-nick .nick-locker-team-total strong {
+  font-size: clamp(22px, 1.82cqw, 38px);
+}
+
+.locker-team-nick .nick-locker-team-total em {
+  font-size: clamp(8px, 0.61cqw, 13px);
+}
+
+.locker-team-nick .locker-standing-link {
+  bottom: 3.15%;
+  width: 21.3%;
+  height: 8.6%;
+  min-height: 0;
+  border: 1px solid rgba(218, 181, 112, 0.16);
+  background: linear-gradient(180deg, rgba(5, 4, 3, 0.40), rgba(2, 2, 2, 0.60));
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.32);
+}
+
+.locker-team-nick .locker-standing-link-left {
+  left: 5.65%;
+}
+
+.locker-team-nick .locker-standing-link-right {
+  right: 5.65%;
+}
+
+@media (max-width: 720px) {
+  .locker-team-nick .nick-locker-roster-panel {
+    top: 12.1%;
+    right: 28.8%;
+    bottom: 13.9%;
+    left: 28.8%;
+  }
+
+  .locker-team-nick .locker-prediction-panel {
+    top: 29.1%;
+    bottom: 22.2%;
+  }
+}
