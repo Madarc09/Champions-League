@@ -59,12 +59,6 @@ export default function SiteHeader() {
             >
               Locker Room
             </a>
-            <a
-              className={pathname === `/team/${teamSlug}/predictions` ? "active" : ""}
-              href={`/team/${teamSlug}/predictions`}
-            >
-              Predictions
-            </a>
           </>
         ) : null}
 
@@ -72,7 +66,6 @@ export default function SiteHeader() {
           <>
             {!ownTeamRoute ? <a href={`/team/${manager.slug}`}>My Draft Room</a> : null}
             {!ownTeamRoute ? <a href={`/team/${manager.slug}/locker-room`}>My Locker</a> : null}
-            {!ownTeamRoute ? <a href={`/team/${manager.slug}/predictions`}>My Predictions</a> : null}
             <span className="manager-session" title={`Signed in as ${manager.name}`}>{manager.name}</span>
             <button className="header-auth-button" type="button" onClick={logout}>Log out</button>
           </>

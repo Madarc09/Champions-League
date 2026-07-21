@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { GOALIE_SCORING, SCORING } from "@/data/league-config";
 import { LOCKER_BACKGROUNDS } from "@/data/locker-config";
+import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { ordinal } from "@/lib/standings";
 
@@ -34,6 +35,80 @@ const PLAYER_PREDICTION_FIELDS = [
   ["calder", "Calder"],
   ["norris", "Norris"]
 ];
+
+const PLAYER_AWARD_CONFIG = {
+  artRoss: { label: "Art Ross", filter: (player) => player.rosterType !== "G" },
+  hart: { label: "Hart", filter: () => true },
+  rocket: { label: "Rocket", filter: (player) => player.rosterType !== "G" },
+  vezina: { label: "Vezina", filter: (player) => player.rosterType === "G" },
+  calder: {
+    label: "Calder",
+    filter: (player) => Boolean(player.rookie || player.draftYear || Number(player.gamesPlayed || 0) === 0)
+  },
+  norris: { label: "Norris", filter: (player) => player.rosterType === "D" }
+};
+
+const TEAM_AWARD_CONFIG = {
+  stanleyCup: { label: "Stanley Cup", conference: null },
+  eastChamp: { label: "East Champion", conference: "East" },
+  westChamp: { label: "West Champion", conference: "West" },
+  presidentsTrophy: { label: "Presidents' Trophy", conference: null }
+};
+
+const EMPTY_PREDICTIONS = {
+  playerAwards: Object.fromEntries(Object.keys(PLAYER_AWARD_CONFIG).map((key) => [key, null])),
+  teamAwards: Object.fromEntries(Object.keys(TEAM_AWARD_CONFIG).map((key) => [key, null]))
+};
+
+function normalizedPredictions(value) {
+  return {
+    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) },
+    teamAwards: { ...EMPTY_PREDICTIONS.teamAwards, ...(value?.teamAwards || {}) },
+    updatedAt: value?.updatedAt || null
+  };
+}
+
+function predictionPayload(value) {
+  return {
+    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) },
+    teamAwards: { ...EMPTY_PREDICTIONS.teamAwards, ...(value?.teamAwards || {}) }
+  };
+}
+
+function expectedRank(player) {
+  const ranks = [player?.expectedRanks?.nhl, player?.expectedRanks?.espn]
+    .map(Number)
+    .filter((rank) => Number.isFinite(rank) && rank > 0);
+  if (!ranks.length) return Number.POSITIVE_INFINITY;
+  return ranks.reduce((total, rank) => total + rank, 0) / ranks.length;
+}
+
+function awardProduction(awardKey, player) {
+  if (awardKey === "artRoss") return Number(player.goals || 0) + Number(player.assists || 0);
+  if (awardKey === "rocket") return Number(player.goals || 0);
+  if (awardKey === "vezina") {
+    return Number(player.fantasyPoints || 0) + (Number(player.wins || 0) * 4) + (Number(player.saves || 0) * 0.05);
+  }
+  if (awardKey === "calder") {
+    const draftBoost = Number(player.draftYear || 0) * 100 - Number(player.draftPick || 999);
+    return draftBoost + Number(player.fantasyPoints || 0);
+  }
+  return Number(player.fantasyPoints || 0);
+}
+
+function compareExpectedCandidates(awardKey, left, right) {
+  const leftRank = expectedRank(left);
+  const rightRank = expectedRank(right);
+  const leftHasRank = Number.isFinite(leftRank);
+  const rightHasRank = Number.isFinite(rightRank);
+
+  if (leftHasRank && rightHasRank && leftRank !== rightRank) return leftRank - rightRank;
+  if (leftHasRank !== rightHasRank) return leftHasRank ? -1 : 1;
+
+  const productionDifference = awardProduction(awardKey, right) - awardProduction(awardKey, left);
+  if (productionDifference !== 0) return productionDifference;
+  return String(left.name || "").localeCompare(String(right.name || ""), "en", { sensitivity: "base" });
+}
 
 function handleHeadshotError(event) {
   const image = event.currentTarget;
@@ -134,12 +209,18 @@ function RankingTile({ source, rank, sourceInfo, loading }) {
   return <div className="run-card-rank-tile">{content}</div>;
 }
 
-function PredictionTile({ title, selection, kind }) {
+function PredictionTile({ title, selection, kind, editable = false, onEdit }) {
   const image = kind === "team" ? selection?.logo : selection?.headshot;
-  const name = kind === "team" ? selection?.name : selection?.name;
+  const name = selection?.name || null;
+  const Tag = editable ? "button" : "article";
 
   return (
-    <article className={`locker-prediction-tile locker-prediction-tile-${kind}${selection ? " is-selected" : " is-empty"}`}>
+    <Tag
+      className={`locker-prediction-tile locker-prediction-tile-${kind}${selection ? " is-selected" : " is-empty"}${editable ? " is-editable" : ""}`}
+      type={editable ? "button" : undefined}
+      onClick={editable ? onEdit : undefined}
+      aria-label={editable ? `Edit ${title} prediction${name ? `, currently ${name}` : ""}` : undefined}
+    >
       <strong>{title}</strong>
       <div className="locker-prediction-image">
         {image ? (
@@ -155,11 +236,11 @@ function PredictionTile({ title, selection, kind }) {
         )}
       </div>
       <small title={name || "TBA"}>{name || "TBA"}</small>
-    </article>
+    </Tag>
   );
 }
 
-function PredictionsPanel({ side, predictions }) {
+function PredictionsPanel({ side, predictions, editable = false, onEdit }) {
   const fields = side === "left" ? TEAM_PREDICTION_FIELDS : PLAYER_PREDICTION_FIELDS;
   const values = side === "left" ? predictions?.teamAwards : predictions?.playerAwards;
   const kind = side === "left" ? "team" : "player";
@@ -170,10 +251,150 @@ function PredictionsPanel({ side, predictions }) {
       aria-label={side === "left" ? "Team predictions" : "Player award predictions"}
     >
       {fields.map(([key, title]) => (
-        <PredictionTile key={key} title={title} selection={values?.[key] || null} kind={kind} />
+        <PredictionTile
+          key={key}
+          title={title}
+          selection={values?.[key] || null}
+          kind={kind}
+          editable={editable}
+          onEdit={() => onEdit?.({ key, title, kind })}
+        />
       ))}
     </section>
   );
+}
+
+function PredictionEditorModal({ editor, players, teams, currentSelection, loading, saving, status, onSelect, onClose }) {
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setSearch("");
+  }, [editor?.key, editor?.kind]);
+
+  useEffect(() => {
+    if (!editor) return undefined;
+    function onKeyDown(event) {
+      if (event.key === "Escape") onClose();
+    }
+    document.body.classList.add("prediction-editor-open");
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.classList.remove("prediction-editor-open");
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [editor, onClose]);
+
+  if (!editor) return null;
+
+  const isTeam = editor.kind === "team";
+  const teamConfig = TEAM_AWARD_CONFIG[editor.key];
+  const playerConfig = PLAYER_AWARD_CONFIG[editor.key];
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const eligibleTeams = isTeam
+    ? teams.filter((club) => !teamConfig?.conference || club.conference === teamConfig.conference)
+    : [];
+
+  const eligiblePlayers = !isTeam
+    ? players.filter((player) => playerConfig?.filter?.(player))
+    : [];
+
+  const expectedPlayers = !isTeam
+    ? [...eligiblePlayers].sort((left, right) => compareExpectedCandidates(editor.key, left, right)).slice(0, 25)
+    : [];
+
+  const visiblePlayers = !isTeam && normalizedSearch
+    ? eligiblePlayers
+        .filter((player) => `${player.name} ${player.team || ""}`.toLowerCase().includes(normalizedSearch))
+        .sort((left, right) => compareExpectedCandidates(editor.key, left, right))
+        .slice(0, 80)
+    : expectedPlayers;
+
+  const markup = (
+    <div className="locker-prediction-editor-backdrop" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose();
+    }}>
+      <section className="locker-prediction-editor" role="dialog" aria-modal="true" aria-label={`Edit ${editor.title} prediction`}>
+        <header>
+          <div>
+            <p>{isTeam ? "TEAM PREDICTION" : "PLAYER PREDICTION"}</p>
+            <h2>{editor.title}</h2>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close prediction editor">×</button>
+        </header>
+
+        {currentSelection ? (
+          <div className="locker-prediction-current">
+            <img
+              src={isTeam ? currentSelection.logo : currentSelection.headshot || FALLBACK_HEADSHOT}
+              alt=""
+              onError={!isTeam ? handleHeadshotError : undefined}
+            />
+            <div><span>Current choice</span><strong>{currentSelection.name}</strong></div>
+          </div>
+        ) : null}
+
+        {isTeam ? (
+          <div className="locker-prediction-team-grid">
+            {eligibleTeams.map((club) => (
+              <button
+                type="button"
+                key={club.abbrev}
+                className={currentSelection?.abbrev === club.abbrev ? "selected" : ""}
+                onClick={() => onSelect(club)}
+                disabled={saving}
+              >
+                <img src={club.logo} alt="" />
+                <span>{club.name}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <>
+            <label className="locker-prediction-search">
+              <span>Search any eligible player</span>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={`Search for a ${editor.title} choice…`}
+                autoFocus
+              />
+            </label>
+            <div className="locker-prediction-list-heading">
+              <strong>{normalizedSearch ? "Search results" : "Top 25 expected"}</strong>
+              <span>{visiblePlayers.length} players</span>
+            </div>
+            <div className="locker-prediction-player-grid">
+              {visiblePlayers.map((player, index) => (
+                <button
+                  type="button"
+                  key={player.playerId}
+                  className={String(currentSelection?.playerId) === String(player.playerId) ? "selected" : ""}
+                  onClick={() => onSelect(player)}
+                  disabled={saving}
+                >
+                  <span className="prediction-editor-rank">{normalizedSearch ? "" : `#${index + 1}`}</span>
+                  <img src={player.headshot || FALLBACK_HEADSHOT} alt="" onError={handleHeadshotError} />
+                  <span className="prediction-editor-player-copy">
+                    <strong>{player.name}</strong>
+                    <small>{player.team || "NHL"} · {player.rosterType || player.position || "Player"}</small>
+                  </span>
+                </button>
+              ))}
+              {!loading && !visiblePlayers.length ? <p className="prediction-editor-empty">No eligible players match that search.</p> : null}
+            </div>
+          </>
+        )}
+
+        <footer>
+          <span>{loading ? "Loading choices…" : saving ? "Saving to Upstash…" : status || "Select a new choice to save immediately."}</span>
+          <button type="button" onClick={() => onSelect(null)} disabled={saving}>Clear prediction</button>
+        </footer>
+      </section>
+    </div>
+  );
+
+  return typeof document !== "undefined" ? createPortal(markup, document.body) : null;
 }
 
 function EmptyCard({ slotNumber, concealed = false }) {
@@ -376,6 +597,15 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rosterReady, setRosterReady] = useState(false);
   const [predictions, setPredictions] = useState(null);
+  const [predictionEditor, setPredictionEditor] = useState(null);
+  const [predictionPlayers, setPredictionPlayers] = useState([]);
+  const [nhlTeams, setNhlTeams] = useState(NHL_TEAMS_FALLBACK);
+  const [predictionPoolLoading, setPredictionPoolLoading] = useState(false);
+  const [predictionSaving, setPredictionSaving] = useState(false);
+  const [predictionStatus, setPredictionStatus] = useState("");
+  const predictionUpdatedAtRef = useRef(0);
+  const predictionSavingRef = useRef(false);
+  const predictionSaveQueueRef = useRef(Promise.resolve());
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -449,14 +679,18 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   }, [teamSlug, isOwnLocker]);
 
   useEffect(() => {
-    if (teamSlug !== "nick" || !isOwnLocker) {
+    setPredictionEditor(null);
+    setPredictionStatus("");
+
+    if (!isOwnLocker) {
       setPredictions(null);
       return undefined;
     }
 
     let cancelled = false;
 
-    async function loadPredictions() {
+    async function loadPredictions({ quiet = false } = {}) {
+      if (predictionSavingRef.current) return;
       try {
         const response = await fetch(`/api/predictions/${teamSlug}?locker=${Date.now()}`, {
           cache: "no-store",
@@ -464,15 +698,24 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Predictions could not be loaded.");
-        if (!cancelled) setPredictions(data.predictions || null);
+        if (cancelled) return;
+
+        const next = normalizedPredictions(data.predictions);
+        const remoteTime = Date.parse(data.predictions?.updatedAt || 0) || 0;
+        if (!quiet || remoteTime > predictionUpdatedAtRef.current) {
+          setPredictions(next);
+          predictionUpdatedAtRef.current = remoteTime;
+          if (!quiet) setPredictionStatus(data.predictions ? "Predictions loaded. Click any choice to edit it." : "Click any prediction tile to make a choice.");
+        }
       } catch (error) {
+        if (!cancelled && !quiet) setPredictionStatus(error.message || "Predictions could not be loaded.");
         console.error("Locker predictions unavailable:", error);
       }
     }
 
     loadPredictions();
     const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") loadPredictions();
+      if (document.visibilityState === "visible") loadPredictions({ quiet: true });
     }, 3000);
 
     return () => {
@@ -480,6 +723,75 @@ export default function LockerRoom({ team, viewerSlug = null }) {
       window.clearInterval(interval);
     };
   }, [teamSlug, isOwnLocker]);
+
+  useEffect(() => {
+    if (!isOwnLocker) {
+      setPredictionPlayers([]);
+      setNhlTeams(NHL_TEAMS_FALLBACK);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setPredictionPoolLoading(true);
+
+    Promise.allSettled([
+      fetch("/api/players?mode=predictions", { cache: "no-store" }).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Player choices could not be loaded.");
+        return data.players || [];
+      }),
+      fetch("/api/nhl-teams", { cache: "no-store" }).then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "NHL teams could not be loaded.");
+        return data.teams || NHL_TEAMS_FALLBACK;
+      })
+    ]).then(([playerResult, teamResult]) => {
+      if (cancelled) return;
+      if (playerResult.status === "fulfilled") setPredictionPlayers(playerResult.value);
+      else setPredictionStatus(playerResult.reason?.message || "Player choices could not be loaded.");
+      if (teamResult.status === "fulfilled" && teamResult.value.length) setNhlTeams(teamResult.value);
+      setPredictionPoolLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [isOwnLocker]);
+
+  function selectPrediction(value) {
+    if (!predictionEditor || !isOwnLocker) return;
+
+    const base = normalizedPredictions(predictions);
+    const next = predictionEditor.kind === "team"
+      ? { ...base, teamAwards: { ...base.teamAwards, [predictionEditor.key]: value } }
+      : { ...base, playerAwards: { ...base.playerAwards, [predictionEditor.key]: value } };
+
+    setPredictions(next);
+    setPredictionEditor(null);
+    setPredictionSaving(true);
+    predictionSavingRef.current = true;
+    setPredictionStatus("Saving prediction to Upstash…");
+
+    predictionSaveQueueRef.current = predictionSaveQueueRef.current.catch(() => undefined).then(async () => {
+      try {
+        const response = await fetch(`/api/predictions/${teamSlug}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(predictionPayload(next))
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "The prediction could not be saved.");
+
+        const saved = normalizedPredictions(data.predictions);
+        setPredictions(saved);
+        predictionUpdatedAtRef.current = Date.parse(data.predictions?.updatedAt || 0) || Date.now();
+        setPredictionStatus(`Saved automatically · ${new Date(data.predictions.updatedAt).toLocaleTimeString()}`);
+      } catch (error) {
+        setPredictionStatus(error.message || "Automatic save failed.");
+      } finally {
+        predictionSavingRef.current = false;
+        setPredictionSaving(false);
+      }
+    });
+  }
 
   const rosterNameKey = useMemo(
     () => players.map((player) => player.name).filter(Boolean).sort().join("|"),
@@ -539,12 +851,20 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
       <div className={`nick-locker-stage locker-team-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
-        {teamSlug === "nick" ? (
-          <>
-            <PredictionsPanel side="left" predictions={isOwnLocker ? predictions : null} />
-            <PredictionsPanel side="right" predictions={isOwnLocker ? predictions : null} />
-          </>
-        ) : null}
+        <>
+          <PredictionsPanel
+            side="left"
+            predictions={isOwnLocker ? predictions : null}
+            editable={isOwnLocker}
+            onEdit={setPredictionEditor}
+          />
+          <PredictionsPanel
+            side="right"
+            predictions={isOwnLocker ? predictions : null}
+            editable={isOwnLocker}
+            onEdit={setPredictionEditor}
+          />
+        </>
 
         <div className="nick-locker-roster-panel">
           <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
@@ -592,6 +912,22 @@ export default function LockerRoom({ team, viewerSlug = null }) {
           />
         ) : null}
       </div>
+
+      <PredictionEditorModal
+        editor={predictionEditor}
+        players={predictionPlayers}
+        teams={nhlTeams}
+        currentSelection={predictionEditor
+          ? predictionEditor.kind === "team"
+            ? predictions?.teamAwards?.[predictionEditor.key] || null
+            : predictions?.playerAwards?.[predictionEditor.key] || null
+          : null}
+        loading={predictionPoolLoading}
+        saving={predictionSaving}
+        status={predictionStatus}
+        onSelect={selectPrediction}
+        onClose={() => setPredictionEditor(null)}
+      />
     </div>
   );
 }

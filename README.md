@@ -333,3 +333,13 @@ Locker Rooms now require login and redirect managers back to their own room if t
 ## Prediction candidate menus
 
 The Future Predictions page is optimized to fit within a normal desktop browser window. Each player-award menu initially shows 25 expected candidates. The expected list uses the cached NHL.com and ESPN 2026-27 fantasy rankings when available, with 2025-26 award-specific production as the fallback ordering. Each award also has a search field that can find any eligible player outside the suggested 25. Team conference restrictions and private Upstash auto-save remain unchanged.
+
+## Locker Room prediction editing
+
+Future Predictions are now edited directly inside each manager's private Locker Room.
+
+- Click any team logo or player headshot in the prediction panels to edit that category.
+- Team choices are restricted by conference where required.
+- Player awards open with the top 25 expected candidates and provide full eligible-player search.
+- Changes save immediately to the manager's private Upstash record.
+- The former `/team/<manager>/predictions` URL redirects to that manager's Locker Room.

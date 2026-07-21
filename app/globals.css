@@ -4030,3 +4030,409 @@ button.performer-row:focus-visible {
     margin: 0 auto;
   }
 }
+
+/* Locker-room prediction editing. The selected image itself is the edit button;
+   the full chooser is portaled above the scaled locker stage so desktop and
+   mobile layouts cannot clip or distort it. */
+.locker-prediction-panel {
+  pointer-events: auto;
+}
+
+button.locker-prediction-tile {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+}
+
+.locker-prediction-tile.is-editable {
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.locker-prediction-tile.is-editable:hover,
+.locker-prediction-tile.is-editable:focus-visible {
+  z-index: 2;
+  border-color: rgba(245, 203, 116, 0.72);
+  background: linear-gradient(180deg, rgba(28, 24, 18, 0.68), rgba(7, 7, 7, 0.48));
+  outline: 2px solid rgba(245, 203, 116, 0.46);
+  outline-offset: -2px;
+  transform: translateY(-1px);
+}
+
+body.prediction-editor-open {
+  overflow: hidden;
+}
+
+.locker-prediction-editor-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 2vw, 30px);
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.locker-prediction-editor {
+  width: min(960px, 96vw);
+  max-height: min(850px, 92dvh);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid rgba(229, 185, 97, 0.66);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #15120e 0%, #090a0d 38%, #050607 100%);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.72), inset 0 0 50px rgba(210, 160, 70, 0.06);
+  color: #f7f1e5;
+}
+
+.locker-prediction-editor > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid rgba(229, 185, 97, 0.24);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.locker-prediction-editor > header p {
+  margin: 0 0 3px;
+  color: #d9ad59;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.locker-prediction-editor > header h2 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 38px);
+  line-height: 1;
+}
+
+.locker-prediction-editor > header button {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.locker-prediction-current {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(222, 178, 90, 0.07);
+}
+
+.locker-prediction-current img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.locker-prediction-current span,
+.locker-prediction-current strong {
+  display: block;
+}
+
+.locker-prediction-current span {
+  color: #bea973;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.locker-prediction-current strong {
+  margin-top: 2px;
+  font-size: 18px;
+}
+
+.locker-prediction-team-grid,
+.locker-prediction-player-grid {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px 18px 18px;
+}
+
+.locker-prediction-team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.locker-prediction-team-grid button,
+.locker-prediction-player-grid button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+  color: #f7f1e5;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.locker-prediction-team-grid button:hover,
+.locker-prediction-team-grid button:focus-visible,
+.locker-prediction-player-grid button:hover,
+.locker-prediction-player-grid button:focus-visible,
+.locker-prediction-team-grid button.selected,
+.locker-prediction-player-grid button.selected {
+  border-color: rgba(235, 188, 92, 0.82);
+  background: rgba(235, 188, 92, 0.11);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.locker-prediction-team-grid button {
+  min-height: 116px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.locker-prediction-team-grid img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.locker-prediction-team-grid span {
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.locker-prediction-search {
+  display: block;
+  padding: 14px 18px 8px;
+}
+
+.locker-prediction-search span {
+  display: block;
+  margin-bottom: 6px;
+  color: #d9ad59;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.locker-prediction-search input {
+  width: 100%;
+  border: 1px solid rgba(229, 185, 97, 0.34);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.42);
+  color: #fff;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 16px;
+}
+
+.locker-prediction-search input:focus {
+  border-color: rgba(242, 198, 105, 0.9);
+  outline: 2px solid rgba(242, 198, 105, 0.2);
+}
+
+.locker-prediction-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 18px 0;
+}
+
+.locker-prediction-list-heading strong {
+  font-size: 15px;
+}
+
+.locker-prediction-list-heading span {
+  color: #9f9a8e;
+  font-size: 12px;
+}
+
+.locker-prediction-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 8px;
+}
+
+.locker-prediction-player-grid button {
+  display: grid;
+  grid-template-columns: 34px 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 72px;
+  padding: 6px 10px 6px 5px;
+  border-radius: 11px;
+  text-align: left;
+}
+
+.locker-prediction-player-grid button > img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.prediction-editor-rank {
+  color: #d9ad59;
+  font-size: 12px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.prediction-editor-player-copy {
+  min-width: 0;
+}
+
+.prediction-editor-player-copy strong,
+.prediction-editor-player-copy small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prediction-editor-player-copy strong {
+  font-size: 14px;
+}
+
+.prediction-editor-player-copy small {
+  margin-top: 3px;
+  color: #aaa59a;
+  font-size: 11px;
+}
+
+.prediction-editor-empty {
+  grid-column: 1 / -1;
+  margin: 20px 0;
+  color: #bbb3a4;
+  text-align: center;
+}
+
+.locker-prediction-editor > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.locker-prediction-editor > footer span {
+  min-width: 0;
+  color: #bcb5a8;
+  font-size: 12px;
+}
+
+.locker-prediction-editor > footer button {
+  flex: 0 0 auto;
+  border: 1px solid rgba(229, 185, 97, 0.4);
+  border-radius: 9px;
+  background: rgba(229, 185, 97, 0.08);
+  color: #f2d9a3;
+  padding: 8px 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.locker-prediction-editor button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+@media (max-width: 720px) {
+  .locker-prediction-editor-backdrop {
+    padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom));
+  }
+
+  .locker-prediction-editor {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 14px;
+  }
+
+  .locker-prediction-editor > header {
+    padding: 12px 13px 10px;
+  }
+
+  .locker-prediction-editor > header h2 {
+    font-size: 27px;
+  }
+
+  .locker-prediction-current {
+    min-height: 58px;
+    padding: 7px 13px;
+  }
+
+  .locker-prediction-current img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .locker-prediction-team-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 10px 12px 14px;
+    gap: 7px;
+  }
+
+  .locker-prediction-team-grid button {
+    min-height: 98px;
+    padding: 7px;
+  }
+
+  .locker-prediction-team-grid img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .locker-prediction-team-grid span {
+    font-size: 11px;
+  }
+
+  .locker-prediction-search {
+    padding: 10px 12px 6px;
+  }
+
+  .locker-prediction-list-heading {
+    padding-inline: 12px;
+  }
+
+  .locker-prediction-player-grid {
+    grid-template-columns: 1fr;
+    padding: 10px 12px 14px;
+  }
+
+  .locker-prediction-player-grid button {
+    min-height: 64px;
+    grid-template-columns: 30px 52px minmax(0, 1fr);
+  }
+
+  .locker-prediction-player-grid button > img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .locker-prediction-editor > footer {
+    align-items: flex-start;
+    padding: 9px 12px;
+  }
+}
