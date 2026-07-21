@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import LockerRoom from "@/components/LockerRoom";
 import { TEAMS } from "@/data/league-config";
 import { currentManager } from "@/lib/auth";
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${team.name}'s Locker Room | Champions League`,
-    description: `${team.name}'s private Champions League projected roster.`
+    description: `${team.name}'s Champions League Locker Room. Roster selections are visible only to that manager.`
   };
 }
 
@@ -23,12 +23,10 @@ export default async function TeamLockerRoomPage({ params }) {
   if (!team || team.slug === "nick") notFound();
 
   const manager = await currentManager();
-  if (!manager) redirect(`/login?next=/team/${slug}/locker-room`);
-  if (manager.slug !== slug) redirect(`/team/${manager.slug}/locker-room`);
 
   return (
     <div className="locker-page-root">
-      <LockerRoom team={team} />
+      <LockerRoom team={team} viewerSlug={manager?.slug || null} />
     </div>
   );
 }

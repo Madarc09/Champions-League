@@ -320,3 +320,7 @@ The public home page receives only aggregate team fantasy-point totals. It does 
 Older browser-only roster and prediction saves are migrated once into the signed-in manager's private Upstash records. The browser copy is deleted only after the migration succeeds. New versions no longer use browser storage as a save fallback.
 
 Locker Rooms now require login and redirect managers back to their own room if they try another manager's URL. Neighbouring standings positions may still be shown visually at the bottom of the locker, but they are no longer clickable roster links.
+
+## Public Locker Rooms with private rosters
+
+All eight Locker Room routes are publicly viewable. The signed-in manager sees their own saved roster, while every other visitor sees TBA placeholders in that locker. Team fantasy-point totals, standings position, backgrounds, and previous/next Locker Room navigation remain public. Draft Room and Predictions data remain private to the matching manager account.

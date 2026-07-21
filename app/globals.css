@@ -3463,10 +3463,6 @@ button.performer-row:focus-visible {
   padding: 0 2.3%;
 }
 
-.locker-standing-private {
-  cursor: default;
-  pointer-events: none;
-}
 
 @media (max-width: 900px) {
   .home-standing-row .home-standing-private {
@@ -3580,4 +3576,34 @@ button.performer-row:focus-visible {
   .lineup-player-quick-stats span {
     font-size: 0.49rem;
   }
+}
+
+/* Public Locker Rooms: another manager's roster remains concealed as TBA. */
+.locker-roster-card-tba .locker-card-player-name {
+  color: #f1d28b;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.locker-roster-card-tba .locker-card-total {
+  color: rgba(241, 210, 139, 0.62);
+}
+
+.locker-roster-card-tba .locker-card-empty-photo img {
+  opacity: 0.58;
+  filter: grayscale(1) brightness(1.22) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.72));
+}
+
+.home-standing-locker-link {
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+
+.home-standing-locker-link:hover,
+.home-standing-locker-link:focus-visible {
+  color: #fff4d2;
+  background: rgba(232, 187, 96, 0.09);
+  outline: 1px solid rgba(232, 187, 96, 0.34);
+  outline-offset: -1px;
 }

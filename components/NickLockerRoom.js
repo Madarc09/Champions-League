@@ -5,6 +5,6 @@ import { TEAMS } from "@/data/league-config";
 
 const nick = TEAMS.find((team) => team.slug === "nick");
 
-export default function NickLockerRoom() {
-  return <LockerRoom team={nick} />;
+export default function NickLockerRoom({ viewerSlug = null }) {
+  return <LockerRoom team={nick} viewerSlug={viewerSlug} />;
 }

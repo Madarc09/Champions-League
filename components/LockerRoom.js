@@ -118,10 +118,15 @@ function RankingTile({ source, rank, sourceInfo, loading }) {
   return <div className="run-card-rank-tile">{content}</div>;
 }
 
-function EmptyCard({ slotNumber }) {
+function EmptyCard({ slotNumber, concealed = false }) {
+  const label = concealed ? "TBA" : `Open spot ${slotNumber}`;
+
   return (
-    <article className="locker-roster-card locker-roster-card-empty" aria-label={`Open roster spot ${slotNumber}`}>
-      <strong className="locker-card-player-name">Open spot {slotNumber}</strong>
+    <article
+      className={`locker-roster-card locker-roster-card-empty${concealed ? " locker-roster-card-tba" : ""}`}
+      aria-label={concealed ? `Roster selection ${slotNumber} is TBA` : `Open roster spot ${slotNumber}`}
+    >
+      <strong className="locker-card-player-name">{label}</strong>
       <div className="locker-card-photo-frame locker-card-empty-photo">
         <img src={EMPTY_SLOT_SILHOUETTE} alt="" />
       </div>
@@ -130,8 +135,8 @@ function EmptyCard({ slotNumber }) {
   );
 }
 
-function PlayerCard({ player, slotNumber, onOpen }) {
-  if (!player) return <EmptyCard slotNumber={slotNumber} />;
+function PlayerCard({ player, slotNumber, onOpen, concealed = false }) {
+  if (!player || concealed) return <EmptyCard slotNumber={slotNumber} concealed={concealed} />;
 
   return (
     <article className="locker-roster-card">
@@ -157,7 +162,7 @@ function PlayerCard({ player, slotNumber, onOpen }) {
   );
 }
 
-function RosterGroup({ title, players, type, limit, onOpen }) {
+function RosterGroup({ title, players, type, limit, onOpen, concealed = false }) {
   const goalie = type === "G";
   const filled = Array.from({ length: limit }, (_, index) => players[index] || null);
 
@@ -171,6 +176,7 @@ function RosterGroup({ title, players, type, limit, onOpen }) {
             player={player}
             slotNumber={index + 1}
             onOpen={() => player && onOpen(player, goalie)}
+            concealed={concealed}
           />
         ))}
       </div>
@@ -300,10 +306,11 @@ export function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoad
   return useMobilePortal ? createPortal(cardMarkup, document.body) : cardMarkup;
 }
 
-export default function LockerRoom({ team }) {
+export default function LockerRoom({ team, viewerSlug = null }) {
   const teamSlug = team.slug;
   const teamName = team.name;
   const lockerBackground = LOCKER_BACKGROUNDS[teamSlug] || LOCKER_BACKGROUNDS.nick;
+  const isOwnLocker = viewerSlug === teamSlug;
   const viewportRef = useRef(null);
   const [players, setPlayers] = useState([]);
   const [selection, setSelection] = useState(null);
@@ -330,6 +337,14 @@ export default function LockerRoom({ team }) {
 
   useEffect(() => {
     let cancelled = false;
+    setSelection(null);
+    setPlayers([]);
+    setRosterReady(false);
+
+    if (!isOwnLocker) {
+      setRosterReady(true);
+      return () => { cancelled = true; };
+    }
 
     async function loadRoster() {
       let roster = [];
@@ -372,7 +387,7 @@ export default function LockerRoom({ team }) {
 
     loadRoster();
     return () => { cancelled = true; };
-  }, [teamSlug]);
+  }, [teamSlug, isOwnLocker]);
 
   const rosterNameKey = useMemo(
     () => players.map((player) => player.name).filter(Boolean).sort().join("|"),
@@ -409,7 +424,7 @@ export default function LockerRoom({ team }) {
     G: players.filter((player) => player.rosterType === "G")
   }), [players]);
 
-  const teamFantasyTotal = useMemo(
+  const privateTeamFantasyTotal = useMemo(
     () => players.reduce((total, player) => total + Number(player?.fantasyPoints || 0), 0),
     [players]
   );
@@ -417,7 +432,7 @@ export default function LockerRoom({ team }) {
   const { standings, loaded: standingsLoaded } = useLeagueStandings({
     currentTeamSlug: teamSlug,
     currentPlayers: players,
-    currentRosterReady: rosterReady
+    currentRosterReady: isOwnLocker && rosterReady
   });
   const standingIndex = standings.findIndex((entry) => entry.slug === teamSlug);
   const currentStanding = standingIndex >= 0 ? standings[standingIndex] : null;
@@ -425,25 +440,29 @@ export default function LockerRoom({ team }) {
   const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1
     ? standings[standingIndex + 1]
     : null;
+  const teamFantasyTotal = isOwnLocker && rosterReady
+    ? privateTeamFantasyTotal
+    : Number(currentStanding?.fantasyPoints || 0);
 
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
       <div className="nick-locker-stage" style={{ backgroundImage: `url("${lockerBackground}")` }}>
         <div className="nick-locker-roster-panel">
-          <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
-          <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
-          <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+          <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
+          <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
+          <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
         </div>
 
         {standingsLoaded && higherStanding ? (
-          <div
-            className="locker-standing-link locker-standing-link-left locker-standing-private"
-            aria-label={`${higherStanding.name} is in ${ordinal(higherStanding.rank)} place; roster private`}
+          <a
+            className="locker-standing-link locker-standing-link-left"
+            href={`/team/${higherStanding.slug}/locker-room`}
+            aria-label={`Open ${higherStanding.name}'s ${ordinal(higherStanding.rank)} place locker room`}
           >
             <small>← {ordinal(higherStanding.rank).toUpperCase()} PLACE</small>
             <strong>{higherStanding.name}</strong>
             <span>{higherStanding.fantasyPoints.toFixed(1)} FPTS</span>
-          </div>
+          </a>
         ) : null}
 
         <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}${currentStanding ? `, ${ordinal(currentStanding.rank)} place` : ""}`}>
@@ -453,14 +472,15 @@ export default function LockerRoom({ team }) {
         </div>
 
         {standingsLoaded && lowerStanding ? (
-          <div
-            className="locker-standing-link locker-standing-link-right locker-standing-private"
-            aria-label={`${lowerStanding.name} is in ${ordinal(lowerStanding.rank)} place; roster private`}
+          <a
+            className="locker-standing-link locker-standing-link-right"
+            href={`/team/${lowerStanding.slug}/locker-room`}
+            aria-label={`Open ${lowerStanding.name}'s ${ordinal(lowerStanding.rank)} place locker room`}
           >
             <small>{ordinal(lowerStanding.rank).toUpperCase()} PLACE →</small>
             <strong>{lowerStanding.name}</strong>
             <span>{lowerStanding.fantasyPoints.toFixed(1)} FPTS</span>
-          </div>
+          </a>
         ) : null}
 
         {selection ? (

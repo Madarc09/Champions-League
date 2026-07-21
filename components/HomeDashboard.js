@@ -129,13 +129,17 @@ export default function HomeDashboard() {
               <ol className="home-standings-list">
                 {standings.map((team) => (
                   <li key={team.slug} className={`home-standing-row rank-${team.rank}`}>
-                    <div className="home-standing-private" aria-label={`${team.name}, ${formatPoints(team.fantasyPoints)} fantasy points`}>
+                    <a
+                      className="home-standing-private home-standing-locker-link"
+                      href={`/team/${team.slug}/locker-room`}
+                      aria-label={`Open ${team.name}'s locker room; ${formatPoints(team.fantasyPoints)} fantasy points`}
+                    >
                       <span className="home-standing-rank">{team.rank}</span>
                       <span className="home-standing-name">{team.name}</span>
                       <span className="home-standing-points">
                         {standingsLoaded ? formatPoints(team.fantasyPoints) : "—"}
                       </span>
-                    </div>
+                    </a>
                   </li>
                 ))}
               </ol>
