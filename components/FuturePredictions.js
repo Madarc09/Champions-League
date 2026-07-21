@@ -29,6 +29,8 @@ const EMPTY_PREDICTIONS = {
   teamAwards: Object.fromEntries(TEAM_AWARDS.map((award) => [award.key, null]))
 };
 
+const EMPTY_SEARCHES = Object.fromEntries(PLAYER_AWARDS.map((award) => [award.key, ""]));
+
 function localKey(teamSlug) {
   return `champions-league:predictions:${teamSlug}:2026-27`;
 }
@@ -40,14 +42,6 @@ function readLocal(teamSlug) {
   } catch {
     return null;
   }
-}
-
-function newerPrediction(shared, local) {
-  if (!shared) return local;
-  if (!local) return shared;
-  const sharedTime = Date.parse(shared.updatedAt || 0) || 0;
-  const localTime = Date.parse(local.updatedAt || 0) || 0;
-  return localTime > sharedTime ? local : shared;
 }
 
 function normalizedPredictions(value) {
@@ -69,9 +63,45 @@ function serializePredictions(value) {
   return JSON.stringify(predictionPayload(value));
 }
 
-function playerOptionLabel(player) {
+function playerOptionLabel(player, rank = null) {
   const position = player.rosterType === "G" ? "G" : player.rosterType === "D" ? "D" : "F";
-  return `${player.name} — ${player.team || "NHL"} (${position})`;
+  const prefix = rank ? `#${rank} ` : "";
+  return `${prefix}${player.name} — ${player.team || "NHL"} (${position})`;
+}
+
+function expectedRank(player) {
+  const ranks = [player?.expectedRanks?.nhl, player?.expectedRanks?.espn]
+    .map(Number)
+    .filter((rank) => Number.isFinite(rank) && rank > 0);
+  if (!ranks.length) return Number.POSITIVE_INFINITY;
+  return ranks.reduce((total, rank) => total + rank, 0) / ranks.length;
+}
+
+function awardProduction(awardKey, player) {
+  if (awardKey === "artRoss") return Number(player.goals || 0) + Number(player.assists || 0);
+  if (awardKey === "rocket") return Number(player.goals || 0);
+  if (awardKey === "vezina") {
+    return Number(player.fantasyPoints || 0) + (Number(player.wins || 0) * 4) + (Number(player.saves || 0) * 0.05);
+  }
+  if (awardKey === "calder") {
+    const draftBoost = Number(player.draftYear || 0) * 100 - Number(player.draftPick || 999);
+    return draftBoost + Number(player.fantasyPoints || 0);
+  }
+  return Number(player.fantasyPoints || 0);
+}
+
+function compareExpectedCandidates(awardKey, left, right) {
+  const leftRank = expectedRank(left);
+  const rightRank = expectedRank(right);
+  const leftHasRank = Number.isFinite(leftRank);
+  const rightHasRank = Number.isFinite(rightRank);
+
+  if (leftHasRank && rightHasRank && leftRank !== rightRank) return leftRank - rightRank;
+  if (leftHasRank !== rightHasRank) return leftHasRank ? -1 : 1;
+
+  const productionDifference = awardProduction(awardKey, right) - awardProduction(awardKey, left);
+  if (productionDifference !== 0) return productionDifference;
+  return String(left.name || "").localeCompare(String(right.name || ""), "en", { sensitivity: "base" });
 }
 
 function SelectedPlayer({ player }) {
@@ -79,7 +109,7 @@ function SelectedPlayer({ player }) {
     return (
       <div className="prediction-selected prediction-selected-empty">
         <img src="/empty-slot-silhouette.svg" alt="" />
-        <div><strong>No prediction yet</strong><span>Select a player below</span></div>
+        <div><strong>No prediction yet</strong><span>Choose a player</span></div>
       </div>
     );
   }
@@ -101,7 +131,7 @@ function SelectedTeam({ team }) {
     return (
       <div className="prediction-selected prediction-selected-empty team-prediction-selected">
         <div className="prediction-empty-shield">?</div>
-        <div><strong>No team selected</strong><span>Choose an NHL club below</span></div>
+        <div><strong>No team selected</strong><span>Choose an NHL club</span></div>
       </div>
     );
   }
@@ -118,6 +148,7 @@ export default function FuturePredictions({ team }) {
   const [players, setPlayers] = useState([]);
   const [nhlTeams, setNhlTeams] = useState(NHL_TEAMS_FALLBACK);
   const [predictions, setPredictions] = useState(EMPTY_PREDICTIONS);
+  const [playerSearches, setPlayerSearches] = useState(EMPTY_SEARCHES);
   const [loading, setLoading] = useState(true);
   const [poolLoading, setPoolLoading] = useState(true);
   const [status, setStatus] = useState("Loading predictions…");
@@ -231,12 +262,21 @@ export default function FuturePredictions({ team }) {
     [...nhlTeams].sort((left, right) => left.name.localeCompare(right.name, "en", { sensitivity: "base" }))
   ), [nhlTeams]);
 
+  const awardCandidateLists = useMemo(() => Object.fromEntries(
+    PLAYER_AWARDS.map((award) => {
+      const eligible = sortedPlayers.filter(award.filter);
+      const expected = [...eligible].sort((left, right) => compareExpectedCandidates(award.key, left, right));
+      return [award.key, { eligible, expected: expected.slice(0, 25) }];
+    })
+  ), [sortedPlayers]);
+
   function choosePlayer(awardKey, playerId) {
     const player = sortedPlayers.find((item) => String(item.playerId) === String(playerId)) || null;
     setPredictions((current) => ({
       ...current,
       playerAwards: { ...current.playerAwards, [awardKey]: player }
     }));
+    setPlayerSearches((current) => ({ ...current, [awardKey]: "" }));
     setStatus("Saving prediction automatically…");
   }
 
@@ -335,9 +375,9 @@ export default function FuturePredictions({ team }) {
     <section className="prediction-room" aria-label={`${team.name}'s future predictions`}>
       <header className="prediction-room-header">
         <div>
-          <p className="eyebrow">2026–27 forecast</p>
-          <h1>{team.name}&apos;s Future Predictions</h1>
-          <p>Choose award winners and team outcomes. Every selection remains editable until the prediction deadline is added.</p>
+          <p className="eyebrow">{team.name} · 2026–27 forecast</p>
+          <h1>Future Predictions</h1>
+          <p>Each player menu starts with 25 expected candidates. Search beneath any award to choose someone else.</p>
         </div>
         <div className="prediction-progress">
           <strong>{pickedCount}/10</strong>
@@ -348,7 +388,7 @@ export default function FuturePredictions({ team }) {
       <div className="prediction-stage">
         <section className="prediction-column prediction-team-column">
           <header>
-            <span>Left side</span>
+            <span>Four outcomes</span>
             <h2>Team Predictions</h2>
           </header>
           <div className="prediction-choice-list">
@@ -380,41 +420,62 @@ export default function FuturePredictions({ team }) {
           </div>
         </section>
 
-        <div className="prediction-centre-mark" aria-hidden="true">
-          <img src="/champions-league-logo.png" alt="" />
-          <strong>Call Your Shot</strong>
-          <span>Selections can be changed until the deadline</span>
-        </div>
-
         <section className="prediction-column prediction-player-column">
           <header>
-            <span>Right side</span>
+            <span>Top 25 expected + full search</span>
             <h2>Player Predictions</h2>
           </header>
           <div className="prediction-choice-list prediction-player-grid">
             {PLAYER_AWARDS.map((award) => {
-              const options = sortedPlayers.filter(award.filter);
+              const candidateData = awardCandidateLists[award.key] || { eligible: [], expected: [] };
+              const search = playerSearches[award.key] || "";
+              const normalizedSearch = search.trim().toLowerCase();
               const selected = predictions.playerAwards[award.key];
+              const visibleOptions = normalizedSearch
+                ? candidateData.eligible
+                    .filter((player) => `${player.name} ${player.team || ""}`.toLowerCase().includes(normalizedSearch))
+                    .sort((left, right) => compareExpectedCandidates(award.key, left, right))
+                    .slice(0, 50)
+                : candidateData.expected;
+              const selectedAlreadyVisible = selected && visibleOptions.some((player) => String(player.playerId) === String(selected.playerId));
 
               return (
                 <article className="prediction-choice" key={award.key}>
                   <div className="prediction-choice-title">
                     <div><h3>{award.label}</h3><p>{award.note}</p></div>
+                    <span className="prediction-top25-badge">Top 25</span>
                   </div>
                   <SelectedPlayer player={selected} />
-                  <label>
-                    <span>Select NHL player</span>
-                    <select
-                      value={selected?.playerId || ""}
-                      onChange={(event) => choosePlayer(award.key, event.target.value)}
-                      disabled={poolLoading}
-                    >
-                      <option value="">{poolLoading ? "Loading players…" : "Choose a player…"}</option>
-                      {options.map((player) => (
-                        <option key={player.playerId} value={player.playerId}>{playerOptionLabel(player)}</option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="prediction-player-controls">
+                    <label className="prediction-search-control">
+                      <span>Search any eligible player</span>
+                      <input
+                        type="search"
+                        value={search}
+                        onChange={(event) => setPlayerSearches((current) => ({ ...current, [award.key]: event.target.value }))}
+                        placeholder="Name or NHL team"
+                        disabled={poolLoading}
+                      />
+                    </label>
+                    <label>
+                      <span>{normalizedSearch ? `${visibleOptions.length} search matches` : "Top 25 expected"}</span>
+                      <select
+                        value={selected?.playerId || ""}
+                        onChange={(event) => choosePlayer(award.key, event.target.value)}
+                        disabled={poolLoading}
+                      >
+                        <option value="">{poolLoading ? "Loading players…" : normalizedSearch ? "Choose search result…" : "Choose from top 25…"}</option>
+                        {selected && !selectedAlreadyVisible ? (
+                          <option value={selected.playerId}>Current: {playerOptionLabel(selected)}</option>
+                        ) : null}
+                        {visibleOptions.map((player, index) => (
+                          <option key={player.playerId} value={player.playerId}>
+                            {playerOptionLabel(player, normalizedSearch ? null : index + 1)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                 </article>
               );
             })}
@@ -427,7 +488,7 @@ export default function FuturePredictions({ team }) {
           <strong>{persistence === "private" ? "Private Upstash predictions" : "Predictions unavailable"}</strong>
           <span>{status}</span>
         </div>
-        <span className="auto-save-badge">Auto-save · cross-device sync</span>
+        <span className="auto-save-badge">Auto-save · live cross-device sync</span>
       </footer>
     </section>
   );

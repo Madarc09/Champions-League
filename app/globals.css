@@ -2915,19 +2915,23 @@ button.performer-row:focus-visible {
 }
 
 /* Future Predictions room */
+.prediction-page-root {
+  min-width: 0;
+}
+
 .prediction-room {
   display: grid;
-  gap: 22px;
+  gap: 12px;
 }
 
 .prediction-room-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 28px;
-  padding: 26px 30px;
+  gap: 22px;
+  padding: 15px 20px;
   border: 1px solid rgba(233, 189, 98, 0.25);
-  border-radius: 24px;
+  border-radius: 18px;
   background:
     linear-gradient(120deg, rgba(15, 31, 51, 0.96), rgba(5, 13, 24, 0.91)),
     repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.018) 18px 19px);
@@ -2935,25 +2939,30 @@ button.performer-row:focus-visible {
 }
 
 .prediction-room-header h1 {
-  margin-bottom: 10px;
-  font-size: clamp(2.15rem, 4.5vw, 4.35rem);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  margin: 0 0 4px;
+  font-size: clamp(1.75rem, 3vw, 2.8rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.prediction-room-header .eyebrow {
+  margin-bottom: 5px;
 }
 
 .prediction-room-header p:last-child {
-  max-width: 760px;
+  max-width: 790px;
   margin-bottom: 0;
   color: var(--muted);
-  line-height: 1.6;
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .prediction-progress {
   flex: 0 0 auto;
-  min-width: 155px;
-  padding: 16px 20px;
+  min-width: 120px;
+  padding: 9px 14px;
   border: 1px solid rgba(233, 189, 98, 0.3);
-  border-radius: 17px;
+  border-radius: 14px;
   background: rgba(1, 7, 13, 0.55);
   text-align: center;
 }
@@ -2965,130 +2974,147 @@ button.performer-row:focus-visible {
 
 .prediction-progress strong {
   color: var(--gold-2);
-  font-size: 1.85rem;
+  font-size: 1.35rem;
 }
 
 .prediction-progress span {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 850;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .prediction-stage {
-  min-height: 760px;
+  min-height: 0;
   display: grid;
-  grid-template-columns: minmax(280px, 0.78fr) minmax(180px, 0.42fr) minmax(480px, 1.4fr);
-  gap: 18px;
+  grid-template-columns: minmax(330px, 0.7fr) minmax(650px, 1.3fr);
+  gap: 10px;
   align-items: stretch;
-  padding: 18px;
+  padding: 10px;
   border: 1px solid rgba(233, 189, 98, 0.2);
-  border-radius: 28px;
+  border-radius: 20px;
   background:
-    radial-gradient(circle at 50% 42%, rgba(231, 181, 80, 0.09), transparent 28rem),
+    radial-gradient(circle at 50% 42%, rgba(231, 181, 80, 0.075), transparent 28rem),
     linear-gradient(180deg, rgba(6, 14, 25, 0.96), rgba(3, 9, 17, 0.98));
   box-shadow: var(--shadow);
 }
 
 .prediction-column {
   min-width: 0;
-  padding: 17px;
+  padding: 10px;
+  overflow: hidden;
   border: 1px solid rgba(255,255,255,0.085);
-  border-radius: 19px;
+  border-radius: 14px;
   background: rgba(13, 27, 45, 0.72);
 }
 
 .prediction-column > header {
-  margin-bottom: 14px;
-  padding-bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 0 2px 7px;
   border-bottom: 1px solid rgba(233, 189, 98, 0.25);
 }
 
 .prediction-column > header span {
+  order: 2;
   color: var(--gold);
-  font-size: 0.66rem;
+  font-size: 0.58rem;
   font-weight: 900;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-align: right;
 }
 
 .prediction-column > header h2 {
-  margin: 3px 0 0;
-  font-size: 1.45rem;
-  letter-spacing: -0.03em;
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.025em;
 }
 
 .prediction-choice-list {
   display: grid;
-  gap: 12px;
+  gap: 7px;
+}
+
+.prediction-team-column .prediction-choice-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .prediction-player-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .prediction-choice {
   min-width: 0;
-  padding: 13px;
+  padding: 8px;
   border: 1px solid rgba(255,255,255,0.085);
-  border-radius: 15px;
-  background: rgba(1, 8, 15, 0.45);
+  border-radius: 11px;
+  background: rgba(1, 8, 15, 0.46);
 }
 
 .prediction-choice-title {
-  min-height: 42px;
+  min-height: 30px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 9px;
+  gap: 8px;
+  margin-bottom: 5px;
 }
 
 .prediction-choice-title h3 {
   margin: 0;
   color: #f7f4ed;
-  font-size: 1rem;
+  font-size: 0.83rem;
 }
 
 .prediction-choice-title p {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: #8796aa;
-  font-size: 0.68rem;
+  font-size: 0.57rem;
+  line-height: 1.15;
 }
 
 .prediction-choice-title > span {
   flex: 0 0 auto;
-  padding: 4px 7px;
+  padding: 3px 6px;
   border-radius: 999px;
   color: #171108;
   background: var(--gold);
-  font-size: 0.61rem;
+  font-size: 0.53rem;
   font-weight: 950;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
+.prediction-choice-title .prediction-top25-badge {
+  color: var(--gold-2);
+  border: 1px solid rgba(233, 189, 98, 0.32);
+  background: rgba(233, 189, 98, 0.08);
+}
+
 .prediction-selected {
-  min-height: 76px;
+  min-height: 50px;
   display: grid;
-  grid-template-columns: 66px minmax(0, 1fr) 26px;
+  grid-template-columns: 43px minmax(0, 1fr) 20px;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 7px 9px 0;
+  gap: 7px;
+  margin-bottom: 5px;
+  padding: 4px 6px 0;
   overflow: hidden;
   border: 1px solid rgba(233, 189, 98, 0.18);
-  border-radius: 12px;
-  background:
-    linear-gradient(135deg, rgba(12, 25, 42, 0.96), rgba(2, 8, 15, 0.96));
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(12, 25, 42, 0.96), rgba(2, 8, 15, 0.96));
 }
 
 .prediction-selected > img:first-child {
   align-self: end;
-  width: 66px;
-  height: 70px;
+  width: 43px;
+  height: 46px;
   object-fit: contain;
   object-position: center bottom;
 }
@@ -3102,18 +3128,18 @@ button.performer-row:focus-visible {
 }
 
 .prediction-selected strong {
-  font-size: 0.84rem;
+  font-size: 0.71rem;
 }
 
 .prediction-selected span {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 0.56rem;
 }
 
 .prediction-mini-logo {
-  width: 25px !important;
-  height: 25px !important;
+  width: 19px !important;
+  height: 19px !important;
   align-self: center !important;
   object-fit: contain !important;
 }
@@ -3123,62 +3149,79 @@ button.performer-row:focus-visible {
 }
 
 .prediction-selected-empty > img:first-child {
-  width: 52px;
-  height: 58px;
-  margin-left: 6px;
+  width: 35px;
+  height: 39px;
+  margin-left: 4px;
   opacity: 0.72;
 }
 
 .team-prediction-selected {
-  grid-template-columns: 70px minmax(0, 1fr);
-  padding-bottom: 7px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  padding-bottom: 4px;
 }
 
 .team-prediction-selected > img:first-child {
   align-self: center;
-  width: 62px;
-  height: 62px;
+  width: 40px;
+  height: 40px;
 }
 
 .prediction-empty-shield {
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
+  width: 36px;
+  height: 36px;
   border: 1px dashed rgba(255,255,255,0.28);
   border-radius: 50%;
   color: #aeb7c4;
-  font-size: 1.35rem;
+  font-size: 1rem;
   font-weight: 900;
 }
 
-.prediction-choice label {
+.prediction-choice label,
+.prediction-player-controls {
   display: grid;
-  gap: 5px;
+  gap: 4px;
+}
+
+.prediction-player-controls {
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  align-items: end;
 }
 
 .prediction-choice label > span {
   color: #9caabd;
-  font-size: 0.62rem;
+  font-size: 0.52rem;
   font-weight: 850;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.prediction-choice select {
+.prediction-choice select,
+.prediction-choice input {
   width: 100%;
   min-width: 0;
-  padding: 9px 10px;
+  height: 31px;
+  padding: 5px 7px;
   border: 1px solid rgba(255,255,255,0.13);
-  border-radius: 10px;
+  border-radius: 7px;
   color: #f6f7fb;
   background: #071321;
   outline: 0;
+  font-size: 0.67rem;
 }
 
-.prediction-choice select:focus {
+.prediction-choice input::placeholder {
+  color: #66758a;
+}
+
+.prediction-choice select:focus,
+.prediction-choice input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(233, 189, 98, 0.12);
+  box-shadow: 0 0 0 2px rgba(233, 189, 98, 0.12);
 }
 
 .prediction-choice select option {
@@ -3187,55 +3230,21 @@ button.performer-row:focus-visible {
 }
 
 .prediction-centre-mark {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 12px;
-  min-width: 0;
-  padding: 20px;
-  border: 1px solid rgba(233, 189, 98, 0.15);
-  border-radius: 19px;
-  color: #c9b686;
-  background:
-    radial-gradient(circle at 50% 43%, rgba(233, 189, 98, 0.1), transparent 55%),
-    rgba(0, 5, 10, 0.4);
-  text-align: center;
-}
-
-.prediction-centre-mark img {
-  width: min(100%, 180px);
-  max-height: 240px;
-  object-fit: contain;
-  opacity: 0.18;
-  filter: grayscale(0.25) sepia(0.2);
-}
-
-.prediction-centre-mark strong {
-  color: var(--gold-2);
-  font-size: 1.05rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.prediction-centre-mark span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  line-height: 1.5;
+  display: none;
 }
 
 .prediction-save-bar {
-  position: sticky;
+  position: static;
   z-index: 10;
-  bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 14px 17px;
+  gap: 16px;
+  padding: 8px 12px;
   border: 1px solid rgba(233, 189, 98, 0.26);
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(5, 14, 25, 0.94);
-  box-shadow: 0 15px 38px rgba(0,0,0,0.38);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.28);
   backdrop-filter: blur(12px);
 }
 
@@ -3246,22 +3255,61 @@ button.performer-row:focus-visible {
 
 .prediction-save-bar strong {
   color: var(--gold-2);
-  font-size: 0.82rem;
+  font-size: 0.7rem;
 }
 
 .prediction-save-bar span {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
 }
 
-@media (max-width: 1180px) {
-  .prediction-stage {
-    grid-template-columns: minmax(260px, 0.78fr) minmax(420px, 1.22fr);
+@media (min-width: 1000px) {
+  body:has(.prediction-page-root) .site-shell {
+    width: min(1580px, calc(100% - 20px));
   }
 
-  .prediction-centre-mark {
+  body:has(.prediction-page-root) main {
+    height: calc(100dvh - 76px);
+    min-height: 640px;
+    padding: 10px 0;
+  }
+
+  body:has(.prediction-page-root) .prediction-page-root,
+  body:has(.prediction-page-root) .prediction-room {
+    height: 100%;
+    min-height: 0;
+  }
+
+  body:has(.prediction-page-root) .prediction-room {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  body:has(.prediction-page-root) .prediction-stage {
+    overflow: hidden;
+  }
+
+  body:has(.prediction-page-root) .prediction-column {
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  body:has(.prediction-page-root) .site-footer {
     display: none;
+  }
+}
+
+@media (max-width: 1250px) and (min-width: 821px) {
+  .prediction-stage {
+    grid-template-columns: minmax(300px, 0.72fr) minmax(520px, 1.28fr);
+  }
+
+  .prediction-player-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prediction-player-controls {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -3269,7 +3317,7 @@ button.performer-row:focus-visible {
   .prediction-room-header {
     align-items: stretch;
     flex-direction: column;
-    padding: 22px;
+    padding: 18px;
   }
 
   .prediction-progress {
@@ -3277,26 +3325,60 @@ button.performer-row:focus-visible {
   }
 
   .prediction-stage {
-    min-height: 0;
     grid-template-columns: 1fr;
-    padding: 10px;
+    padding: 8px;
   }
 
+  .prediction-team-column .prediction-choice-list,
   .prediction-player-grid {
     grid-template-columns: 1fr;
   }
 
   .prediction-column {
-    padding: 13px;
+    padding: 10px;
+    overflow: visible;
+  }
+
+  .prediction-choice {
+    padding: 10px;
+  }
+
+  .prediction-choice-title p {
+    display: block;
+  }
+
+  .prediction-selected {
+    min-height: 66px;
+    grid-template-columns: 58px minmax(0, 1fr) 24px;
+  }
+
+  .prediction-selected > img:first-child {
+    width: 58px;
+    height: 62px;
+  }
+
+  .team-prediction-selected {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .team-prediction-selected > img:first-child {
+    width: 54px;
+    height: 54px;
+  }
+
+  .prediction-player-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .prediction-choice select,
+  .prediction-choice input {
+    height: 40px;
+    font-size: 0.82rem;
   }
 
   .prediction-save-bar {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .prediction-save-bar .primary-button {
-    width: 100%;
   }
 }
 

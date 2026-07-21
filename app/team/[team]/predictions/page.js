@@ -25,5 +25,9 @@ export default async function PredictionsPage({ params }) {
   if (!manager) redirect(`/login?next=/team/${slug}/predictions`);
   if (manager.slug !== slug) redirect(`/team/${manager.slug}/predictions`);
 
-  return <FuturePredictions team={team} />;
+  return (
+    <div className="prediction-page-root">
+      <FuturePredictions team={team} />
+    </div>
+  );
 }

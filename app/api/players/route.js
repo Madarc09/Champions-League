@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
+import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import {
   canonicalPlayerName,
   getCapSpaceSalarySnapshot
@@ -40,9 +41,26 @@ export async function GET(request) {
   if (predictionsMode) {
     try {
       const pool = await getPlayerPool();
-      const players = attachFantasyRanks(searchPlayers(pool.players, "", "ALL", null));
+      let rankingSnapshot = null;
+      try {
+        rankingSnapshot = await getRankingSnapshot();
+      } catch (rankingError) {
+        console.error("Prediction candidate rankings unavailable:", rankingError);
+      }
+
+      const players = attachFantasyRanks(searchPlayers(pool.players, "", "ALL", null)).map((player) => ({
+        ...player,
+        expectedRanks: rankingSnapshot ? pickPlayerRankings(rankingSnapshot, player.name) : null
+      }));
+
       return NextResponse.json({
         players,
+        candidateRankings: {
+          source: "NHL.com and ESPN 2026-27 fantasy rankings, with 2025-26 category production",
+          updatedAt: rankingSnapshot?.updatedAt || null,
+          stale: Boolean(rankingSnapshot?.stale),
+          warning: rankingSnapshot?.warning || null
+        },
         poolData: {
           source: pool.source,
           updatedAt: pool.updatedAt,

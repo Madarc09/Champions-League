@@ -329,3 +329,7 @@ Locker Rooms now require login and redirect managers back to their own room if t
 - Prediction selections refresh from Upstash about every three seconds while the page is open.
 - Other viewers see TBA prediction tiles; the private prediction data is never requested for them.
 - Nick-specific roster, total-points, and standings-neighbour overlays were realigned to the new artwork.
+
+## Prediction candidate menus
+
+The Future Predictions page is optimized to fit within a normal desktop browser window. Each player-award menu initially shows 25 expected candidates. The expected list uses the cached NHL.com and ESPN 2026-27 fantasy rankings when available, with 2025-26 award-specific production as the fallback ordering. Each award also has a search field that can find any eligible player outside the suggested 25. Team conference restrictions and private Upstash auto-save remain unchanged.
