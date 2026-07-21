@@ -2476,3 +2476,384 @@ body:has(.locker-page-root) .site-header {
   opacity: 0.78;
   filter: grayscale(1) brightness(1.45);
 }
+
+/* Full-screen Champions League home arena. */
+body:has(.champions-home) {
+  background: #02060c;
+}
+
+body:has(.champions-home) main {
+  padding-top: 46px;
+  padding-bottom: 0;
+}
+
+body:has(.champions-home) .site-footer {
+  display: none;
+}
+
+.champions-home {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: -46px;
+  overflow: hidden;
+  background: #02060c;
+}
+
+.champions-home-scroller {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-color: rgba(233, 189, 98, 0.7) rgba(0, 0, 0, 0.6);
+  scrollbar-width: thin;
+}
+
+.champions-home-stage {
+  position: relative;
+  width: 100%;
+  min-width: 1120px;
+  aspect-ratio: 3 / 2;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: #03070d;
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.12)),
+    url("/champions-home-arena.png");
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100% 100%;
+}
+
+.champions-home-watermark {
+  position: absolute;
+  z-index: 1;
+  top: 8.4%;
+  left: 35.4%;
+  width: 27%;
+  height: 38%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0.105;
+  filter: grayscale(0.4) sepia(0.22) brightness(1.35);
+}
+
+.champions-home-watermark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.champions-board-grid {
+  position: absolute;
+  z-index: 2;
+  top: 4.2%;
+  left: 12.15%;
+  width: 74.7%;
+  height: 56.2%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.88fr) minmax(280px, 0.86fr);
+  gap: 1.15%;
+  padding: 1.15%;
+}
+
+.home-live-board {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(218, 171, 82, 0.55);
+  border-radius: 0.55rem;
+  color: #f4efe5;
+  background:
+    linear-gradient(180deg, rgba(3, 9, 16, 0.76), rgba(3, 8, 14, 0.68));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+    0 18px 50px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(1.5px);
+}
+
+.home-board-title,
+.performers-heading {
+  height: 14%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 1.4% 2.3%;
+  border-bottom: 1px solid rgba(218, 171, 82, 0.42);
+  background: rgba(1, 5, 10, 0.55);
+}
+
+.home-board-title span,
+.performers-heading span {
+  display: block;
+  margin-bottom: 2px;
+  color: #d9ad55;
+  font-size: clamp(0.56rem, 0.7vw, 0.76rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-board-title h1,
+.performers-heading h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1rem, 1.55vw, 1.78rem);
+  line-height: 1;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.home-board-title > strong {
+  color: #e9bd62;
+  font-size: clamp(0.78rem, 1vw, 1.1rem);
+  letter-spacing: 0.13em;
+}
+
+.home-standings-list {
+  height: 86%;
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.home-standing-row {
+  min-height: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.105);
+  background: rgba(0, 0, 0, 0.075);
+}
+
+.home-standing-row:last-child {
+  border-bottom: 0;
+}
+
+.home-standing-row a {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 10% minmax(0, 1fr) 28%;
+  align-items: center;
+  gap: 1.5%;
+  padding: 0 2.3%;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.home-standing-row a:hover,
+.home-standing-row a:focus-visible {
+  background: rgba(228, 178, 82, 0.12);
+  transform: translateX(2px);
+  outline: 0;
+}
+
+.home-standing-rank {
+  display: grid;
+  place-items: center;
+  width: clamp(24px, 2.65vw, 42px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(233, 189, 98, 0.32);
+  border-radius: 50%;
+  color: #f1c66f;
+  background: rgba(233, 189, 98, 0.075);
+  font-size: clamp(0.72rem, 1vw, 1.08rem);
+  font-weight: 950;
+}
+
+.rank-1 .home-standing-rank {
+  color: #15100a;
+  border-color: #f3d58f;
+  background: linear-gradient(145deg, #ffe7a7, #bc7f20);
+  box-shadow: 0 0 20px rgba(233, 189, 98, 0.24);
+}
+
+.home-standing-name {
+  overflow: hidden;
+  color: #f7f4ed;
+  font-size: clamp(0.82rem, 1.25vw, 1.42rem);
+  font-weight: 900;
+  letter-spacing: 0.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-standing-points {
+  color: #f2c66a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(0.8rem, 1.18vw, 1.32rem);
+  font-weight: 950;
+  text-align: right;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+}
+
+.performers-heading {
+  height: 12%;
+  min-height: 48px;
+}
+
+.performers-heading h2 {
+  font-size: clamp(0.95rem, 1.25vw, 1.38rem);
+}
+
+.performers-heading small {
+  color: #b7aa92;
+  font-size: clamp(0.55rem, 0.65vw, 0.72rem);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.performer-tabs {
+  height: 12%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid rgba(218, 171, 82, 0.34);
+}
+
+.performer-tabs button {
+  min-width: 0;
+  display: grid;
+  place-content: center;
+  gap: 1px;
+  padding: 2px;
+  border: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  color: #aab1b9;
+  background: rgba(0, 0, 0, 0.17);
+}
+
+.performer-tabs button:last-child {
+  border-right: 0;
+}
+
+.performer-tabs button span {
+  display: none;
+}
+
+.performer-tabs button strong {
+  overflow: hidden;
+  font-size: clamp(0.48rem, 0.61vw, 0.68rem);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.performer-tabs button.active {
+  color: #13100a;
+  background: linear-gradient(180deg, #e8bd65, #bd822b);
+}
+
+.performer-list {
+  height: 76%;
+  display: grid;
+  grid-template-rows: repeat(10, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.performer-row {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 6.5% 13% minmax(0, 1fr) 21%;
+  align-items: center;
+  gap: 2.2%;
+  padding: 0 2.2%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.performer-row:last-child {
+  border-bottom: 0;
+}
+
+.performer-rank {
+  color: #dcb45f;
+  font-size: clamp(0.55rem, 0.72vw, 0.78rem);
+  font-weight: 950;
+  text-align: center;
+}
+
+.performer-photo {
+  width: 100%;
+  height: 88%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+}
+
+.performer-identity {
+  min-width: 0;
+}
+
+.performer-identity strong,
+.performer-identity span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.performer-identity strong {
+  color: #f7f4ed;
+  font-size: clamp(0.54rem, 0.72vw, 0.82rem);
+  line-height: 1.05;
+}
+
+.performer-identity span {
+  margin-top: 2px;
+  color: #aaa492;
+  font-size: clamp(0.42rem, 0.51vw, 0.58rem);
+  font-weight: 700;
+}
+
+.performer-points {
+  color: #eec76e;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(0.55rem, 0.72vw, 0.82rem);
+  text-align: right;
+}
+
+.home-dashboard-message {
+  grid-row: 1 / -1;
+  align-self: center;
+  padding: 24px;
+  color: #b7b1a5;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.home-dashboard-message.error {
+  color: #ffb0aa;
+}
+
+.home-mobile-hint {
+  display: none;
+  margin: 8px 12px 12px;
+  color: #a79a84;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  body:has(.champions-home) main {
+    padding-top: 24px;
+  }
+
+  .champions-home {
+    margin-top: -24px;
+  }
+
+  .champions-home-scroller {
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+  }
+
+  .champions-home-stage {
+    width: 1120px;
+  }
+
+  .home-mobile-hint {
+    display: block;
+  }
+}

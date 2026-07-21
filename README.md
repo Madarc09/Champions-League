@@ -243,3 +243,17 @@ Shared rosters are read from the existing Upstash connection. Browser-only roste
 Joe now uses the Oilers concert-stage artwork while retaining the shared roster overlay, standings navigation, and mobile behavior.
 
 - Updated roster transparency: occupied cards approximately 60% transparent and empty slots approximately 80% transparent.
+
+## Arena home dashboard
+
+The home page now uses `public/champions-home-arena.png` as a full-width arena background. All text and data are HTML overlays rather than baked into the image.
+
+The live dashboard includes:
+
+- Eight-team standings ranked only by total fantasy points from saved rosters.
+- Top 10 forwards, top 10 defence, top 10 goalies and a top-five rookie race.
+- Player headshots, NHL team, fantasy points and the Champions League manager(s) rostering each player.
+- A transparent `public/champions-league-logo.png` watermark generated from the supplied league logo.
+- NHL 2025–26 regular-season statistics using the scoring values in `data/league-config.js`.
+
+The player leaderboard endpoint is `app/api/home-dashboard/route.js`. The home display is `components/HomeDashboard.js`.

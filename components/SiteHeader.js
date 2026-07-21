@@ -37,7 +37,7 @@ export default function SiteHeader() {
           </>
         ) : null}
         <a className={pathname === "/" ? "active" : ""} href="/">
-          Standings
+          Home
         </a>
       </nav>
     </header>
