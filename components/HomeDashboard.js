@@ -56,7 +56,8 @@ export default function HomeDashboard() {
     const scroller = scrollerRef.current;
     if (!scroller || window.innerWidth > 900) return;
     const frame = window.requestAnimationFrame(() => {
-      scroller.scrollLeft = Math.max(0, (scroller.scrollWidth - scroller.clientWidth) / 2);
+      // Open on the complete standings board. The performer board remains one swipe to the right.
+      scroller.scrollLeft = 12;
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);

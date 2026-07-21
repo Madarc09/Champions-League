@@ -29,10 +29,34 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const position = searchParams.get("position") || "ALL";
-  const leaderboardMode = searchParams.get("mode") === "leaderboard";
+  const mode = searchParams.get("mode") || "";
+  const leaderboardMode = mode === "leaderboard";
+  const predictionsMode = mode === "predictions";
 
-  if (!leaderboardMode && search.trim().length < 2) {
+  if (!leaderboardMode && !predictionsMode && search.trim().length < 2) {
     return NextResponse.json({ players: [], message: "Enter at least two characters." });
+  }
+
+  if (predictionsMode) {
+    try {
+      const pool = await getPlayerPool();
+      const players = attachFantasyRanks(searchPlayers(pool.players, "", "ALL", null));
+      return NextResponse.json({
+        players,
+        poolData: {
+          source: pool.source,
+          updatedAt: pool.updatedAt,
+          counts: pool.counts,
+          stale: Boolean(pool.stale),
+          warning: pool.warning || null
+        }
+      });
+    } catch (error) {
+      return NextResponse.json(
+        { error: error.message || "The NHL player pool could not be loaded." },
+        { status: 502 }
+      );
+    }
   }
 
   const [playerResult, salaryResult] = await Promise.all([

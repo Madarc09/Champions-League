@@ -34,11 +34,19 @@ export default function SiteHeader() {
             >
               Locker Room
             </a>
+            <a
+              className={pathname === `/team/${teamSlug}/predictions` ? "active" : ""}
+              href={`/team/${teamSlug}/predictions`}
+            >
+              Predictions
+            </a>
           </>
         ) : null}
-        <a className={pathname === "/" ? "active" : ""} href="/">
-          Home
-        </a>
+        {!currentTeam ? (
+          <a className={pathname === "/" ? "active" : ""} href="/">
+            Home
+          </a>
+        ) : null}
       </nav>
     </header>
   );

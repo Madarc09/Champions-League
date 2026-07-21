@@ -2845,12 +2845,51 @@ body:has(.champions-home) .site-footer {
   }
 
   .champions-home-scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
   }
 
   .champions-home-stage {
-    width: 1120px;
+    width: 720px;
+    min-width: 720px;
+  }
+
+  .champions-board-grid {
+    top: 4.2%;
+    left: 3.1%;
+    width: 93.8%;
+    grid-template-columns: 350px 316px;
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .home-board-title {
+    padding-inline: 10px;
+  }
+
+  .home-board-title h1 {
+    font-size: 0.92rem;
+  }
+
+  .home-standing-row a {
+    grid-template-columns: 36px minmax(0, 1fr) 82px;
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .home-standing-rank {
+    width: 27px;
+    font-size: 0.72rem;
+  }
+
+  .home-standing-name {
+    font-size: 0.78rem;
+  }
+
+  .home-standing-points {
+    font-size: 0.74rem;
   }
 
   .home-mobile-hint {
@@ -2875,154 +2914,388 @@ button.performer-row:focus-visible {
   outline-offset: -1px;
 }
 
-/* Mobile home dashboard: fit the FPTS column within the phone instead of
-   requiring horizontal scrolling. The right-side player board stacks below. */
-@media (max-width: 900px) {
-  .champions-home {
-    overflow: visible;
+/* Future Predictions room */
+.prediction-room {
+  display: grid;
+  gap: 22px;
+}
+
+.prediction-room-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 26px 30px;
+  border: 1px solid rgba(233, 189, 98, 0.25);
+  border-radius: 24px;
+  background:
+    linear-gradient(120deg, rgba(15, 31, 51, 0.96), rgba(5, 13, 24, 0.91)),
+    repeating-linear-gradient(135deg, transparent 0 18px, rgba(255,255,255,0.018) 18px 19px);
+  box-shadow: var(--shadow);
+}
+
+.prediction-room-header h1 {
+  margin-bottom: 10px;
+  font-size: clamp(2.15rem, 4.5vw, 4.35rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.prediction-room-header p:last-child {
+  max-width: 760px;
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.prediction-progress {
+  flex: 0 0 auto;
+  min-width: 155px;
+  padding: 16px 20px;
+  border: 1px solid rgba(233, 189, 98, 0.3);
+  border-radius: 17px;
+  background: rgba(1, 7, 13, 0.55);
+  text-align: center;
+}
+
+.prediction-progress strong,
+.prediction-progress span {
+  display: block;
+}
+
+.prediction-progress strong {
+  color: var(--gold-2);
+  font-size: 1.85rem;
+}
+
+.prediction-progress span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.prediction-stage {
+  min-height: 760px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(180px, 0.42fr) minmax(480px, 1.4fr);
+  gap: 18px;
+  align-items: stretch;
+  padding: 18px;
+  border: 1px solid rgba(233, 189, 98, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(231, 181, 80, 0.09), transparent 28rem),
+    linear-gradient(180deg, rgba(6, 14, 25, 0.96), rgba(3, 9, 17, 0.98));
+  box-shadow: var(--shadow);
+}
+
+.prediction-column {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid rgba(255,255,255,0.085);
+  border-radius: 19px;
+  background: rgba(13, 27, 45, 0.72);
+}
+
+.prediction-column > header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(233, 189, 98, 0.25);
+}
+
+.prediction-column > header span {
+  color: var(--gold);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.prediction-column > header h2 {
+  margin: 3px 0 0;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.prediction-choice-list {
+  display: grid;
+  gap: 12px;
+}
+
+.prediction-player-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.prediction-choice {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(255,255,255,0.085);
+  border-radius: 15px;
+  background: rgba(1, 8, 15, 0.45);
+}
+
+.prediction-choice-title {
+  min-height: 42px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.prediction-choice-title h3 {
+  margin: 0;
+  color: #f7f4ed;
+  font-size: 1rem;
+}
+
+.prediction-choice-title p {
+  margin: 3px 0 0;
+  color: #8796aa;
+  font-size: 0.68rem;
+}
+
+.prediction-choice-title > span {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: #171108;
+  background: var(--gold);
+  font-size: 0.61rem;
+  font-weight: 950;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.prediction-selected {
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 7px 9px 0;
+  overflow: hidden;
+  border: 1px solid rgba(233, 189, 98, 0.18);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(12, 25, 42, 0.96), rgba(2, 8, 15, 0.96));
+}
+
+.prediction-selected > img:first-child {
+  align-self: end;
+  width: 66px;
+  height: 70px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.prediction-selected strong,
+.prediction-selected span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prediction-selected strong {
+  font-size: 0.84rem;
+}
+
+.prediction-selected span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.66rem;
+}
+
+.prediction-mini-logo {
+  width: 25px !important;
+  height: 25px !important;
+  align-self: center !important;
+  object-fit: contain !important;
+}
+
+.prediction-selected-empty {
+  opacity: 0.72;
+}
+
+.prediction-selected-empty > img:first-child {
+  width: 52px;
+  height: 58px;
+  margin-left: 6px;
+  opacity: 0.72;
+}
+
+.team-prediction-selected {
+  grid-template-columns: 70px minmax(0, 1fr);
+  padding-bottom: 7px;
+}
+
+.team-prediction-selected > img:first-child {
+  align-self: center;
+  width: 62px;
+  height: 62px;
+}
+
+.prediction-empty-shield {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px dashed rgba(255,255,255,0.28);
+  border-radius: 50%;
+  color: #aeb7c4;
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.prediction-choice label {
+  display: grid;
+  gap: 5px;
+}
+
+.prediction-choice label > span {
+  color: #9caabd;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.prediction-choice select {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 10px;
+  color: #f6f7fb;
+  background: #071321;
+  outline: 0;
+}
+
+.prediction-choice select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(233, 189, 98, 0.12);
+}
+
+.prediction-choice select option {
+  color: #f6f7fb;
+  background: #071321;
+}
+
+.prediction-centre-mark {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid rgba(233, 189, 98, 0.15);
+  border-radius: 19px;
+  color: #c9b686;
+  background:
+    radial-gradient(circle at 50% 43%, rgba(233, 189, 98, 0.1), transparent 55%),
+    rgba(0, 5, 10, 0.4);
+  text-align: center;
+}
+
+.prediction-centre-mark img {
+  width: min(100%, 180px);
+  max-height: 240px;
+  object-fit: contain;
+  opacity: 0.18;
+  filter: grayscale(0.25) sepia(0.2);
+}
+
+.prediction-centre-mark strong {
+  color: var(--gold-2);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.prediction-centre-mark span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.prediction-save-bar {
+  position: sticky;
+  z-index: 10;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 17px;
+  border: 1px solid rgba(233, 189, 98, 0.26);
+  border-radius: 16px;
+  background: rgba(5, 14, 25, 0.94);
+  box-shadow: 0 15px 38px rgba(0,0,0,0.38);
+  backdrop-filter: blur(12px);
+}
+
+.prediction-save-bar strong,
+.prediction-save-bar span {
+  display: block;
+}
+
+.prediction-save-bar strong {
+  color: var(--gold-2);
+  font-size: 0.82rem;
+}
+
+.prediction-save-bar span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 1180px) {
+  .prediction-stage {
+    grid-template-columns: minmax(260px, 0.78fr) minmax(420px, 1.22fr);
   }
 
-  .champions-home-scroller {
-    overflow: visible;
-  }
-
-  .champions-home-stage {
-    width: 100%;
-    min-width: 0;
-    min-height: 1380px;
-    aspect-ratio: auto;
-    overflow: visible;
-    background-position: center top;
-    background-size: auto 100%;
-  }
-
-  .champions-home-watermark {
-    position: absolute;
-    top: 2.2%;
-    left: 50%;
-    width: 58%;
-    height: 165px;
-    transform: translateX(-50%);
-    opacity: 0.075;
-  }
-
-  .champions-board-grid {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: 100%;
-    height: auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 54px 10px 300px;
-  }
-
-  .home-live-board {
-    width: 100%;
-    background: linear-gradient(180deg, rgba(3, 9, 16, 0.9), rgba(3, 8, 14, 0.84));
-    backdrop-filter: blur(2px);
-  }
-
-  .home-standings-board {
-    height: 510px;
-  }
-
-  .home-board-title {
-    height: 74px;
-    min-height: 74px;
-    padding: 10px 13px;
-  }
-
-  .home-board-title span,
-  .performers-heading span {
-    font-size: 0.58rem;
-  }
-
-  .home-board-title h1 {
-    font-size: 1.04rem;
-  }
-
-  .home-board-title > strong {
-    font-size: 0.8rem;
-  }
-
-  .home-standings-list {
-    height: calc(100% - 74px);
-  }
-
-  .home-standing-row a {
-    grid-template-columns: 40px minmax(0, 1fr) 92px;
-    gap: 8px;
-    padding: 0 10px;
-  }
-
-  .home-standing-rank {
-    width: 29px;
-    font-size: 0.78rem;
-  }
-
-  .home-standing-name {
-    font-size: 0.91rem;
-  }
-
-  .home-standing-points {
-    font-size: 0.84rem;
-  }
-
-  .home-performers-board {
-    height: 700px;
-  }
-
-  .performers-heading {
-    height: 66px;
-    min-height: 66px;
-    padding: 9px 12px;
-  }
-
-  .performers-heading h2 {
-    font-size: 1rem;
-  }
-
-  .performer-tabs {
-    height: 58px;
-  }
-
-  .performer-tabs button strong {
-    font-size: 0.62rem;
-  }
-
-  .performer-list {
-    height: calc(100% - 124px);
-  }
-
-  .performer-row {
-    grid-template-columns: 24px 42px minmax(0, 1fr) 70px;
-    gap: 7px;
-    padding: 0 9px;
-  }
-
-  .performer-rank {
-    font-size: 0.67rem;
-  }
-
-  .performer-photo {
-    height: 92%;
-  }
-
-  .performer-identity strong {
-    font-size: 0.72rem;
-  }
-
-  .performer-identity span {
-    font-size: 0.52rem;
-  }
-
-  .performer-points {
-    font-size: 0.7rem;
-  }
-
-  .home-mobile-hint {
+  .prediction-centre-mark {
     display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .prediction-room-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .prediction-progress {
+    min-width: 0;
+  }
+
+  .prediction-stage {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .prediction-player-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prediction-column {
+    padding: 13px;
+  }
+
+  .prediction-save-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .prediction-save-bar .primary-button {
+    width: 100%;
   }
 }

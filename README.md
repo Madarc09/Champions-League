@@ -257,3 +257,17 @@ The live dashboard includes:
 - NHL 2025–26 regular-season statistics using the scoring values in `data/league-config.js`.
 
 The player leaderboard endpoint is `app/api/home-dashboard/route.js`. The home display is `components/HomeDashboard.js`.
+
+## Future Predictions
+
+Every league manager now has a predictions page at:
+
+```text
+/team/<manager>/predictions
+```
+
+The page saves six player-award predictions and four NHL team predictions. It uses the full NHL player directory, filters Vezina/Norris/Calder choices by eligibility, restricts the conference champion dropdowns to the correct conference, and loads NHL team logos from the NHL standings/team assets feed. Predictions use the same Upstash environment variables as saved rosters and fall back to browser storage when Upstash is unavailable.
+
+## Mobile home page
+
+The mobile home page retains the original horizontally scrollable arena composition. Its standings panel has been narrowed so the complete manager name and FPTS column open together on a phone; the Top Performers panel remains one horizontal swipe to the right.
