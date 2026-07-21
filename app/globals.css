@@ -3889,3 +3889,62 @@ button.performer-row:focus-visible {
     bottom: 22.2%;
   }
 }
+
+/* Desktop Locker Rooms: fit the complete 16:9 room into one browser viewport.
+   The stage scales from both available width and available height, so typical
+   720p, 900p and 1080p desktop screens do not need vertical page scrolling.
+   Mobile keeps its existing zoomed/scrollable treatment. */
+@media (min-width: 721px) {
+  html:has(.locker-page-root),
+  body:has(.locker-page-root) {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body:has(.locker-page-root) .site-shell {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    margin: 0;
+    display: grid;
+    grid-template-rows: 64px minmax(0, 1fr);
+  }
+
+  body:has(.locker-page-root) .site-header {
+    width: 100%;
+    min-height: 64px;
+    height: 64px;
+    padding-inline: clamp(14px, 1.4vw, 28px);
+  }
+
+  body:has(.locker-page-root) main {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .locker-page-root {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .locker-page-root .nick-locker-viewport {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .locker-page-root .nick-locker-stage {
+    width: min(100%, calc((100dvh - 64px) * 1672 / 941));
+    min-width: 0;
+    max-width: none;
+    margin: 0 auto;
+  }
+}
