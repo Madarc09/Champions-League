@@ -321,6 +321,11 @@ Older browser-only roster and prediction saves are migrated once into the signed
 
 Locker Rooms now require login and redirect managers back to their own room if they try another manager's URL. Neighbouring standings positions may still be shown visually at the bottom of the locker, but they are no longer clickable roster links.
 
-## Public Locker Rooms with private rosters
+## Nick Locker Room prediction-panel update
 
-All eight Locker Room routes are publicly viewable. The signed-in manager sees their own saved roster, while every other visitor sees TBA placeholders in that locker. Team fantasy-point totals, standings position, backgrounds, and previous/next Locker Room navigation remain public. Draft Room and Predictions data remain private to the matching manager account.
+- Nick now uses `public/nick-locker-room.png`, the rustic Toronto sports cabin artwork.
+- Nick's private team predictions render in the left prediction panel.
+- Nick's private player-award predictions render in the right prediction panel.
+- Prediction selections refresh from Upstash about every three seconds while the page is open.
+- Other viewers see TBA prediction tiles; the private prediction data is never requested for them.
+- Nick-specific roster, total-points, and standings-neighbour overlays were realigned to the new artwork.

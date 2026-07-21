@@ -19,6 +19,22 @@ const RANKING_LABELS = {
   champions: "CL Rank"
 };
 
+const TEAM_PREDICTION_FIELDS = [
+  ["stanleyCup", "Stanley Cup"],
+  ["eastChamp", "East Champ"],
+  ["westChamp", "West Champ"],
+  ["presidentsTrophy", "Presidents Trophy"]
+];
+
+const PLAYER_PREDICTION_FIELDS = [
+  ["artRoss", "Art Ross"],
+  ["hart", "Hart"],
+  ["rocket", "Rocket"],
+  ["vezina", "Vezina"],
+  ["calder", "Calder"],
+  ["norris", "Norris"]
+];
+
 function handleHeadshotError(event) {
   const image = event.currentTarget;
   if (!image.src.endsWith(FALLBACK_HEADSHOT)) image.src = FALLBACK_HEADSHOT;
@@ -116,6 +132,48 @@ function RankingTile({ source, rank, sourceInfo, loading }) {
     return <a className="run-card-rank-tile" href={sourceInfo.url} target="_blank" rel="noreferrer">{content}</a>;
   }
   return <div className="run-card-rank-tile">{content}</div>;
+}
+
+function PredictionTile({ title, selection, kind }) {
+  const image = kind === "team" ? selection?.logo : selection?.headshot;
+  const name = kind === "team" ? selection?.name : selection?.name;
+
+  return (
+    <article className={`locker-prediction-tile locker-prediction-tile-${kind}${selection ? " is-selected" : " is-empty"}`}>
+      <strong>{title}</strong>
+      <div className="locker-prediction-image">
+        {image ? (
+          <img
+            src={image}
+            alt={name ? `${name} ${kind === "team" ? "logo" : "headshot"}` : ""}
+            loading="lazy"
+            decoding="async"
+            onError={kind === "player" ? handleHeadshotError : undefined}
+          />
+        ) : (
+          <span aria-hidden="true">?</span>
+        )}
+      </div>
+      <small title={name || "TBA"}>{name || "TBA"}</small>
+    </article>
+  );
+}
+
+function PredictionsPanel({ side, predictions }) {
+  const fields = side === "left" ? TEAM_PREDICTION_FIELDS : PLAYER_PREDICTION_FIELDS;
+  const values = side === "left" ? predictions?.teamAwards : predictions?.playerAwards;
+  const kind = side === "left" ? "team" : "player";
+
+  return (
+    <section
+      className={`locker-prediction-panel locker-prediction-panel-${side}`}
+      aria-label={side === "left" ? "Team predictions" : "Player award predictions"}
+    >
+      {fields.map(([key, title]) => (
+        <PredictionTile key={key} title={title} selection={values?.[key] || null} kind={kind} />
+      ))}
+    </section>
+  );
 }
 
 function EmptyCard({ slotNumber, concealed = false }) {
@@ -317,6 +375,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rosterReady, setRosterReady] = useState(false);
+  const [predictions, setPredictions] = useState(null);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -389,6 +448,39 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     return () => { cancelled = true; };
   }, [teamSlug, isOwnLocker]);
 
+  useEffect(() => {
+    if (teamSlug !== "nick" || !isOwnLocker) {
+      setPredictions(null);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    async function loadPredictions() {
+      try {
+        const response = await fetch(`/api/predictions/${teamSlug}?locker=${Date.now()}`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(10000)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Predictions could not be loaded.");
+        if (!cancelled) setPredictions(data.predictions || null);
+      } catch (error) {
+        console.error("Locker predictions unavailable:", error);
+      }
+    }
+
+    loadPredictions();
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible") loadPredictions();
+    }, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [teamSlug, isOwnLocker]);
+
   const rosterNameKey = useMemo(
     () => players.map((player) => player.name).filter(Boolean).sort().join("|"),
     [players]
@@ -446,7 +538,14 @@ export default function LockerRoom({ team, viewerSlug = null }) {
 
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
-      <div className="nick-locker-stage" style={{ backgroundImage: `url("${lockerBackground}")` }}>
+      <div className={`nick-locker-stage locker-team-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
+        {teamSlug === "nick" ? (
+          <>
+            <PredictionsPanel side="left" predictions={isOwnLocker ? predictions : null} />
+            <PredictionsPanel side="right" predictions={isOwnLocker ? predictions : null} />
+          </>
+        ) : null}
+
         <div className="nick-locker-roster-panel">
           <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
           <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
