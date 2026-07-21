@@ -334,57 +334,61 @@ function PredictionEditorModal({ editor, players, teams, currentSelection, loadi
           </div>
         ) : null}
 
-        {isTeam ? (
-          <div className="locker-prediction-team-grid">
-            {eligibleTeams.map((club) => (
-              <button
-                type="button"
-                key={club.abbrev}
-                className={currentSelection?.abbrev === club.abbrev ? "selected" : ""}
-                onClick={() => onSelect(club)}
-                disabled={saving}
-              >
-                <img src={club.logo} alt="" />
-                <span>{club.name}</span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <>
-            <label className="locker-prediction-search">
-              <span>Search any eligible player</span>
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder={`Search for a ${editor.title} choice…`}
-                autoFocus
-              />
-            </label>
-            <div className="locker-prediction-list-heading">
-              <strong>{normalizedSearch ? "Search results" : "Top 25 expected"}</strong>
-              <span>{visiblePlayers.length} players</span>
-            </div>
-            <div className="locker-prediction-player-grid">
-              {visiblePlayers.map((player, index) => (
+        <div className={`locker-prediction-editor-body ${isTeam ? "is-team-editor" : "is-player-editor"}`}>
+          {isTeam ? (
+            <div className="locker-prediction-team-grid">
+              {eligibleTeams.map((club) => (
                 <button
                   type="button"
-                  key={player.playerId}
-                  className={String(currentSelection?.playerId) === String(player.playerId) ? "selected" : ""}
-                  onClick={() => onSelect(player)}
+                  key={club.abbrev}
+                  className={currentSelection?.abbrev === club.abbrev ? "selected" : ""}
+                  onClick={() => onSelect(club)}
                   disabled={saving}
                 >
-                  <span className="prediction-editor-rank">{normalizedSearch ? "" : `#${index + 1}`}</span>
-                  <img src={player.headshot || FALLBACK_HEADSHOT} alt="" onError={handleHeadshotError} />
-                  <span className="prediction-editor-player-copy">
-                    <strong>{player.name}</strong>
-                    <small>{player.team || "NHL"} · {player.rosterType || player.position || "Player"}</small>
-                  </span>
+                  <img src={club.logo} alt="" />
+                  <span>{club.name}</span>
                 </button>
               ))}
-              {!loading && !visiblePlayers.length ? <p className="prediction-editor-empty">No eligible players match that search.</p> : null}
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              <div className="locker-prediction-player-controls">
+                <label className="locker-prediction-search">
+                  <span>Search any eligible player</span>
+                  <input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder={`Search for a ${editor.title} choice…`}
+                    autoFocus
+                  />
+                </label>
+                <div className="locker-prediction-list-heading">
+                  <strong>{normalizedSearch ? "Search results" : "Top 25 expected"}</strong>
+                  <span>{visiblePlayers.length} players</span>
+                </div>
+              </div>
+              <div className="locker-prediction-player-grid">
+                {visiblePlayers.map((player, index) => (
+                  <button
+                    type="button"
+                    key={player.playerId}
+                    className={String(currentSelection?.playerId) === String(player.playerId) ? "selected" : ""}
+                    onClick={() => onSelect(player)}
+                    disabled={saving}
+                  >
+                    <span className="prediction-editor-rank">{normalizedSearch ? "" : `#${index + 1}`}</span>
+                    <img src={player.headshot || FALLBACK_HEADSHOT} alt="" onError={handleHeadshotError} />
+                    <span className="prediction-editor-player-copy">
+                      <strong>{player.name}</strong>
+                      <small>{player.team || "NHL"} · {player.rosterType || player.position || "Player"}</small>
+                    </span>
+                  </button>
+                ))}
+                {!loading && !visiblePlayers.length ? <p className="prediction-editor-empty">No eligible players match that search.</p> : null}
+              </div>
+            </>
+          )}
+        </div>
 
         <footer>
           <span>{loading ? "Loading choices…" : saving ? "Saving to Upstash…" : status || "Select a new choice to save immediately."}</span>

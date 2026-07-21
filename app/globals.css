@@ -4078,8 +4078,8 @@ body.prediction-editor-open {
 .locker-prediction-editor {
   width: min(960px, 96vw);
   max-height: min(850px, 92dvh);
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(229, 185, 97, 0.66);
   border-radius: 18px;
@@ -4159,12 +4159,41 @@ body.prediction-editor-open {
   font-size: 18px;
 }
 
+.locker-prediction-editor-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.locker-prediction-editor-body.is-team-editor {
+  display: flex;
+}
+
+.locker-prediction-editor-body.is-player-editor {
+  display: flex;
+  flex-direction: column;
+}
+
+.locker-prediction-player-controls {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0a0908;
+}
+
 .locker-prediction-team-grid,
 .locker-prediction-player-grid {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 14px 18px 18px;
+}
+
+.locker-prediction-team-grid {
+  flex: 1 1 auto;
+  width: 100%;
 }
 
 .locker-prediction-team-grid {
@@ -4218,7 +4247,7 @@ body.prediction-editor-open {
 
 .locker-prediction-search {
   display: block;
-  padding: 14px 18px 8px;
+  padding: 12px 18px 7px;
 }
 
 .locker-prediction-search span {
@@ -4252,7 +4281,7 @@ body.prediction-editor-open {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 4px 18px 0;
+  padding: 3px 18px 2px;
 }
 
 .locker-prediction-list-heading strong {
@@ -4265,6 +4294,7 @@ body.prediction-editor-open {
 }
 
 .locker-prediction-player-grid {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-content: start;
@@ -4408,12 +4438,30 @@ body.prediction-editor-open {
     font-size: 11px;
   }
 
+  .locker-prediction-player-controls {
+    padding-bottom: 6px;
+  }
+
   .locker-prediction-search {
-    padding: 10px 12px 6px;
+    padding: 9px 12px 5px;
+  }
+
+  .locker-prediction-search span {
+    margin-bottom: 5px;
+    font-size: 10px;
+  }
+
+  .locker-prediction-search input {
+    padding: 10px 11px;
+    font-size: 16px;
   }
 
   .locker-prediction-list-heading {
-    padding-inline: 12px;
+    padding: 2px 12px 1px;
+  }
+
+  .locker-prediction-list-heading strong {
+    font-size: 13px;
   }
 
   .locker-prediction-player-grid {
