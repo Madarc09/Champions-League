@@ -56,10 +56,15 @@ export default function useLeagueStandings({
     function handleFocus() {
       refresh();
     }
+    function refreshWhileVisible() {
+      if (document.visibilityState === "visible") refresh();
+    }
 
+    const interval = window.setInterval(refreshWhileVisible, 3000);
     window.addEventListener("champions-league:roster-updated", handleRosterUpdate);
     window.addEventListener("focus", handleFocus);
     return () => {
+      window.clearInterval(interval);
       window.removeEventListener("champions-league:roster-updated", handleRosterUpdate);
       window.removeEventListener("focus", handleFocus);
     };

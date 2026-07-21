@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
 
@@ -11,6 +11,14 @@ function money(value) {
     currency: "USD",
     maximumFractionDigits: 0
   }).format(Number(value));
+}
+
+function compactMoney(value) {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) return "Unsigned";
+  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(amount % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (amount >= 1_000) return `$${Math.round(amount / 1_000)}K`;
+  return `$${Math.round(amount)}`;
 }
 
 function localRosterKey(team) {
@@ -147,7 +155,6 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
             <th className="photo-heading"><span className="visually-hidden">Player photo</span></th>
             <th className="player-sort-heading" aria-sort={sort.column === "name" || sort.column === "salary" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
-              <SortButton label="Salary" column="salary" sort={sort} onSort={changeSort} compact />
             </th>
             <th aria-sort={sort.column === "position" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Pos" column="position" sort={sort} onSort={changeSort} />
@@ -240,6 +247,10 @@ function LineupPlayerCard({ player, onRemove }) {
           aria-label={`Remove ${player.name} from the roster`}
         >
           <PlayerHeadshot player={player} className="lineup-player-headshot" alt="" />
+          <span className="lineup-player-quick-stats">
+            <strong>{compactMoney(player.capHit)}</strong>
+            <span>{Number(player.fantasyPoints || 0).toFixed(1)} FPTS</span>
+          </span>
         </button>
       ) : (
         <div className="empty-lineup-face" aria-label="Open roster slot">
@@ -347,6 +358,12 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
   const [persistence, setPersistence] = useState("private");
+  const rosterReadyRef = useRef(false);
+  const lastSavedRosterRef = useRef("");
+  const remoteUpdatedAtRef = useRef(0);
+  const saveTimerRef = useRef(null);
+  const savingRef = useRef(false);
+  const saveQueueRef = useRef(Promise.resolve());
 
   useEffect(() => {
     let cancelled = false;
@@ -387,9 +404,11 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
         if (data.roster?.players) {
           setPlayers(data.roster.players);
+          lastSavedRosterRef.current = JSON.stringify(data.roster.players);
+          remoteUpdatedAtRef.current = Date.parse(data.roster.updatedAt || 0) || 0;
           setPersistence("private");
           window.localStorage.removeItem(localRosterKey(team.slug));
-          setSaveStatus(`Private roster loaded${data.roster.updatedAt ? ` · updated ${new Date(data.roster.updatedAt).toLocaleString()}` : ""}.`);
+          setSaveStatus(`Private roster loaded${data.roster.updatedAt ? ` · updated ${new Date(data.roster.updatedAt).toLocaleString()}` : ""}. Changes save automatically.`);
         } else if (legacyLocal?.players) {
           // One-time migration from the pre-login browser save into the manager's
           // private Upstash record. The browser copy is deleted only after success.
@@ -406,13 +425,18 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           if (cancelled) return;
 
           setPlayers(migrateData.roster.players || legacyLocal.players);
+          lastSavedRosterRef.current = JSON.stringify(migrateData.roster.players || legacyLocal.players);
+          remoteUpdatedAtRef.current = Date.parse(migrateData.roster.updatedAt || 0) || 0;
           setPersistence("private");
           window.localStorage.removeItem(localRosterKey(team.slug));
           window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
           setSaveStatus(`Roster moved into your private account · ${new Date(migrateData.roster.updatedAt).toLocaleString()}`);
         } else {
+          setPlayers([]);
+          lastSavedRosterRef.current = JSON.stringify([]);
+          remoteUpdatedAtRef.current = 0;
           setPersistence("private");
-          setSaveStatus("No private roster saved yet.");
+          setSaveStatus("No private roster saved yet. Changes save automatically.");
         }
       } catch (error) {
         if (cancelled) return;
@@ -423,7 +447,10 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           setSaveStatus(error.message || "The private roster could not be loaded.");
         }
       } finally {
-        if (!cancelled) setLoadingRoster(false);
+        if (!cancelled) {
+          rosterReadyRef.current = true;
+          setLoadingRoster(false);
+        }
       }
     }
 
@@ -506,39 +533,91 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     }
 
     setPlayers((current) => [...current, player]);
-    setSaveStatus(`${player.name} added. You can change the roster at any time before the deadline.`);
+    setSaveStatus(`${player.name} added · saving automatically…`);
   }
 
   function removePlayer(playerId) {
     const removed = players.find((player) => player.playerId === playerId);
     setPlayers((current) => current.filter((player) => player.playerId !== playerId));
-    setSaveStatus(`${removed?.name || "Player"} removed. Save the roster when you are ready.`);
+    setSaveStatus(`${removed?.name || "Player"} removed · saving automatically…`);
   }
 
-  async function saveRoster() {
-    setSaveStatus("Saving privately to your account…");
+  useEffect(() => {
+    if (!rosterReadyRef.current || loadingRoster) return undefined;
 
-    try {
-      const response = await fetch(`/api/rosters/${team.slug}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ players })
+    const serialized = JSON.stringify(players);
+    if (serialized === lastSavedRosterRef.current) return undefined;
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    setSaveStatus("Saving roster automatically…");
+
+    saveTimerRef.current = setTimeout(() => {
+      const rosterToSave = players;
+      saveQueueRef.current = saveQueueRef.current.catch(() => undefined).then(async () => {
+        savingRef.current = true;
+        try {
+          const response = await fetch(`/api/rosters/${team.slug}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ players: rosterToSave })
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "The private roster could not be saved.");
+
+          lastSavedRosterRef.current = JSON.stringify(data.roster.players || rosterToSave);
+          remoteUpdatedAtRef.current = Date.parse(data.roster.updatedAt || 0) || Date.now();
+          setPersistence("private");
+          window.localStorage.removeItem(localRosterKey(team.slug));
+          window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
+          setSaveStatus(`Saved automatically · ${new Date(data.roster.updatedAt).toLocaleTimeString()}`);
+        } catch (error) {
+          setSaveStatus(error.message || "Automatic save failed. Check the Upstash connection.");
+        } finally {
+          savingRef.current = false;
+        }
       });
-      const data = await response.json();
+    }, 250);
 
-      if (!response.ok) {
-        setSaveStatus(data.error || "The private roster could not be saved.");
-        return;
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [players, loadingRoster, team.slug]);
+
+  useEffect(() => {
+    if (loadingRoster) return undefined;
+
+    async function syncFromUpstash() {
+      if (document.visibilityState !== "visible" || savingRef.current) return;
+      if (JSON.stringify(players) !== lastSavedRosterRef.current) return;
+
+      try {
+        const response = await fetch(`/api/rosters/${team.slug}?sync=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data.roster?.players) return;
+
+        const remoteTime = Date.parse(data.roster.updatedAt || 0) || 0;
+        if (remoteTime <= remoteUpdatedAtRef.current) return;
+
+        const remotePlayers = data.roster.players;
+        lastSavedRosterRef.current = JSON.stringify(remotePlayers);
+        remoteUpdatedAtRef.current = remoteTime;
+        setPlayers(remotePlayers);
+        setSaveStatus(`Synced from another device · ${new Date(data.roster.updatedAt).toLocaleTimeString()}`);
+        window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
+      } catch {
+        // Keep the current local view if a background sync briefly fails.
       }
-
-      setPersistence("private");
-      window.localStorage.removeItem(localRosterKey(team.slug));
-      window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
-      setSaveStatus(`Private roster saved · ${new Date(data.roster.updatedAt).toLocaleString()}`);
-    } catch {
-      setSaveStatus("The private roster could not be saved. Check the Upstash connection and try again.");
     }
-  }
+
+    const interval = window.setInterval(syncFromUpstash, 3000);
+    const onFocus = () => syncFromUpstash();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [loadingRoster, players, team.slug]);
 
   const salaryNote = useMemo(() => {
     if (loadingPool) return "Loading the complete 2026–27 salary list before opening the draft table…";
@@ -580,11 +659,9 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             <strong>{rosterComplete && capRemaining >= 0 ? "Legal" : "Building"}</strong> roster status
           </span>
         </div>
-        <div className="save-row">
+        <div className="save-row auto-save-row">
           <p>{loadingRoster ? "Loading…" : saveStatus}</p>
-          <button className="primary-button" type="button" onClick={saveRoster} disabled={loadingRoster || capRemaining < 0}>
-            Save roster
-          </button>
+          <span className="auto-save-badge">Auto-save · cross-device sync</span>
         </div>
       </div>
 

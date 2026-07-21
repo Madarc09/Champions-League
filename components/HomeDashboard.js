@@ -190,7 +190,7 @@ export default function HomeDashboard() {
                       />
                       <span className="performer-identity">
                         <strong>{player.name}</strong>
-                        <span>{player.team} · roster ownership private</span>
+                        <span>{player.team}</span>
                       </span>
                       <strong className="performer-points">{formatPoints(player.fantasyPoints)}</strong>
                     </button>

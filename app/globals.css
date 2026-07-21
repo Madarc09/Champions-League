@@ -3475,3 +3475,109 @@ button.performer-row:focus-visible {
     padding-inline: 8px;
   }
 }
+
+/* Automatic private saves and compact projected-roster details */
+.auto-save-row {
+  align-items: center;
+}
+
+.auto-save-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 7px 10px;
+  border: 1px solid rgba(101, 214, 162, 0.24);
+  border-radius: 999px;
+  color: #bff1d9;
+  background: rgba(101, 214, 162, 0.08);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.prediction-auto-save-bar .auto-save-badge {
+  display: inline-flex;
+  margin-top: 0;
+  color: #bff1d9;
+}
+
+.lineup-player-card.image-only,
+.lineup-player-image-button {
+  min-height: 116px;
+  height: 116px;
+}
+
+.lineup-player-image-button {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.lineup-player-headshot {
+  min-height: 0;
+  height: 86px;
+}
+
+.lineup-player-quick-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  min-width: 0;
+  padding: 6px 7px 7px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(3, 8, 15, 0.74);
+  line-height: 1;
+}
+
+.lineup-player-quick-stats strong,
+.lineup-player-quick-stats span {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.lineup-player-quick-stats strong {
+  color: var(--gold-2);
+  font-size: 0.57rem;
+  font-weight: 950;
+}
+
+.lineup-player-quick-stats span {
+  color: #f2f6fb;
+  font-size: 0.55rem;
+  font-weight: 900;
+}
+
+@media (max-width: 720px) {
+  .auto-save-row,
+  .prediction-auto-save-bar {
+    align-items: flex-start;
+  }
+
+  .auto-save-badge {
+    white-space: normal;
+  }
+
+  .lineup-player-card.image-only,
+  .lineup-player-image-button {
+    min-height: 100px;
+    height: 100px;
+  }
+
+  .lineup-player-headshot {
+    height: 71px;
+  }
+
+  .lineup-player-quick-stats {
+    padding: 5px 5px 6px;
+  }
+
+  .lineup-player-quick-stats strong,
+  .lineup-player-quick-stats span {
+    font-size: 0.49rem;
+  }
+}

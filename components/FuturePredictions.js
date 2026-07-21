@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 
 const PLAYER_AWARDS = [
@@ -58,6 +58,17 @@ function normalizedPredictions(value) {
   };
 }
 
+function predictionPayload(value) {
+  return {
+    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) },
+    teamAwards: { ...EMPTY_PREDICTIONS.teamAwards, ...(value?.teamAwards || {}) }
+  };
+}
+
+function serializePredictions(value) {
+  return JSON.stringify(predictionPayload(value));
+}
+
 function playerOptionLabel(player) {
   const position = player.rosterType === "G" ? "G" : player.rosterType === "D" ? "D" : "F";
   return `${player.name} — ${player.team || "NHL"} (${position})`;
@@ -111,6 +122,12 @@ export default function FuturePredictions({ team }) {
   const [poolLoading, setPoolLoading] = useState(true);
   const [status, setStatus] = useState("Loading predictions…");
   const [persistence, setPersistence] = useState("private");
+  const predictionsReadyRef = useRef(false);
+  const lastSavedPredictionsRef = useRef("");
+  const remoteUpdatedAtRef = useRef(0);
+  const saveTimerRef = useRef(null);
+  const savingRef = useRef(false);
+  const saveQueueRef = useRef(Promise.resolve());
 
   useEffect(() => {
     let cancelled = false;
@@ -150,10 +167,13 @@ export default function FuturePredictions({ team }) {
         if (cancelled) return;
 
         if (data.predictions) {
-          setPredictions(normalizedPredictions(data.predictions));
+          const loaded = normalizedPredictions(data.predictions);
+          setPredictions(loaded);
+          lastSavedPredictionsRef.current = serializePredictions(loaded);
+          remoteUpdatedAtRef.current = Date.parse(data.predictions.updatedAt || 0) || 0;
           setPersistence("private");
           window.localStorage.removeItem(localKey(team.slug));
-          setStatus(`Private predictions loaded · ${new Date(data.predictions.updatedAt).toLocaleString()}`);
+          setStatus(`Private predictions loaded · ${new Date(data.predictions.updatedAt).toLocaleString()} · changes save automatically`);
         } else if (legacyLocal) {
           const legacyPredictions = normalizedPredictions(legacyLocal);
           setPredictions(legacyPredictions);
@@ -168,14 +188,20 @@ export default function FuturePredictions({ team }) {
           if (!migrateResponse.ok) throw new Error(migrateData.error || "The old browser predictions could not be moved to Upstash.");
           if (cancelled) return;
 
-          setPredictions(normalizedPredictions(migrateData.predictions));
+          const migrated = normalizedPredictions(migrateData.predictions);
+          setPredictions(migrated);
+          lastSavedPredictionsRef.current = serializePredictions(migrated);
+          remoteUpdatedAtRef.current = Date.parse(migrateData.predictions.updatedAt || 0) || 0;
           setPersistence("private");
           window.localStorage.removeItem(localKey(team.slug));
           setStatus(`Predictions moved into your private account · ${new Date(migrateData.predictions.updatedAt).toLocaleString()}`);
         } else {
-          setPredictions(normalizedPredictions(null));
+          const empty = normalizedPredictions(null);
+          setPredictions(empty);
+          lastSavedPredictionsRef.current = serializePredictions(empty);
+          remoteUpdatedAtRef.current = 0;
           setPersistence("private");
-          setStatus("No private predictions saved yet. Make selections and save when ready.");
+          setStatus("No private predictions saved yet. Selections save automatically.");
         }
       } catch (error) {
         if (cancelled) return;
@@ -186,7 +212,10 @@ export default function FuturePredictions({ team }) {
           setStatus(error.message || "The private predictions could not be loaded.");
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          predictionsReadyRef.current = true;
+          setLoading(false);
+        }
       }
     }
 
@@ -208,6 +237,7 @@ export default function FuturePredictions({ team }) {
       ...current,
       playerAwards: { ...current.playerAwards, [awardKey]: player }
     }));
+    setStatus("Saving prediction automatically…");
   }
 
   function chooseTeam(awardKey, abbrev) {
@@ -216,36 +246,85 @@ export default function FuturePredictions({ team }) {
       ...current,
       teamAwards: { ...current.teamAwards, [awardKey]: selected }
     }));
+    setStatus("Saving prediction automatically…");
   }
 
-  async function savePredictions() {
-    const snapshot = {
-      team: team.slug,
-      playerAwards: predictions.playerAwards,
-      teamAwards: predictions.teamAwards,
-      updatedAt: new Date().toISOString()
-    };
-    setStatus("Saving privately to your account…");
+  useEffect(() => {
+    if (!predictionsReadyRef.current || loading) return undefined;
 
-    try {
-      const response = await fetch(`/api/predictions/${team.slug}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(snapshot)
+    const serialized = serializePredictions(predictions);
+    if (serialized === lastSavedPredictionsRef.current) return undefined;
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    setStatus("Saving prediction automatically…");
+
+    saveTimerRef.current = setTimeout(() => {
+      const predictionsToSave = predictionPayload(predictions);
+      saveQueueRef.current = saveQueueRef.current.catch(() => undefined).then(async () => {
+        savingRef.current = true;
+        try {
+          const response = await fetch(`/api/predictions/${team.slug}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(predictionsToSave)
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "The private predictions could not be saved.");
+
+          const saved = normalizedPredictions(data.predictions);
+          lastSavedPredictionsRef.current = serializePredictions(saved);
+          remoteUpdatedAtRef.current = Date.parse(data.predictions.updatedAt || 0) || Date.now();
+          setPredictions(saved);
+          setPersistence("private");
+          window.localStorage.removeItem(localKey(team.slug));
+          setStatus(`Saved automatically · ${new Date(data.predictions.updatedAt).toLocaleTimeString()}`);
+        } catch (error) {
+          setStatus(error.message || "Automatic save failed. Check the Upstash connection.");
+        } finally {
+          savingRef.current = false;
+        }
       });
-      const data = await response.json();
-      if (!response.ok) {
-        setStatus(data.error || "The private predictions could not be saved.");
-        return;
+    }, 200);
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [predictions, loading, team.slug]);
+
+  useEffect(() => {
+    if (loading) return undefined;
+
+    async function syncFromUpstash() {
+      if (document.visibilityState !== "visible" || savingRef.current) return;
+      if (serializePredictions(predictions) !== lastSavedPredictionsRef.current) return;
+
+      try {
+        const response = await fetch(`/api/predictions/${team.slug}?sync=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (!data.predictions) return;
+
+        const remoteTime = Date.parse(data.predictions.updatedAt || 0) || 0;
+        if (remoteTime <= remoteUpdatedAtRef.current) return;
+
+        const remote = normalizedPredictions(data.predictions);
+        lastSavedPredictionsRef.current = serializePredictions(remote);
+        remoteUpdatedAtRef.current = remoteTime;
+        setPredictions(remote);
+        setStatus(`Synced from another device · ${new Date(data.predictions.updatedAt).toLocaleTimeString()}`);
+      } catch {
+        // Keep the current selections if a background sync briefly fails.
       }
-      setPredictions(normalizedPredictions(data.predictions));
-      setPersistence("private");
-      window.localStorage.removeItem(localKey(team.slug));
-      setStatus(`Private predictions saved · ${new Date(data.predictions.updatedAt).toLocaleString()}`);
-    } catch {
-      setStatus("The private predictions could not be saved. Check the Upstash connection and try again.");
     }
-  }
+
+    const interval = window.setInterval(syncFromUpstash, 3000);
+    const onFocus = () => syncFromUpstash();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [loading, predictions, team.slug]);
 
   const pickedCount = [
     ...Object.values(predictions.playerAwards),
@@ -343,14 +422,12 @@ export default function FuturePredictions({ team }) {
         </section>
       </div>
 
-      <footer className="prediction-save-bar">
+      <footer className="prediction-save-bar prediction-auto-save-bar">
         <div>
           <strong>{persistence === "private" ? "Private Upstash predictions" : "Predictions unavailable"}</strong>
           <span>{status}</span>
         </div>
-        <button className="primary-button" type="button" onClick={savePredictions} disabled={loading || poolLoading}>
-          Save predictions
-        </button>
+        <span className="auto-save-badge">Auto-save · cross-device sync</span>
       </footer>
     </section>
   );
