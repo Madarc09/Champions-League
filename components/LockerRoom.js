@@ -680,16 +680,11 @@ export default function LockerRoom({ team, viewerSlug = null }) {
 
     loadRoster();
     return () => { cancelled = true; };
-  }, [teamSlug, isOwnLocker]);
+  }, [teamSlug, isOwnLocker, team.name]);
 
   useEffect(() => {
     setPredictionEditor(null);
     setPredictionStatus("");
-
-    if (!isOwnLocker) {
-      setPredictions(null);
-      return undefined;
-    }
 
     let cancelled = false;
 
@@ -709,7 +704,11 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         if (!quiet || remoteTime > predictionUpdatedAtRef.current) {
           setPredictions(next);
           predictionUpdatedAtRef.current = remoteTime;
-          if (!quiet) setPredictionStatus(data.predictions ? "Predictions loaded. Click any choice to edit it." : "Click any prediction tile to make a choice.");
+          if (!quiet) setPredictionStatus(
+            isOwnLocker
+              ? (data.predictions ? "Predictions loaded. Click any choice to edit it." : "Click any prediction tile to make a choice.")
+              : (data.predictions ? `${teamName}'s predictions` : `${teamName} has not submitted predictions yet.`)
+          );
         }
       } catch (error) {
         if (!cancelled && !quiet) setPredictionStatus(error.message || "Predictions could not be loaded.");
@@ -726,7 +725,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [teamSlug, isOwnLocker]);
+  }, [teamSlug, isOwnLocker, teamName]);
 
   useEffect(() => {
     if (!isOwnLocker) {
@@ -858,13 +857,13 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         <>
           <PredictionsPanel
             side="left"
-            predictions={isOwnLocker ? predictions : null}
+            predictions={predictions}
             editable={isOwnLocker}
             onEdit={setPredictionEditor}
           />
           <PredictionsPanel
             side="right"
-            predictions={isOwnLocker ? predictions : null}
+            predictions={predictions}
             editable={isOwnLocker}
             onEdit={setPredictionEditor}
           />

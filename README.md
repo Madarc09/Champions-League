@@ -275,7 +275,7 @@ The mobile home page retains the original horizontally scrollable arena composit
 
 ## Manager login database
 
-The Draft Room and Future Predictions pages now require a manager login. Locker Rooms and the public standings remain viewable by everyone.
+The Draft Room requires a manager login. Locker Rooms, submitted season/player predictions, projection cards, and public standings remain viewable by everyone. Only the manager who owns a team can edit that team's roster or predictions.
 
 Manager accounts are automatically seeded into the existing Upstash Redis database the first time someone signs in. Passwords are stored as salted `scrypt` hashes; plaintext passwords are never written to Redis.
 
@@ -313,21 +313,21 @@ The site accepts either Vercel/Upstash credential naming convention:
 - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
 - `KV_REST_API_URL` + `KV_REST_API_TOKEN`
 
-Roster selections (draft picks), Locker Rooms, and Future Predictions are private to the authenticated manager. The roster and predictions API routes verify the server-side session on both reads and writes; changing the URL cannot reveal another manager's data.
+Roster selections (draft picks) remain private to the authenticated manager. The roster API verifies ownership on both reads and writes, so changing the URL cannot reveal another manager's roster. Submitted season and player predictions are intentionally public to read in every Locker Room, while prediction writes still require the authenticated team owner.
 
-The public home page receives only aggregate team fantasy-point totals. It does not receive roster player IDs, player ownership, predictions, or full roster objects. Player ownership on the Top Performers panel is therefore labelled private.
+The public home page receives only aggregate team totals: completed 2025–26 fantasy points and 2026–27 projected fantasy points. It does not receive roster player IDs, player ownership, or full roster objects. Player ownership on the Top Performers panel is therefore labelled private.
 
 Older browser-only roster and prediction saves are migrated once into the signed-in manager's private Upstash records. The browser copy is deleted only after the migration succeeds. New versions no longer use browser storage as a save fallback.
 
-Locker Rooms now require login and redirect managers back to their own room if they try another manager's URL. Neighbouring standings positions may still be shown visually at the bottom of the locker, but they are no longer clickable roster links.
+Locker Rooms are public display pages. A manager sees and edits only their own roster; every other visitor sees concealed roster slots. Submitted team and player predictions remain visible in every Locker Room, but only the team owner receives editing controls.
 
 ## Nick Locker Room prediction-panel update
 
 - Nick now uses `public/nick-locker-room.png`, the rustic Toronto sports cabin artwork.
-- Nick's private team predictions render in the left prediction panel.
-- Nick's private player-award predictions render in the right prediction panel.
+- Nick's submitted team predictions render in the left prediction panel.
+- Nick's submitted player-award predictions render in the right prediction panel.
 - Prediction selections refresh from Upstash about every three seconds while the page is open.
-- Other viewers see TBA prediction tiles; the private prediction data is never requested for them.
+- Other viewers see the submitted choices, or solid TBA tiles when no selection has been made. Only Nick receives the editing controls.
 - Nick-specific roster, total-points, and standings-neighbour overlays were realigned to the new artwork.
 
 ## Prediction candidate menus
@@ -392,7 +392,7 @@ The Draft Room builds a searchable 2026–27 projection for every player returne
 - Each category has its own weights. Hits lean most heavily on the player's historical style, while goals and goalie results give more weight to expected-stat inputs.
 - For established players, the final category result is bounded around the three-season baseline so one damaged or missing feed cannot create an absurd projection.
 - Projection cards store the four candidate values, final category value, confidence, source list and a category-by-category explanation showing the three-season, advanced-stat and role/environment estimates behind each increase or decrease.
-- Draft-table FPTS remain completed 2025–26 fantasy points. Projected FPTS appear only inside the Projected Performance card.
+- Draft-table FPTS remain completed 2025–26 fantasy points. A separate PROJ column shows the balanced 2026–27 projected fantasy total, while the full floor/balanced/upside detail remains inside the Projected Performance card.
 
 ### Files
 
@@ -411,30 +411,18 @@ The values are **Champions League estimates**, not official projections from the
 
 ## Draft board and locker-room correction
 
-- Draft player rows now read left-to-right as position, player image, player name with salary and inline NHL team logo, goals, assists, shots, hits, last-season fantasy points, and the Draft action.
-- The player-pool fantasy-points column uses completed 2025–26 results only; projected fantasy points remain exclusive to the Projected Performance card.
+- Draft player rows now read left-to-right as position, player image, player name with salary and inline NHL team logo, goals, assists, shots, hits, completed-season FPTS, projected FPTS, and the Draft action.
+- The completed and projected fantasy-point columns are labelled separately and fit within the board without horizontal scrolling.
 - Projection cards now compare every displayed category against last season, show a signed increase/decrease, and include a brief model explanation.
 - Locker Room team predictions now display Stanley Cup and Presidents Trophy on the top row, with West and East champions beneath them.
 
-## July 22, 2026 — compact draft room and static projection board
 
-The draft room now uses a 60/40 desktop layout:
+## Final draft-room, visibility, and projection-board update
 
-- **60% Player Pool** with smaller rows, headshots, filters and draft buttons.
-- **40% right rail** containing the complete projected roster and the selected player's projection card.
-- All 20 roster slots fit in the compact two-column roster without the former oversized cards across the top.
-- Hovering over a player image opens a small cursor-following projection preview. Clicking the image pins that player in the detailed projection card.
-- The old “Build your roster” block was removed. Fantasy-point formulas now appear in the compact NHL Draft banner.
-
-### Static projection architecture
-
-`data/player-projections-2026-27.js` is now the authoritative manual projection file. Each reviewed player contains:
-
-- a cautious **floor** scenario;
-- the displayed **balanced** projection;
-- a healthy/favourable **upside** scenario;
-- short written reasoning.
-
-`lib/static-projections.js` calculates Champions League fantasy points from those category totals and overlays the reviewed record on the live player object. The draft page therefore does not recalculate or randomly change a reviewed player's projection on every load.
-
-The first 25 review entries are included. Players not yet present in the static file use the stabilized multi-source model as a clearly labelled **MODEL FALLBACK**. Add each reviewed player to the static file to move the full database onto the locked projection board. The fallback safety range was also tightened from 72–132% to 84–124% of the player's own three-season baseline, and skater projections now permit the 84-game schedule.
+- A drafted player's identity remains hidden from every other manager. The draft availability endpoint exposes only unavailable player IDs to an authenticated Draft Room, never the selecting team or its roster. The roster save route also rejects a simultaneous duplicate pick and removes that player from the losing browser's board.
+- Season champion and player-award predictions are public in every Locker Room. Only the authenticated owner can change them.
+- The home standings board now shows two aggregate columns side by side: **FPTS — 2025–26** and **Projected — 2026–27**. Projected totals are calculated server-side from each private roster and returned only as a team total.
+- The NHL Draft banner was removed. Projected Performance now appears directly above the Player Pool, and the full FPTS scoring breakdown lives inside the Projected Roster panel.
+- The Draft Room remains a 60/40 workspace, with the Player Pool and projection assistant on the left and the complete 20-slot Projected Roster on the right.
+- The player table uses ten tightly fitted columns with no horizontal scrolling: position, image, player/team/salary, G, A, SOG, HIT, 2025–26 FPTS, 2026–27 projected FPTS, and Draft.
+- `data/player-projections-2026-27.js` now contains static floor/balanced/upside reviews for 50 players. The balanced scenario drives the site's projected totals. Players outside the reviewed 50 continue to use the clearly labelled model fallback until they are manually added to the static board.

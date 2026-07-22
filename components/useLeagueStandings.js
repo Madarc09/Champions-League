@@ -8,6 +8,12 @@ function totalFantasyPoints(players = []) {
   ) / 10;
 }
 
+function totalProjectedFantasyPoints(players = []) {
+  return Math.round(
+    players.reduce((sum, player) => sum + Number(player?.projection?.fantasyPoints || 0), 0) * 10
+  ) / 10;
+}
+
 function rankStandings(entries = []) {
   return [...entries]
     .sort((left, right) => (
@@ -74,7 +80,10 @@ export default function useLeagueStandings({
     const base = snapshot.standings.map((entry, originalIndex) => ({ ...entry, originalIndex }));
     if (currentTeamSlug && currentRosterReady) {
       const current = base.find((entry) => entry.slug === currentTeamSlug);
-      if (current) current.fantasyPoints = totalFantasyPoints(currentPlayers);
+      if (current) {
+        current.fantasyPoints = totalFantasyPoints(currentPlayers);
+        current.projectedFantasyPoints = totalProjectedFantasyPoints(currentPlayers);
+      }
     }
     return rankStandings(base).map(({ originalIndex: _originalIndex, ...entry }) => entry);
   }, [snapshot.standings, currentTeamSlug, currentPlayers, currentRosterReady]);

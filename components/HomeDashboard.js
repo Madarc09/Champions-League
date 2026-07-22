@@ -123,7 +123,10 @@ export default function HomeDashboard() {
                   <span>2025–26 NHL results</span>
                   <h1 id="home-standings-title">Champions League Standings</h1>
                 </div>
-                <strong>FPTS</strong>
+                <div className="home-standing-column-headings" aria-label="Standing point columns">
+                  <span><strong>FPTS</strong><small>2025–26</small></span>
+                  <span><strong>PROJECTED</strong><small>2026–27</small></span>
+                </div>
               </header>
 
               <ol className="home-standings-list">
@@ -132,12 +135,15 @@ export default function HomeDashboard() {
                     <a
                       className="home-standing-private home-standing-locker-link"
                       href={`/team/${team.slug}/locker-room`}
-                      aria-label={`Open ${team.name}'s locker room; ${formatPoints(team.fantasyPoints)} fantasy points`}
+                      aria-label={`Open ${team.name}'s locker room; ${formatPoints(team.fantasyPoints)} current fantasy points and ${formatPoints(team.projectedFantasyPoints)} projected fantasy points`}
                     >
                       <span className="home-standing-rank">{team.rank}</span>
                       <span className="home-standing-name">{team.name}</span>
-                      <span className="home-standing-points">
+                      <span className="home-standing-points home-standing-current-points">
                         {standingsLoaded ? formatPoints(team.fantasyPoints) : "—"}
+                      </span>
+                      <span className="home-standing-points home-standing-projected-points">
+                        {standingsLoaded ? formatPoints(team.projectedFantasyPoints) : "—"}
                       </span>
                     </a>
                   </li>

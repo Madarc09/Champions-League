@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import { TEAMS } from "@/data/league-config";
+import { managerFromRequest } from "@/lib/auth";
+import { getRedis } from "@/lib/redis";
+import { rosterStorageKey } from "@/lib/standings";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
@@ -23,6 +27,28 @@ function attachFantasyRanks(players) {
     rank += 1;
     return { ...player, fantasyRank: rank };
   });
+}
+
+
+async function claimedPlayerIdsFromOtherTeams(request) {
+  const manager = await managerFromRequest(request).catch(() => null);
+  const redis = getRedis();
+  if (!manager || !redis) return new Set();
+
+  const results = await Promise.allSettled(
+    TEAMS
+      .filter((team) => team.slug !== manager.slug)
+      .map((team) => redis.get(rosterStorageKey(team.slug)))
+  );
+
+  const claimed = new Set();
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    for (const player of result.value?.players || []) {
+      if (player?.playerId != null) claimed.add(String(player.playerId));
+    }
+  }
+  return claimed;
 }
 
 function trustedSalaryOverride(record) {
@@ -162,8 +188,16 @@ export async function GET(request) {
     };
   });
 
+  const claimedByOthers = leaderboardMode
+    ? await claimedPlayerIdsFromOtherTeams(request)
+    : new Set();
+  const draftPlayers = leaderboardMode
+    ? players.filter((player) => !claimedByOthers.has(String(player.playerId)))
+    : players;
+
   return NextResponse.json({
     players,
+    draftPlayers,
     poolData: {
       source: playerResult.pool.source,
       updatedAt: playerResult.pool.updatedAt,
@@ -182,7 +216,7 @@ export async function GET(request) {
       error: salaryError
     },
     projectionData: {
-      model: "Champions Static Projection Board 1.0",
+      model: "Champions Static Projection Board 1.1",
       season: "2026-27",
       updatedAt: new Date().toISOString(),
       rankingUpdatedAt: rankingResult.snapshot?.updatedAt || null,

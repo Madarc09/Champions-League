@@ -7181,3 +7181,525 @@ body:has(.champions-draft-page) .header-auth-button {
     display: none;
   }
 }
+
+/* ========================================================================== */
+/* FINAL DRAFT ROOM PASS — no horizontal scroll, public projections, 60/40   */
+/* ========================================================================== */
+
+/* Home standings now compare completed 2025–26 FPTS with 2026–27 projection. */
+.home-board-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 42%);
+  align-items: center;
+}
+
+.home-standing-column-headings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  text-align: right;
+}
+
+.home-standing-column-headings > span {
+  min-width: 0;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.home-standing-column-headings strong,
+.home-standing-column-headings small {
+  display: block;
+}
+
+.home-standing-column-headings strong {
+  overflow: hidden;
+  color: #f2c66a;
+  font-size: clamp(.54rem, .72vw, .78rem);
+  letter-spacing: .07em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-standing-column-headings span:last-child strong {
+  color: #55adff;
+}
+
+.home-standing-column-headings small {
+  margin-top: 3px;
+  color: #8f9bac;
+  font-size: clamp(.42rem, .53vw, .58rem);
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.home-standing-row a,
+.home-standing-row .home-standing-private {
+  grid-template-columns: 9% minmax(0, 1fr) 19% 22%;
+  gap: 1%;
+}
+
+.home-standing-current-points {
+  color: #f2c66a;
+}
+
+.home-standing-projected-points {
+  color: #55adff;
+}
+
+.fantasy-standings-table th small {
+  display: block;
+  margin-top: 3px;
+  color: #8294a8;
+  font-size: .58em;
+}
+
+.standings-projected-points strong,
+.standings-projected-points small {
+  color: #55adff;
+}
+
+/* The projection card sits above the player pool; roster remains the 40% rail. */
+.compact-draft-workspace {
+  grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.draft-left-column {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.compact-performance-panel,
+.compact-player-pool,
+.compact-projected-roster {
+  min-width: 0;
+}
+
+/* Readable compact performance card above the player pool. */
+.compact-performance-panel {
+  padding: 12px;
+}
+
+.compact-performance-panel > header {
+  padding-bottom: 8px;
+}
+
+.compact-performance-panel h2 {
+  font-size: 1.13rem;
+}
+
+.compact-performance-panel .eyebrow {
+  font-size: .55rem;
+}
+
+.projection-player-search {
+  min-height: 36px;
+}
+
+.projection-player-search input {
+  font-size: .72rem;
+}
+
+.compact-projection-card {
+  margin-top: 8px;
+}
+
+.compact-projection-card .projection-player-hero {
+  grid-template-columns: 72px minmax(0, 1fr) 116px;
+  min-height: 90px;
+  padding: 7px 10px 4px;
+}
+
+.compact-projection-card .projection-card-headshot {
+  width: 70px;
+  height: 82px;
+}
+
+.compact-projection-card .projection-player-copy small,
+.compact-projection-card .projection-player-copy span {
+  font-size: .55rem;
+}
+
+.compact-projection-card .projection-player-copy h3 {
+  font-size: 1rem;
+}
+
+.compact-projection-card .projection-fpts-comparison {
+  min-width: 110px;
+}
+
+.compact-projection-card .projection-fpts-badge strong {
+  font-size: 1rem;
+}
+
+.compact-projection-card .projection-stat.comparison {
+  min-height: 64px;
+  padding: 6px 4px;
+}
+
+.compact-projection-card .projection-stat > small,
+.compact-projection-card .projection-stat-values em,
+.projection-range-strip small {
+  font-size: .45rem;
+}
+
+.compact-projection-card .projection-stat-values strong,
+.projection-range-strip strong {
+  font-size: .67rem;
+}
+
+.compact-projection-card .projection-delta {
+  font-size: .49rem;
+}
+
+.compact-reasoning {
+  padding: 7px 9px;
+}
+
+.compact-reasoning ul {
+  font-size: .51rem;
+  line-height: 1.38;
+}
+
+.compact-projection-card .projection-method-note,
+.compact-source-footer {
+  font-size: .48rem;
+}
+
+/* Player board: all ten columns fit inside the available 60% — never scroll. */
+.compact-player-pool .champions-player-table-scroll,
+.champions-player-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  scrollbar-gutter: auto;
+}
+
+.compact-player-pool .champions-player-table,
+.champions-player-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.compact-player-pool .champions-player-table th,
+.compact-player-pool .champions-player-table td {
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-left: 2px;
+  padding-right: 2px;
+  text-overflow: ellipsis;
+}
+
+.compact-player-pool .champions-player-table th {
+  height: 31px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: .52rem;
+}
+
+.compact-player-pool .champions-player-table td {
+  height: 42px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.compact-player-pool .champions-player-table th:nth-child(1) { width: 4%; }
+.compact-player-pool .champions-player-table th:nth-child(2) { width: 5%; }
+.compact-player-pool .champions-player-table th:nth-child(3) { width: 30%; }
+.compact-player-pool .champions-player-table th:nth-child(4) { width: 6%; }
+.compact-player-pool .champions-player-table th:nth-child(5) { width: 6%; }
+.compact-player-pool .champions-player-table th:nth-child(6) { width: 7%; }
+.compact-player-pool .champions-player-table th:nth-child(7) { width: 7%; }
+.compact-player-pool .champions-player-table th:nth-child(8) { width: 10%; }
+.compact-player-pool .champions-player-table th:nth-child(9) { width: 11%; }
+.compact-player-pool .champions-player-table th:nth-child(10) { width: 14%; }
+
+.compact-player-pool .champions-player-table td:nth-child(1),
+.compact-player-pool .champions-player-table td:nth-child(2) {
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+.compact-player-pool .champions-player-table td:nth-child(3) {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.compact-player-pool .champions-player-table .player-headshot-preview-button,
+.compact-player-pool .champions-player-table .draft-player-headshot {
+  width: 34px;
+  height: 34px;
+  max-width: 100%;
+}
+
+.compact-player-pool .champions-player-copy strong {
+  font-size: .72rem;
+  line-height: 1.08;
+}
+
+.compact-player-pool .champions-player-meta {
+  gap: 5px;
+  margin-top: 3px;
+  font-size: .5rem !important;
+}
+
+.compact-player-pool .inline-team-meta {
+  gap: 2px;
+}
+
+.compact-player-pool .inline-team-meta img {
+  width: 15px;
+  height: 15px;
+  flex-basis: 15px;
+}
+
+.compact-player-pool .inline-team-meta b {
+  font-size: .5rem !important;
+}
+
+.compact-player-pool .draft-stat-cell,
+.compact-player-pool .champions-player-table .fantasy-points-cell {
+  padding-inline: 1px;
+  font-size: .67rem;
+  text-align: center;
+}
+
+.compact-player-pool .actual-fantasy-points-cell {
+  color: #f2c66a;
+}
+
+.compact-player-pool .projected-fantasy-points-cell {
+  color: #55adff;
+  background: rgba(46, 139, 224, .055);
+}
+
+/* Undo every older sticky-column rule. There is room for all ten columns now. */
+.compact-player-pool .champions-player-table .draft-action-cell,
+.compact-player-pool .champions-player-table thead th:nth-child(9),
+.compact-player-pool .champions-player-table thead th:nth-child(10) {
+  position: static !important;
+  right: auto !important;
+  z-index: auto !important;
+  box-shadow: none !important;
+}
+
+.compact-player-pool .champions-player-table .draft-action-cell {
+  padding-inline: 2px;
+  background: transparent;
+}
+
+.compact-player-pool .champions-player-table tbody tr:hover .draft-action-cell,
+.compact-player-pool .champions-player-table tbody tr.preview-row .draft-action-cell {
+  background: transparent;
+}
+
+.compact-player-pool .champions-player-table .champions-draft-button {
+  width: 100%;
+  max-width: 82px;
+  min-height: 28px;
+  padding: 4px 2px;
+  font-size: .52rem;
+  white-space: normal;
+  line-height: 1.05;
+}
+
+/* Larger projected-roster copy while retaining all 20 slots in one screen. */
+.compact-projected-roster {
+  padding: 12px;
+}
+
+.compact-roster-header .eyebrow {
+  font-size: .54rem;
+}
+
+.compact-roster-header h2 {
+  font-size: 1.12rem;
+}
+
+.compact-roster-header > strong {
+  font-size: .57rem;
+}
+
+.compact-roster-summary > span {
+  padding: 7px 4px;
+}
+
+.compact-roster-summary small {
+  font-size: .46rem;
+}
+
+.compact-roster-summary strong {
+  font-size: .69rem;
+}
+
+.roster-scoring-breakdown {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 9px;
+  padding: 8px 9px;
+  border: 1px solid rgba(78, 168, 255, .24);
+  border-radius: 5px;
+  background: rgba(26, 86, 145, .1);
+  line-height: 1.3;
+}
+
+.roster-scoring-breakdown strong {
+  color: #55adff;
+  font-size: .62rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.roster-scoring-breakdown span {
+  color: #bdcad7;
+  font-size: .52rem;
+}
+
+.compact-roster-groups {
+  gap: 7px;
+}
+
+.compact-roster-group h3 {
+  font-size: .64rem;
+}
+
+.compact-roster-group h3 span {
+  font-size: .5rem;
+}
+
+.compact-roster-slot {
+  height: 32px;
+}
+
+.compact-roster-position {
+  width: 20px;
+  font-size: .55rem;
+}
+
+.compact-roster-empty-name,
+.compact-roster-player strong {
+  font-size: .56rem;
+}
+
+.compact-roster-player small {
+  font-size: .44rem;
+}
+
+.compact-roster-headshot {
+  width: 27px;
+  height: 29px;
+}
+
+.compact-roster-player {
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.compact-roster-cap-limit {
+  font-size: .49rem;
+}
+
+@media (max-width: 1180px) {
+  .compact-draft-workspace {
+    grid-template-columns: minmax(0, 57fr) minmax(330px, 43fr);
+  }
+
+  .compact-player-pool .champions-player-copy strong { font-size: .65rem; }
+  .compact-player-pool .champions-player-meta,
+  .compact-player-pool .inline-team-meta b { font-size: .45rem !important; }
+  .compact-player-pool .draft-stat-cell,
+  .compact-player-pool .champions-player-table .fantasy-points-cell { font-size: .61rem; }
+}
+
+@media (max-width: 960px) {
+  .compact-draft-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .draft-right-rail {
+    display: block;
+  }
+
+  .compact-player-pool .champions-player-table-scroll {
+    max-height: 520px;
+  }
+
+  .compact-projected-roster {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-board-title {
+    grid-template-columns: minmax(0, 1fr) 122px;
+    gap: 4px;
+  }
+
+  .home-standing-column-headings strong { font-size: .48rem; }
+  .home-standing-column-headings small { font-size: .36rem; }
+
+  .home-standing-row a,
+  .home-standing-row .home-standing-private {
+    grid-template-columns: 30px minmax(0, 1fr) 58px 64px;
+    gap: 3px;
+    padding-inline: 6px;
+  }
+
+  .home-standing-points { font-size: .63rem; }
+
+  .compact-performance-panel,
+  .compact-player-pool,
+  .compact-projected-roster {
+    padding: 8px;
+  }
+
+  .compact-projection-card .projection-player-hero {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+
+  .compact-projection-card .projection-fpts-comparison {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .compact-player-pool .champions-player-table th {
+    font-size: .42rem;
+    letter-spacing: 0;
+  }
+
+  .compact-player-pool .champions-player-table th:nth-child(1) { width: 4%; }
+  .compact-player-pool .champions-player-table th:nth-child(2) { width: 6%; }
+  .compact-player-pool .champions-player-table th:nth-child(3) { width: 29%; }
+  .compact-player-pool .champions-player-table th:nth-child(4),
+  .compact-player-pool .champions-player-table th:nth-child(5) { width: 6%; }
+  .compact-player-pool .champions-player-table th:nth-child(6),
+  .compact-player-pool .champions-player-table th:nth-child(7) { width: 7%; }
+  .compact-player-pool .champions-player-table th:nth-child(8) { width: 10%; }
+  .compact-player-pool .champions-player-table th:nth-child(9) { width: 11%; }
+  .compact-player-pool .champions-player-table th:nth-child(10) { width: 14%; }
+
+  .compact-player-pool .champions-player-table .player-headshot-preview-button,
+  .compact-player-pool .champions-player-table .draft-player-headshot {
+    width: 28px;
+    height: 28px;
+  }
+
+  .compact-player-pool .champions-player-copy strong { font-size: .55rem; }
+  .compact-player-pool .champions-player-meta,
+  .compact-player-pool .inline-team-meta b { font-size: .38rem !important; }
+  .compact-player-pool .inline-team-meta img { width: 11px; height: 11px; flex-basis: 11px; }
+  .compact-player-pool .draft-stat-cell,
+  .compact-player-pool .champions-player-table .fantasy-points-cell { font-size: .5rem; }
+  .compact-player-pool .champions-player-table .position-chip { min-width: 20px; height: 19px; font-size: .44rem; }
+  .compact-player-pool .champions-player-table .champions-draft-button { font-size: .42rem; min-height: 25px; }
+
+  .compact-roster-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

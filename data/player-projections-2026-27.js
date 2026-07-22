@@ -13,10 +13,10 @@
  * Update this file rather than changing numbers inside a React component.
  */
 export const STATIC_PROJECTION_META = {
-  model: "Champions Static Projection Board 1.0",
+  model: "Champions Static Projection Board 1.1",
   season: "2026-27",
   updatedAt: "2026-07-22",
-  reviewedPlayers: 25,
+  reviewedPlayers: 50,
   method: "Three-scenario manual review with a balanced projection used by the website."
 };
 
@@ -246,4 +246,231 @@ export const STATIC_PLAYER_PROJECTIONS = {
       "Goals remain modest because his primary fantasy value is puck movement and creation."
     ]
   }
+
+  ,"logan thompson": {
+    floor: { gamesPlayed: 50, wins: 28, saves: 1240, goalsAgainst: 130, shutouts: 3, goals: 0, assists: 0 },
+    balanced: { gamesPlayed: 58, wins: 34, saves: 1450, goalsAgainst: 139, shutouts: 4, goals: 0, assists: 0 },
+    upside: { gamesPlayed: 63, wins: 39, saves: 1600, goalsAgainst: 146, shutouts: 6, goals: 0, assists: 0 },
+    reasons: [
+      "Washington's strong team environment and his established starter workload support a mid-30s win projection.",
+      "The balanced line keeps his save rate near last season while avoiding an automatic repeat of every career-best result."
+    ]
+  },
+  "connor hellebuyck": {
+    floor: { gamesPlayed: 53, wins: 30, saves: 1320, goalsAgainst: 135, shutouts: 3, goals: 0, assists: 0 },
+    balanced: { gamesPlayed: 60, wins: 36, saves: 1500, goalsAgainst: 140, shutouts: 5, goals: 0, assists: 0 },
+    upside: { gamesPlayed: 64, wins: 41, saves: 1620, goalsAgainst: 145, shutouts: 7, goals: 0, assists: 0 },
+    reasons: [
+      "His multi-year workload and elite goaltending baseline keep him among the safest high-volume goalies.",
+      "The range allows for Winnipeg's offseason uncertainty without assuming a major decline in individual performance."
+    ]
+  },
+  "ilya sorokin": {
+    floor: { gamesPlayed: 50, wins: 25, saves: 1250, goalsAgainst: 140, shutouts: 4, goals: 0, assists: 0 },
+    balanced: { gamesPlayed: 57, wins: 31, saves: 1450, goalsAgainst: 142, shutouts: 6, goals: 0, assists: 0 },
+    upside: { gamesPlayed: 62, wins: 36, saves: 1600, goalsAgainst: 146, shutouts: 8, goals: 0, assists: 0 },
+    reasons: [
+      "Strong individual save quality and a clear starter role support another large save total.",
+      "Wins are kept below the elite-team goalies because the Islanders' scoring environment remains the larger risk."
+    ]
+  },
+  "cutter gauthier": {
+    floor: { gamesPlayed: 74, goals: 35, assists: 28, shots: 270, hits: 58 },
+    balanced: { gamesPlayed: 80, goals: 43, assists: 35, shots: 300, hits: 65 },
+    upside: { gamesPlayed: 84, goals: 50, assists: 42, shots: 330, hits: 72 },
+    reasons: [
+      "Elite shot volume and a permanent top-line shooting role support another 40-goal season.",
+      "The balanced case adds modest playmaking growth while applying some regression to finishing."
+    ]
+  },
+  "kyle connor": {
+    floor: { gamesPlayed: 74, goals: 38, assists: 43, shots: 245, hits: 18 },
+    balanced: { gamesPlayed: 80, goals: 45, assists: 50, shots: 275, hits: 20 },
+    upside: { gamesPlayed: 84, goals: 52, assists: 58, shots: 300, hits: 23 },
+    reasons: [
+      "His first-line and PP1 usage preserve a high goal floor even if Winnipeg's roster changes around him.",
+      "The midpoint sits slightly below a full repeat of his career-best scoring pace."
+    ]
+  },
+  "tage thompson": {
+    floor: { gamesPlayed: 70, goals: 34, assists: 35, shots: 240, hits: 31 },
+    balanced: { gamesPlayed: 77, goals: 42, assists: 43, shots: 270, hits: 35 },
+    upside: { gamesPlayed: 82, goals: 50, assists: 50, shots: 300, hits: 40 },
+    reasons: [
+      "A premium shooting role and heavy PP1 usage keep the goal projection in the low 40s.",
+      "Durability and Buffalo's overall offensive consistency create most of the floor-to-upside spread."
+    ]
+  },
+  "mark scheifele": {
+    floor: { gamesPlayed: 73, goals: 31, assists: 43, shots: 198, hits: 40 },
+    balanced: { gamesPlayed: 80, goals: 37, assists: 50, shots: 220, hits: 45 },
+    upside: { gamesPlayed: 84, goals: 43, assists: 57, shots: 240, hits: 50 },
+    reasons: [
+      "Top-line centre minutes and PP1 deployment support another strong point total.",
+      "The balanced projection trims the highest finishing outcome but keeps his established assist rate."
+    ]
+  },
+  "dylan guenther": {
+    floor: { gamesPlayed: 71, goals: 31, assists: 35, shots: 225, hits: 27 },
+    balanced: { gamesPlayed: 78, goals: 38, assists: 42, shots: 250, hits: 30 },
+    upside: { gamesPlayed: 83, goals: 45, assists: 49, shots: 275, hits: 34 },
+    reasons: [
+      "A young-player growth curve and a featured power-play shooting role support another step forward.",
+      "The midpoint remains below the full breakout case because his NHL workload history is still developing."
+    ]
+  },
+  "leo carlsson": {
+    floor: { gamesPlayed: 72, goals: 28, assists: 42, shots: 190, hits: 48 },
+    balanced: { gamesPlayed: 80, goals: 35, assists: 50, shots: 210, hits: 55 },
+    upside: { gamesPlayed: 84, goals: 42, assists: 58, shots: 235, hits: 62 },
+    reasons: [
+      "Anaheim's offence is increasingly built around his top-line and PP1 usage.",
+      "The balanced case assumes continued development without jumping immediately to the full star-level ceiling."
+    ]
+  },
+  "jake guentzel": {
+    floor: { gamesPlayed: 74, goals: 32, assists: 40, shots: 225, hits: 27 },
+    balanced: { gamesPlayed: 80, goals: 38, assists: 47, shots: 250, hits: 30 },
+    upside: { gamesPlayed: 84, goals: 44, assists: 53, shots: 275, hits: 34 },
+    reasons: [
+      "Tampa Bay's elite power play and high-end linemates keep both scoring categories strong.",
+      "The midpoint uses his established multi-year finishing level rather than a single-season spike."
+    ]
+  },
+  "brandon hagel": {
+    floor: { gamesPlayed: 75, goals: 29, assists: 42, shots: 220, hits: 85 },
+    balanced: { gamesPlayed: 81, goals: 35, assists: 50, shots: 245, hits: 95 },
+    upside: { gamesPlayed: 84, goals: 41, assists: 57, shots: 268, hits: 105 },
+    reasons: [
+      "His top-six role, strong linemates and physical category production create a balanced fantasy profile.",
+      "The projection assumes continued power-play involvement but not a major role expansion."
+    ]
+  },
+  "sam reinhart": {
+    floor: { gamesPlayed: 75, goals: 31, assists: 40, shots: 210, hits: 49 },
+    balanced: { gamesPlayed: 81, goals: 38, assists: 47, shots: 235, hits: 55 },
+    upside: { gamesPlayed: 84, goals: 45, assists: 54, shots: 260, hits: 62 },
+    reasons: [
+      "Florida's top-line and PP1 environment supports another high-end goal total.",
+      "The balanced case regresses the most extreme finishing outcome while preserving his elite net-front role."
+    ]
+  },
+  "aleksander barkov": {
+    floor: { gamesPlayed: 64, goals: 19, assists: 48, shots: 145, hits: 52 },
+    balanced: { gamesPlayed: 72, goals: 24, assists: 58, shots: 165, hits: 60 },
+    upside: { gamesPlayed: 79, goals: 29, assists: 66, shots: 185, hits: 68 },
+    reasons: [
+      "Elite two-way deployment and premium linemates keep his assist rate strong whenever healthy.",
+      "Games played is the main uncertainty, so the balanced line does not assume a full schedule."
+    ]
+  },
+  "rasmus dahlin": {
+    floor: { gamesPlayed: 71, goals: 14, assists: 51, shots: 195, hits: 64 },
+    balanced: { gamesPlayed: 78, goals: 18, assists: 60, shots: 220, hits: 72 },
+    upside: { gamesPlayed: 83, goals: 23, assists: 68, shots: 245, hits: 80 },
+    reasons: [
+      "Heavy minutes, PP1 control and strong shot generation keep him in the top defence tier.",
+      "The balanced projection allows for Buffalo improvement without assuming a career-best team offence."
+    ]
+  },
+  "matthew schaefer": {
+    floor: { gamesPlayed: 74, goals: 11, assists: 42, shots: 165, hits: 70 },
+    balanced: { gamesPlayed: 81, goals: 16, assists: 50, shots: 190, hits: 80 },
+    upside: { gamesPlayed: 84, goals: 21, assists: 59, shots: 215, hits: 92 },
+    reasons: [
+      "A rapidly expanding top-pair and power-play role supports growth across every offensive category.",
+      "The midpoint remains below the full sophomore-breakout ceiling while retaining his physical contribution."
+    ]
+  },
+  "jake oettinger": {
+    floor: { gamesPlayed: 50, wins: 30, saves: 1160, goalsAgainst: 130, shutouts: 3, goals: 0, assists: 0 },
+    balanced: { gamesPlayed: 56, wins: 36, saves: 1300, goalsAgainst: 136, shutouts: 4, goals: 0, assists: 0 },
+    upside: { gamesPlayed: 61, wins: 41, saves: 1450, goalsAgainst: 142, shutouts: 6, goals: 0, assists: 0 },
+    reasons: [
+      "Dallas' strong team environment provides one of the best win ceilings in the league.",
+      "The save projection is moderated because the Stars can suppress shot volume in front of him."
+    ]
+  },
+  "igor shesterkin": {
+    floor: { gamesPlayed: 51, wins: 25, saves: 1300, goalsAgainst: 133, shutouts: 2, goals: 0, assists: 0 },
+    balanced: { gamesPlayed: 58, wins: 31, saves: 1500, goalsAgainst: 139, shutouts: 4, goals: 0, assists: 0 },
+    upside: { gamesPlayed: 63, wins: 37, saves: 1650, goalsAgainst: 145, shutouts: 6, goals: 0, assists: 0 },
+    reasons: [
+      "Elite individual goaltending and a secure starter role support a rebound in workload and wins.",
+      "The Rangers' uncertain team environment keeps the balanced win total below his best seasons."
+    ]
+  },
+  "clayton keller": {
+    floor: { gamesPlayed: 74, goals: 26, assists: 51, shots: 220, hits: 22 },
+    balanced: { gamesPlayed: 81, goals: 31, assists: 60, shots: 245, hits: 25 },
+    upside: { gamesPlayed: 84, goals: 36, assists: 68, shots: 270, hits: 29 },
+    reasons: [
+      "Utah's offence continues to run through his top-line and PP1 creation.",
+      "The balanced projection assumes stable health and normal finishing rather than a career-high spike."
+    ]
+  },
+  "william nylander": {
+    floor: { gamesPlayed: 72, goals: 32, assists: 40, shots: 245, hits: 22 },
+    balanced: { gamesPlayed: 79, goals: 39, assists: 47, shots: 270, hits: 25 },
+    upside: { gamesPlayed: 83, goals: 47, assists: 54, shots: 295, hits: 29 },
+    reasons: [
+      "A premium shooting role beside Toronto's elite centres supports another high-30s goal season.",
+      "The balanced line includes a normal missed-game allowance and modest finishing regression."
+    ]
+  },
+  "sidney crosby": {
+    floor: { gamesPlayed: 72, goals: 25, assists: 51, shots: 210, hits: 36 },
+    balanced: { gamesPlayed: 79, goals: 30, assists: 60, shots: 235, hits: 40 },
+    upside: { gamesPlayed: 83, goals: 35, assists: 67, shots: 255, hits: 44 },
+    reasons: [
+      "His top-line, PP1 and face-of-the-offence role keeps the assist floor high despite age-related risk.",
+      "The midpoint assumes continued elite playmaking with a modest reduction from his strongest scoring seasons."
+    ]
+  },
+  "artemi panarin": {
+    floor: { gamesPlayed: 70, goals: 25, assists: 49, shots: 200, hits: 18 },
+    balanced: { gamesPlayed: 77, goals: 30, assists: 58, shots: 220, hits: 20 },
+    upside: { gamesPlayed: 82, goals: 36, assists: 66, shots: 245, hits: 23 },
+    reasons: [
+      "Los Angeles should give him a featured top-six and first-unit power-play role.",
+      "The balanced projection allows for an adjustment period with new linemates while preserving his elite playmaking."
+    ]
+  },
+  "adrian kempe": {
+    floor: { gamesPlayed: 73, goals: 30, assists: 35, shots: 230, hits: 78 },
+    balanced: { gamesPlayed: 80, goals: 36, assists: 42, shots: 255, hits: 90 },
+    upside: { gamesPlayed: 84, goals: 43, assists: 49, shots: 280, hits: 100 },
+    reasons: [
+      "High shot volume, physical play and a stable top-line role provide a strong category floor.",
+      "Panarin's arrival improves the playmaking environment without requiring an unrealistic scoring jump."
+    ]
+  },
+  "alex debrincat": {
+    floor: { gamesPlayed: 74, goals: 32, assists: 35, shots: 240, hits: 31 },
+    balanced: { gamesPlayed: 80, goals: 38, assists: 42, shots: 265, hits: 35 },
+    upside: { gamesPlayed: 84, goals: 45, assists: 49, shots: 290, hits: 40 },
+    reasons: [
+      "Detroit continues to use him as a primary even-strength and PP1 shooter.",
+      "The balanced forecast centres his finishing near his established range while adding modest assist growth."
+    ]
+  },
+  "mitch marner": {
+    floor: { gamesPlayed: 73, goals: 21, assists: 62, shots: 185, hits: 22 },
+    balanced: { gamesPlayed: 80, goals: 26, assists: 73, shots: 205, hits: 25 },
+    upside: { gamesPlayed: 84, goals: 32, assists: 82, shots: 225, hits: 29 },
+    reasons: [
+      "Vegas gives him elite finishers and a central PP1 distribution role.",
+      "The midpoint keeps goals conservative while projecting another high-end assist season in the new environment."
+    ]
+  },
+  "tim stutzle": {
+    floor: { gamesPlayed: 74, goals: 27, assists: 46, shots: 215, hits: 62 },
+    balanced: { gamesPlayed: 81, goals: 33, assists: 54, shots: 240, hits: 70 },
+    upside: { gamesPlayed: 84, goals: 39, assists: 62, shots: 265, hits: 78 },
+    reasons: [
+      "A permanent first-line and PP1 role supports strong shot and assist volume.",
+      "The balanced case assumes Ottawa's offence improves without pushing him immediately to the full breakout ceiling."
+    ]
+  }
+
 };

@@ -3,6 +3,7 @@ import { TEAMS } from "@/data/league-config";
 import { getPlayerPool } from "@/lib/nhl";
 import { getRedis } from "@/lib/redis";
 import { buildLeagueStandings, rosterStorageKey } from "@/lib/standings";
+import { applyStaticProjection } from "@/lib/static-projections";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -26,6 +27,7 @@ export async function GET() {
   }
 
   let liveFantasyPoints = {};
+  let liveProjectedPoints = {};
   let statsUpdatedAt = null;
 
   try {
@@ -36,6 +38,15 @@ export async function GET() {
         Number(player.fantasyPoints || 0)
       ])
     );
+
+    const rosterPlayers = Object.values(rosters)
+      .flatMap((roster) => Array.isArray(roster?.players) ? roster.players : []);
+    liveProjectedPoints = Object.fromEntries(
+      rosterPlayers.map((player) => {
+        const projection = applyStaticProjection(player, player.projection || {});
+        return [String(player.playerId), Number(projection?.fantasyPoints || 0)];
+      })
+    );
     statsUpdatedAt = pool.updatedAt || null;
   } catch (error) {
     console.error("Standings player refresh failed:", error);
@@ -44,7 +55,7 @@ export async function GET() {
   // Only aggregate totals leave the server. Individual rosters and player IDs
   // remain private inside Upstash.
   return NextResponse.json({
-    standings: buildLeagueStandings(rosters, liveFantasyPoints),
+    standings: buildLeagueStandings(rosters, liveFantasyPoints, liveProjectedPoints),
     persistence: redis ? "private" : "unavailable",
     statsUpdatedAt
   }, {

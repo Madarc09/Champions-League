@@ -42,6 +42,25 @@ function validateRoster(players) {
   return null;
 }
 
+
+async function playerClaimedByAnotherTeam(redis, team, players) {
+  const requested = new Map(players.map((player) => [String(player.playerId), player]));
+  const results = await Promise.allSettled(
+    TEAMS
+      .filter((entry) => entry.slug !== team)
+      .map((entry) => redis.get(rosterKey(entry.slug)))
+  );
+
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    for (const claimed of result.value?.players || []) {
+      const conflict = requested.get(String(claimed?.playerId));
+      if (conflict) return conflict;
+    }
+  }
+  return null;
+}
+
 export async function GET(request, context) {
   const { team } = await context.params;
   if (!validTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
@@ -89,6 +108,17 @@ export async function POST(request, context) {
     return NextResponse.json(
       { error: "Upstash is not connected to this Vercel project.", roster },
       { status: 503 }
+    );
+  }
+
+  const conflict = await playerClaimedByAnotherTeam(redis, team, roster.players);
+  if (conflict) {
+    return NextResponse.json(
+      {
+        error: `${conflict.name || "That player"} has already been drafted and is no longer available.`,
+        conflictPlayerId: String(conflict.playerId)
+      },
+      { status: 409 }
     );
   }
 

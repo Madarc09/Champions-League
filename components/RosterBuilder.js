@@ -109,6 +109,7 @@ function sortValue(player, column) {
     case "hits": return player.rosterType === "G" ? null : Number(player.hits || 0);
     case "shots": return player.rosterType === "G" ? null : Number(player.shots || 0);
     case "fantasyPoints": return actualFantasyPoints(player);
+    case "projectedFantasyPoints": return projectedFantasyPoints(player);
     default: return 0;
   }
 }
@@ -185,6 +186,9 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
             <th aria-sort={sort.column === "fantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} compact />
             </th>
+            <th aria-sort={sort.column === "projectedFantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="P-FPTS" column="projectedFantasyPoints" sort={sort} onSort={changeSort} compact />
+            </th>
             <th><span className="visually-hidden">Draft player</span></th>
           </tr>
         </thead>
@@ -246,7 +250,8 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                 <td className="draft-stat-cell">{Number(player.assists || 0)}</td>
                 <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.shots || 0)}</td>
                 <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.hits || 0)}</td>
-                <td className="fantasy-points-cell">{actualFantasyPoints(player).toFixed(1)}</td>
+                <td className="fantasy-points-cell actual-fantasy-points-cell">{actualFantasyPoints(player).toFixed(1)}</td>
+                <td className="fantasy-points-cell projected-fantasy-points-cell">{projectedFantasyPoints(player).toFixed(1)}</td>
                 <td className="draft-action-cell">
                   <button
                     className="champions-draft-button"
@@ -390,7 +395,9 @@ function LineupCard({
   totalCap,
   capRemaining,
   totalFantasyPoints,
-  rosterComplete
+  rosterComplete,
+  scoring,
+  goalieScoring
 }) {
   const forwards = players.filter((player) => player.rosterType === "F");
   const defence = players.filter((player) => player.rosterType === "D");
@@ -412,6 +419,12 @@ function LineupCard({
         <span><small>Cap remaining</small><strong className={capRemaining < 0 ? "summary-red" : "summary-green"}>{money(capRemaining)}</strong></span>
         <span><small>Cap used</small><strong>{money(totalCap)}</strong></span>
         <span><small>Projected FPTS</small><strong className="summary-blue">{totalFantasyPoints.toFixed(1)}</strong></span>
+      </div>
+
+      <div className="roster-scoring-breakdown" aria-label="Fantasy point scoring">
+        <strong>FPTS Breakdown</strong>
+        <span>Skaters: G × {scoring.goals} · A × {scoring.assists} · SOG × {scoring.shots} · HIT × {scoring.hits}</span>
+        <span>Goalies: W × {goalieScoring.wins} · SV × {goalieScoring.saves} · GA × {goalieScoring.goalsAgainst} · G × {goalieScoring.goals} · A × {goalieScoring.assists}</span>
       </div>
 
       <div className="compact-roster-groups">
@@ -479,7 +492,7 @@ function ProjectionRange({ player, projection }) {
   );
 }
 
-function ProjectedPerformancePanel({ player, projectionData }) {
+function ProjectedPerformancePanel({ player, projectionData, players, query, onQuery, onSelect }) {
   const projection = player?.projection || null;
   const isGoalie = player?.rosterType === "G";
   const reviewed = projection?.projectionSource === "static-reviewed";
@@ -488,13 +501,42 @@ function ProjectedPerformancePanel({ player, projectionData }) {
     <section className="panel projected-performance-panel compact-performance-panel">
       <header>
         <div>
-          <p className="eyebrow">Click a player image to pin</p>
+          <p className="eyebrow">Public projections · search any NHL player</p>
           <h2>Projected Performance</h2>
         </div>
         <span className={`projection-status ${reviewed ? "reviewed" : "fallback"}`}>
           {reviewed ? "STATIC REVIEW" : "MODEL FALLBACK"}
         </span>
       </header>
+
+      <div className="projection-player-search">
+        <span>⌕</span>
+        <input
+          type="search"
+          list="champions-projection-player-options"
+          placeholder="Search every player projection…"
+          value={query}
+          onChange={(event) => {
+            const next = event.target.value;
+            onQuery(next);
+            const exact = players.find((candidate) => candidate.name.toLowerCase() === next.trim().toLowerCase());
+            if (exact) onSelect(exact);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter") return;
+            const normalized = query.trim().toLowerCase();
+            const match = players.find((candidate) => candidate.name.toLowerCase() === normalized)
+              || players.find((candidate) => candidate.name.toLowerCase().includes(normalized));
+            if (match) {
+              onSelect(match);
+              onQuery(match.name);
+            }
+          }}
+        />
+        <datalist id="champions-projection-player-options">
+          {players.map((candidate) => <option key={`projection-option-${candidate.playerId}`} value={candidate.name}>{candidate.team}</option>)}
+        </datalist>
+      </div>
 
       {player && projection ? (
         <article className={`hockey-projection-card compact-projection-card ${isGoalie ? "goalie" : "skater"}`}>
@@ -610,6 +652,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [previewPlayerId, setPreviewPlayerId] = useState(null);
   const [hoverPreview, setHoverPreview] = useState(null);
   const [poolPlayers, setPoolPlayers] = useState([]);
+  const [draftPoolPlayers, setDraftPoolPlayers] = useState([]);
+  const [projectionQuery, setProjectionQuery] = useState("");
   const [players, setPlayers] = useState([]);
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
@@ -636,6 +680,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         if (!response.ok) throw new Error(data.error || "Player pool could not be loaded.");
         if (!cancelled) {
           setPoolPlayers(data.players || []);
+          setDraftPoolPlayers(data.draftPlayers || data.players || []);
           setSalaryData(data.salaryData || null);
           setProjectionData(data.projectionData || null);
         }
@@ -649,6 +694,32 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     loadPool();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (poolPlayers.length === 0) return undefined;
+    let cancelled = false;
+
+    async function refreshDraftAvailability() {
+      try {
+        const response = await fetch(`/api/draft-availability?ts=${Date.now()}`, { cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) return;
+        const claimed = new Set((data.claimedPlayerIds || []).map(String));
+        if (!cancelled) {
+          setDraftPoolPlayers(poolPlayers.filter((player) => !claimed.has(String(player.playerId))));
+        }
+      } catch {
+        // Keep the last successful availability snapshot during a brief network issue.
+      }
+    }
+
+    refreshDraftAvailability();
+    const interval = window.setInterval(refreshDraftAvailability, 3000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [poolPlayers]);
 
   useEffect(() => {
     let cancelled = false;
@@ -752,7 +823,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
   const filteredPlayers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return poolPlayers.filter((player) => {
+    return draftPoolPlayers.filter((player) => {
       const matchesPosition = position === "ALL" || player.rosterType === position;
       const matchesTeam = nhlTeam === "ALL" || String(player.team || "") === nhlTeam;
       const matchesQuery = !normalizedQuery
@@ -760,7 +831,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         || String(player.team || "").toLowerCase().includes(normalizedQuery);
       return matchesPosition && matchesTeam && matchesQuery;
     });
-  }, [poolPlayers, position, nhlTeam, query]);
+  }, [draftPoolPlayers, position, nhlTeam, query]);
 
 
   const previewPlayer = useMemo(() => (
@@ -835,7 +906,14 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             body: JSON.stringify({ players: rosterToSave })
           });
           const data = await response.json();
-          if (!response.ok) throw new Error(data.error || "The private roster could not be saved.");
+          if (!response.ok) {
+            if (response.status === 409 && data.conflictPlayerId) {
+              const conflictId = String(data.conflictPlayerId);
+              setPlayers((current) => current.filter((player) => String(player.playerId) !== conflictId));
+              setDraftPoolPlayers((current) => current.filter((player) => String(player.playerId) !== conflictId));
+            }
+            throw new Error(data.error || "The private roster could not be saved.");
+          }
 
           lastSavedRosterRef.current = JSON.stringify(data.roster.players || rosterToSave);
           remoteUpdatedAtRef.current = Date.parse(data.roster.updatedAt || 0) || Date.now();
@@ -908,21 +986,18 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
   return (
     <div className="draft-page-stack champions-draft-page compact-draft-page">
-      <div className="champions-draft-banner compact-draft-banner">
-        <div className="draft-banner-title">
-          <span>NHL</span>
-          <strong>DRAFT</strong>
-          <small>CHAMPIONS LEAGUE · 2026–27</small>
-        </div>
-        <div className="draft-banner-rules compact-scoring-rules">
-          <strong>Fantasy-point scoring</strong>
-          <span>Skaters: G × {scoring.goals} · A × {scoring.assists} · SOG × {scoring.shots} · HIT × {scoring.hits}</span>
-          <span>Goalies: W × {goalieScoring.wins} · SV × {goalieScoring.saves} · GA × {goalieScoring.goalsAgainst}</span>
-        </div>
-      </div>
-
       <div className="draft-workspace-grid compact-draft-workspace">
-        <section className="panel champions-player-pool compact-player-pool">
+        <main className="draft-left-column">
+          <ProjectedPerformancePanel
+            player={previewPlayer}
+            projectionData={projectionData}
+            players={poolPlayers}
+            query={projectionQuery}
+            onQuery={setProjectionQuery}
+            onSelect={(player) => setPreviewPlayerId(player.playerId)}
+          />
+
+          <section className="panel champions-player-pool compact-player-pool">
           <div className="player-pool-heading">
             <div>
               <p className="eyebrow">2025–26 actual statistics</p>
@@ -986,7 +1061,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             />
           ) : null}
           <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
-        </section>
+          </section>
+        </main>
 
         <aside className="draft-right-rail">
           <LineupCard
@@ -998,10 +1074,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
             capRemaining={capRemaining}
             totalFantasyPoints={totalFantasyPoints}
             rosterComplete={rosterComplete}
-          />
-          <ProjectedPerformancePanel
-            player={previewPlayer}
-            projectionData={projectionData}
+            scoring={scoring}
+            goalieScoring={goalieScoring}
           />
         </aside>
       </div>

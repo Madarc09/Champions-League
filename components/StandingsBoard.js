@@ -12,7 +12,8 @@ export default function StandingsBoard() {
           <tr>
             <th>Rank</th>
             <th>Team</th>
-            <th>Fantasy Points</th>
+            <th>Fantasy Points <small>2025–26</small></th>
+            <th>Projected FPTS <small>2026–27</small></th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,10 @@ export default function StandingsBoard() {
               <td className="standings-fantasy-points">
                 <strong>{loaded ? team.fantasyPoints.toFixed(1) : "—"}</strong>
                 <small>FPTS</small>
+              </td>
+              <td className="standings-fantasy-points standings-projected-points">
+                <strong>{loaded ? Number(team.projectedFantasyPoints || 0).toFixed(1) : "—"}</strong>
+                <small>PROJ</small>
               </td>
             </tr>
           ))}

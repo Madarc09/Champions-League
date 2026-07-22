@@ -63,21 +63,17 @@ export async function GET(request, context) {
   const { team } = await context.params;
   if (!validLeagueTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
 
-  const manager = await managerFromRequest(request);
-  if (!manager) return NextResponse.json({ error: "Sign in to view these private predictions." }, { status: 401 });
-  if (manager.slug !== team) return NextResponse.json({ error: "These predictions are private to their manager." }, { status: 403 });
-
   const redis = getRedis();
   if (!redis) return NextResponse.json({ error: "Upstash is not connected to this Vercel project." }, { status: 503 });
 
   try {
     const predictions = await redis.get(predictionsKey(team));
-    return NextResponse.json({ predictions: predictions || null, persistence: "private" }, {
-      headers: { "Cache-Control": "no-store, private" }
+    return NextResponse.json({ predictions: predictions || null, visibility: "public" }, {
+      headers: { "Cache-Control": "no-store" }
     });
   } catch (error) {
     console.error("Predictions read failed:", error);
-    return NextResponse.json({ error: "The private predictions could not be loaded." }, { status: 500 });
+    return NextResponse.json({ error: "The predictions could not be loaded." }, { status: 500 });
   }
 }
 
