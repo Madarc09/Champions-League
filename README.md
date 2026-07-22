@@ -67,47 +67,32 @@ All values are easy to edit in:
 data/league-config.js
 ```
 
-## Frozen 2026–27 salary master
+## Static SALARY CAP SPACE file
 
-The salary system now refuses to freeze a partial import. On the first player-pool request after deployment, it audits all 32 NHL team contract pages. Each failed or abnormally short team page is retried three times. The new master is saved to Upstash only when:
+The website now uses one bundled file for normal salary display:
 
-- all 32 team pages succeed;
-- every team’s parsed salary rows exactly match the salary-bearing roster total published on that page;
-- at least 450 signed contract records are present;
-- the verified contract safeguards pass, including Adam Fox at **$9,500,000**; and
-- the recent July 2026 contract corrections are merged.
+```text
+data/SALARY_CAP_SPACE.json
+```
 
-The master uses NHL player ID when available, then team plus canonical player name, and only then a name-only fallback. This prevents both missing-team freezes and same-name salary collisions. The old incomplete Redis master is ignored because this release uses a new versioned key.
+During a Vercel deployment, `scripts/build-salary-cap-space.mjs` performs the one-time build requested for this league:
 
-Normal salary order:
+1. It reads every player and salary currently shown by the live Champions League player feed.
+2. It records every missing or `$0` salary.
+3. It reads the current CapSpace team contract pages and fills matching signed contracts.
+4. It applies the small explicit recent-contract supplement list.
+5. It writes the final JSON file, a readable `SALARY_CAP_SPACE.csv`, and `SALARY_CAP_SPACE_ZERO_LIST.csv`.
+6. Next.js compiles that completed file into the deployment.
 
-1. Nick's saved league-wide correction, when one exists.
-2. NHL player-ID match in the frozen master.
-3. Team-and-name match in the frozen master.
-4. Verified contract safeguard.
-5. Unresolved, which cannot be drafted as a free `$0` player.
+After deployment, normal draft pages do **not** call CapSpace, the former salary API, or a Redis salary master. They read `SALARY_CAP_SPACE.json` exclusively. A player left at `$0` is highlighted as unresolved and cannot be drafted for free.
 
-After the first successful audit, normal draft-room requests use the frozen Upstash table and do not revisit the public contract pages. Nick can deliberately run another complete 32-team audit from **Salary Admin** after later signings. A failed re-audit leaves the current valid master untouched.
-
-### Verified contract safeguards
-
-`data/verified-salary-corrections.js` contains deterministic safeguards for the audited July contracts and established regression checks. The bundled CSV at `data/salaries-2026-27.csv` contains the same reviewable safeguards, including:
-
-- Adam Fox — NYR — **$9,500,000**
-- Jason Robertson — DAL — **$12,000,000**
-- Connor Bedard — CHI — **$15,000,000**
-- Leo Carlsson — ANA — **$18,000,000**
-- the remaining contracts listed in `data/salary-audit-recent-checks-2026-07-22.csv`
-
-The complete pool-sized CSV is produced from the frozen master through Nick's **Download master CSV** control after deployment.
+The build stops before deployment if the live player feed is empty or contains duplicate NHL player IDs, so a failed data request cannot publish another all-blank salary page.
 
 ### Nick-only salary editor
 
-Only the authenticated Nick account sees **Salary Admin**, and the save, export, and full-audit routes repeat that authorization check on the server. Nick can search the complete pool, show unresolved players, save a league-wide correction, download the current master, or intentionally run a new 32-team audit.
+Only Nick sees **Salary Admin**. A saved Nick correction is the sole runtime override to the static file and is stored in Upstash for every manager. This is intended only for a contract signed after the deployment or a rare missed match. Nick can also download the current static list plus saved corrections as `SALARY_CAP_SPACE.csv`.
 
-Saved corrections update Nick's page immediately. Other open manager pages check the shared correction table every 30 seconds, and later page loads receive the corrected salary automatically.
-
-The pool identity pass in `lib/nhl.js` removes duplicate player records after the statistics, current-roster, and recent-draft feeds are combined. It prefers the official NHL identity, preventing the earlier duplicate Celebrini problem.
+The player identity pass in `lib/nhl.js` continues to remove duplicate player records before the draft pool is returned.
 
 ## GitHub and Vercel
 
@@ -134,10 +119,9 @@ Upstash stores:
 
 - Shared manager rosters.
 - Manager login records and server-side sessions.
-- The frozen 2026–27 salary master.
 - Nick-only league-wide salary corrections.
 
-Without Upstash, manager login, shared roster saving, the frozen salary master, and Nick's shared salary corrections are unavailable.
+Without Upstash, manager login, shared roster saving, and Nick's shared salary corrections are unavailable. The bundled SALARY CAP SPACE file still supplies the normal salaries.
 
 ## Run locally
 
@@ -154,13 +138,16 @@ Then open `http://localhost:3000`.
 app/page.js                         Home page and standings
 app/team/[team]/page.js             Individual manager page
 components/RosterBuilder.js         Sortable draft room and projected lineup
-app/api/players/route.js            NHL stats plus frozen salary master
+app/api/players/route.js            NHL stats plus the static SALARY CAP SPACE lookup
 app/api/rosters/[team]/route.js     Shared roster loading and saving
-app/api/salaries/refresh/route.js   Nick-only strict 32-team salary audit
+app/api/salaries/route.js           Nick-only shared correction storage
+app/api/salaries/export/route.js    Nick-only SALARY CAP SPACE CSV download
+scripts/build-salary-cap-space.mjs  One-time deployment builder for the static salary file
+lib/salary-cap-space.js             Static salary indexes and player matching
+data/SALARY_CAP_SPACE.json          Exclusive normal salary source used by the website
+data/SALARY_CAP_SPACE.csv           Human-readable copy generated during deployment
+data/SALARY_CAP_SPACE_ZERO_LIST.csv Players still at $0 after the build
 lib/nhl.js                          NHL stats, current zero-game rookies, recent draft classes, rosters, and headshots
-lib/capspace-snapshot.js            Strict all-team source audit with retries and team indexes
-lib/static-salary-master.js         Versioned frozen master, validation, and salary lookup indexes
-data/verified-salary-corrections.js Verified recent contracts and regression safeguards
 data/league-config.js               Teams, roster reveal date, cap, roster limits, and scoring
 data/player-projections-2026-27.js  Editorial static projection overrides
 lib/static-projections.js           Full-pool static review and three-scenario ranges

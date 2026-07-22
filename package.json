@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/build-salary-cap-space.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "import:salaries": "node scripts/import-salaries.mjs",
-    "audit:salaries": "node scripts/export-salary-audit.mjs",
-    "validate:salaries": "node scripts/validate-salary-system.mjs && node scripts/validate-salary-fallback.mjs"
+    "salary-cap-space": "node scripts/build-salary-cap-space.mjs",
+    "validate:salaries": "node scripts/test-salary-cap-space-build.mjs"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",

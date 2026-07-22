@@ -1073,13 +1073,12 @@ function parseSalaryInput(value) {
   return Math.round(numeric * multiplier);
 }
 
-function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt }) {
+function SalaryAdminPanel({ players, salaryData, onSalarySaved }) {
   const [query, setQuery] = useState("");
   const [unresolvedOnly, setUnresolvedOnly] = useState(true);
   const [values, setValues] = useState({});
   const [savingId, setSavingId] = useState(null);
   const [status, setStatus] = useState("");
-  const [rebuilding, setRebuilding] = useState(false);
 
   const visiblePlayers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -1136,21 +1135,6 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
     }
   }
 
-  async function rebuildMaster() {
-    setRebuilding(true);
-    setStatus("Auditing all 32 NHL team salary pages…");
-    try {
-      const response = await fetch("/api/salaries/refresh", { method: "POST" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "The 32-team salary audit could not be completed.");
-      setStatus(`All ${Number(data.auditedTeamCount || 0)} teams passed. The master now contains ${Number(data.recordCount || 0).toLocaleString("en-CA")} contracts and ${Number(data.correctionCount || 0)} verified safeguards.`);
-      onMasterRebuilt();
-    } catch (error) {
-      setStatus(error.message || "The 32-team salary audit could not be completed.");
-    } finally {
-      setRebuilding(false);
-    }
-  }
 
   return (
     <section className="panel salary-admin-panel">
@@ -1158,10 +1142,10 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
         <div>
           <p className="eyebrow">Nick only · league-wide control</p>
           <h2>Salary Admin</h2>
-          <p>Corrections saved here override the frozen master for every manager.</p>
+          <p>Corrections saved here override the static SALARY CAP SPACE file for every manager.</p>
         </div>
         <div className="salary-admin-summary">
-          <span><small>Master contracts</small><strong>{Number(salaryData?.recordCount || 0).toLocaleString("en-CA")}</strong></span>
+          <span><small>SALARY CAP SPACE players</small><strong>{Number(salaryData?.recordCount || 0).toLocaleString("en-CA")}</strong></span>
           <span><small>Unresolved pool players</small><strong>{unresolvedCount}</strong></span>
         </div>
       </div>
@@ -1184,13 +1168,10 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
           />
           <span>Show unresolved only</span>
         </label>
-        <a className="salary-admin-link" href="/api/salaries/export">Download master CSV</a>
-        <button type="button" className="salary-admin-rebuild" onClick={rebuildMaster} disabled={rebuilding}>
-          {rebuilding ? "AUDITING 32 TEAMS…" : "RUN FULL 32-TEAM AUDIT"}
-        </button>
+        <a className="salary-admin-link" href="/api/salaries/export">Download SALARY CAP SPACE CSV</a>
       </div>
 
-      <p className="salary-admin-status" aria-live="polite">{status || "The master is accepted only after all 32 team pages pass. Use the editor only for a later signing or a rare verified mismatch."}</p>
+      <p className="salary-admin-status" aria-live="polite">{status || "The static SALARY CAP SPACE file supplies every normal salary. Use this editor only for a later signing or a rare missed contract."}</p>
 
       <div className="salary-admin-table-wrap">
         <table className="salary-admin-table">
@@ -1597,15 +1578,15 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   }, [loadingRoster, players, team.slug]);
 
   const salaryNote = useMemo(() => {
-    if (loadingPool) return "Loading the frozen 2026–27 salary master before opening the draft table…";
-    if (salaryData?.error) return `Salary master warning: ${salaryData.error}`;
-    if (!salaryData?.recordCount) return "The frozen salary master is unavailable right now.";
+    if (loadingPool) return "Loading the static 2026–27 SALARY CAP SPACE file before opening the draft table…";
+    if (salaryData?.error) return `SALARY CAP SPACE warning: ${salaryData.error}`;
+    if (!salaryData?.recordCount) return "SALARY CAP SPACE is unavailable right now.";
 
-    const frozen = salaryData.updatedAt
+    const generated = salaryData.updatedAt
       ? new Date(salaryData.updatedAt).toLocaleString()
-      : "recently";
-    const corrections = Number(salaryData.correctionCount || 0);
-    return `${Number(salaryData.recordCount).toLocaleString("en-CA")} 2026–27 contracts frozen ${frozen}, including ${corrections} verified recent correction${corrections === 1 ? "" : "s"}. Players without a signed contract are marked unsigned.`;
+      : "during deployment";
+    const zeroCount = Number(salaryData.zeroSalaryCount || 0);
+    return `${Number(salaryData.recordCount).toLocaleString("en-CA")} pool players loaded exclusively from SALARY CAP SPACE, generated ${generated}. ${zeroCount} player${zeroCount === 1 ? " has" : "s have"} a $0 salary and ${zeroCount === 1 ? "is" : "are"} blocked for salary review.`;
   }, [loadingPool, salaryData]);
 
   return (
@@ -1712,7 +1693,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               players={poolPlayers}
               salaryData={salaryData}
               onSalarySaved={applySalaryUpdate}
-              onMasterRebuilt={() => setPoolReloadVersion((current) => current + 1)}
             />
           ) : null}
         </main>

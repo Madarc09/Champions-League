@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
 import { managerFromRequest } from "@/lib/auth";
-import { getPlayerPool } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
-import { getStaticSalaryMaster, salaryTeamNameKey } from "@/lib/static-salary-master";
-import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
-import { canonicalPlayerName } from "@/lib/capspace-snapshot";
+import { salaryCapSpaceRecords, salaryCapSpaceSnapshot } from "@/lib/salary-cap-space";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 function csvCell(value) {
   const text = value == null ? "" : String(value);
@@ -17,42 +13,35 @@ function csvCell(value) {
 export async function GET(request) {
   const manager = await managerFromRequest(request);
   if (manager?.slug !== "nick") {
-    return NextResponse.json({ error: "Only Nick can export the salary master." }, { status: 403 });
+    return NextResponse.json({ error: "Only Nick can export SALARY CAP SPACE." }, { status: 403 });
   }
 
-  const [master, pool] = await Promise.all([
-    getStaticSalaryMaster(),
-    getPlayerPool()
-  ]);
-  const players = pool.players || [];
-  const saved = await getSalaryRecords(players.map((player) => player.playerId));
+  const snapshot = salaryCapSpaceSnapshot();
+  const records = salaryCapSpaceRecords();
+  const overrides = await getSalaryRecords(records.map((record) => record.playerId));
+  const headers = ["playerId", "name", "team", "position", "capHit", "status", "source", "updatedAt"];
 
-  const headers = [
-    "playerId", "name", "team", "position", "capHit", "status", "source", "updatedAt"
-  ];
-  const rows = players
-    .map((player) => {
-      const key = canonicalPlayerName(player.name);
-      const override = saved[String(player.playerId)] || null;
-      const frozen = master.byPlayerId?.[String(player.playerId)]
-        || master.byTeamAndName?.[salaryTeamNameKey(player.team, key)]
-        || master.byName?.[key]
-        || null;
-      const rookie = SEED_SALARIES_BY_NAME[key] || null;
-      const selected = override || frozen || rookie;
-      const capHit = Number(selected?.capHit);
-      return {
-        playerId: player.playerId,
-        name: player.name,
-        team: player.team,
-        position: player.position || player.rosterType,
-        capHit: Number.isFinite(capHit) ? Math.round(capHit) : "",
-        status: Number.isFinite(capHit) ? "signed" : "unresolved",
-        source: selected?.source || "",
-        updatedAt: override?.updatedAt || selected?.verifiedAt || master.initializedAt || ""
-      };
-    })
-    .sort((left, right) => String(left.name).localeCompare(String(right.name), "en", { sensitivity: "base" }));
+  const rows = records.map((record) => {
+    const override = overrides[String(record.playerId)] || null;
+    const overrideCapHit = Number(override?.capHit);
+    const staticCapHit = Number(record.capHit);
+    const capHit = Number.isFinite(overrideCapHit) && overrideCapHit >= 500_000
+      ? Math.round(overrideCapHit)
+      : Number.isFinite(staticCapHit) && staticCapHit >= 500_000
+        ? Math.round(staticCapHit)
+        : 0;
+
+    return {
+      playerId: record.playerId,
+      name: record.name,
+      team: record.team,
+      position: record.position,
+      capHit,
+      status: capHit > 0 ? "signed" : "zero",
+      source: override?.source || record.source || "",
+      updatedAt: override?.updatedAt || snapshot.generatedAt || ""
+    };
+  });
 
   const csv = [
     headers.join(","),
@@ -62,7 +51,7 @@ export async function GET(request) {
   return new NextResponse(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": "attachment; filename=champions-league-player-salaries-2026-27.csv",
+      "Content-Disposition": 'attachment; filename="SALARY CAP SPACE.csv"',
       "Cache-Control": "no-store"
     }
   });

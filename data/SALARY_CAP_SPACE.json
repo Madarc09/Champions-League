@@ -1,0 +1,9 @@
+{
+  "season": "2026-27",
+  "generatedAt": null,
+  "sourceUrl": "https://leagueofchampions.vercel.app/api/players?mode=leaderboard",
+  "recordCount": 0,
+  "signedCount": 0,
+  "zeroSalaryCount": 0,
+  "records": []
+}
