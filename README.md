@@ -355,56 +355,63 @@ Future Predictions are now edited directly inside each manager's private Locker 
 
 ## Draft room visual update
 
-The draft room now follows the approved NHL Draft-style layout: projected roster across the top, compact cap summary, arena background, player pool with salary remaining, and a Projected Performance panel replacing the old Draft Board. Projection values remain intentionally marked TBD until a data source is selected.
+The draft room now follows the approved NHL Draft-style layout: projected roster across the top, compact cap summary, arena background, player pool with salary remaining, and a Projected Performance panel replacing the old Draft Board. The right-side Projected Performance panel now uses Champions Projection Model 2.0 and keeps projected values separate from the completed-season draft-board statistics.
 
 ---
 
-## Champions Projection Database (Model 1.0)
+## Champions Projection Database (Model 2.0)
 
-The Draft Room now builds a searchable 2026–27 projection for every player returned by the NHL player pool. The projection is attached to each player in `/api/players?mode=leaderboard`, so the right-side hockey card can display projected categories immediately when a manager selects a player.
+The Draft Room builds a searchable 2026–27 projection for every player returned by the NHL player pool. Model 2.0 replaces the old one-season regression formula with a category-by-category four-part ensemble.
 
-### Projection inputs
+### Four model components
 
-1. **Official NHL 2025–26 totals** already collected by `lib/nhl.js`:
-   - Skaters: games played, goals, assists, hits and shots on goal.
-   - Goalies: games played, wins, saves, goals against, goals and assists.
-2. **MoneyPuck public season-summary data** from its approved download page:
-   - Skaters: individual expected goals, shooting-talent-adjusted expected goals, expected shots on goal and on-ice expected-goal information when available.
-   - Goalies: expected goals against, goals saved above expected, save percentage and saves when available.
-3. **2026–27 public fantasy rank signals** already collected by `lib/rankings.js`, primarily NHL.com and ESPN. Rankings are used as a small, capped adjustment rather than copied as category projections.
-4. **Regression toward positional averages** so one unusually hot or cold season does not become the entire forecast.
+1. **NHL three-season production and usage**
+   - Uses 2025–26, 2024–25 and 2023–24 regular-season reports.
+   - Seasons are weighted 55% / 30% / 15%.
+   - Skaters use games, goals, assists, shots, hits, total ice time and the separate NHL power-play report.
+   - Birth date from the current NHL roster feed adds a small age-curve adjustment for development or decline; it is deliberately bounded so age cannot overpower proven production.
+   - Goalies use games, wins, saves, goals against, shutouts, goals and assists.
+2. **MoneyPuck three-season expected-stat model**
+   - Uses the approved downloadable skater and goalie summaries for the same three seasons.
+   - Goals use talent-adjusted expected goals or xG when available.
+   - Shots use expected shots on goal.
+   - Assists use primary plus secondary assists.
+   - Goalies use xGA, GSAx, saves and save percentage.
+3. **Role, linemate and team/coach environment**
+   - Uses recent NHL ice time and power-play usage.
+   - Uses the player's most-used MoneyPuck five-on-five line/pair and that unit's xGF/60.
+   - Uses team five-on-five xGF/60 or xGA/60 as a coach/system environment proxy.
+   - Confirmed offseason changes can be entered in `data/projection-context.js`, including a new coach, announced line, PP promotion, reduced workload or expected starter share. The file is intentionally empty by default so the model does not invent offseason information.
+4. **Independent public-rank sanity check**
+   - Uses NHL.com, ESPN, Yahoo and CBS rank signals already collected by `lib/rankings.js`.
+   - This is only a small 5–10% guardrail. A high ranking no longer applies the same blanket boost to every category.
 
-### Model logic
+### Important safeguards
 
-- The model creates projected games played first.
-- Goals blend actual scoring rate with expected-goal rate, then shrink the result toward a forward or defence prior.
-- Assists, hits and shots use per-game rates with category-specific regression.
-- Goalie saves, goals against and wins use workload, current rates, expected goals against/GSAx inputs and a capped expert-rank adjustment.
-- The site calculates projected fantasy points using the Champions League scoring settings in `data/league-config.js`.
-- Every projection includes a confidence label and the model version.
-- If the MoneyPuck feed is temporarily unavailable, the model still produces a complete projection from NHL totals and consensus ranks. The Draft Room shows that the advanced-data fallback is active.
+- Established stars are anchored to their own three-season level, not pulled toward an average NHL forward. This prevents results such as Connor McDavid falling to 26 goals solely because of league-average regression.
+- Each category has its own weights. Hits lean most heavily on the player's historical style, while goals and goalie results give more weight to expected-stat inputs.
+- For established players, the final category result is bounded around the three-season baseline so one damaged or missing feed cannot create an absurd projection.
+- Projection cards store the four candidate values, final category value, confidence, source list and a category-by-category explanation showing the three-season, advanced-stat and role/environment estimates behind each increase or decrease.
+- Draft-table FPTS remain completed 2025–26 fantasy points. Projected FPTS appear only inside the Projected Performance card.
 
 ### Files
 
-- `lib/moneypuck.js` — downloads, parses and caches the public MoneyPuck 2025–26 skater and goalie summaries.
-- `lib/projections.js` — Champions Projection Model 1.0 and fantasy-point calculation inputs.
-- `app/api/players/route.js` — attaches the projection to every searchable player.
-- `components/RosterBuilder.js` — searchable projection finder and hockey-card display.
+- `lib/nhl-history.js` — downloads and caches three seasons of NHL player production and usage.
+- `lib/moneypuck.js` — downloads and caches three seasons of MoneyPuck skater/goalie summaries plus current line and team data.
+- `data/projection-context.js` — documented manual layer for confirmed coach, line, PP and workload changes.
+- `lib/projections.js` — Champions Projection Model 2.0 ensemble, category calculations, bounded age curve and explanation generator.
+- `app/api/players/route.js` — attaches projections to every searchable player.
+- `components/RosterBuilder.js` — searchable projection cards, actual-versus-projected comparisons and explanations.
 
-### Data attribution
+### Data attribution and limits
 
-MoneyPuck data is used only as an input for this private, non-commercial friends pool and is credited in the Draft Room. MoneyPuck states that its listed downloadable data is free for non-commercial use with attribution. Source page: `https://moneypuck.com/data.htm`.
+MoneyPuck lists its downloadable data as free for non-commercial use with attribution. This private friends-pool project uses only the files listed on MoneyPuck's approved data page: `https://moneypuck.com/data.htm`.
 
-Direct public season-summary inputs:
-
-- `https://moneypuck.com/moneypuck/playerData/seasonSummary/2025/regular/skaters.csv`
-- `https://moneypuck.com/moneypuck/playerData/seasonSummary/2025/regular/goalies.csv`
-
-The displayed values are **Champions League estimates**, not official NHL, MoneyPuck, ESPN or NHL.com projections.
+The values are **Champions League estimates**, not official projections from the NHL, MoneyPuck, ESPN, Yahoo or CBS. Statistical feeds cannot know an unannounced future line or coaching decision, so confirmed offseason information belongs in `data/projection-context.js` and should include a dated note.
 
 ## Draft board and locker-room correction
 
-- Draft player rows now read left-to-right as position, player image, player name with salary/team, NHL team logo, last-season fantasy points, and the Draft action.
+- Draft player rows now read left-to-right as position, player image, player name with salary and inline NHL team logo, goals, assists, shots, hits, last-season fantasy points, and the Draft action.
 - The player-pool fantasy-points column uses completed 2025–26 results only; projected fantasy points remain exclusive to the Projected Performance card.
 - Projection cards now compare every displayed category against last season, show a signed increase/decrease, and include a brief model explanation.
 - Locker Room team predictions now display Stanley Cup and Presidents Trophy on the top row, with West and East champions beneath them.

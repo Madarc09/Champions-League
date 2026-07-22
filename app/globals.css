@@ -6361,3 +6361,176 @@ body:has(.champions-draft-page) .header-auth-button {
   .projection-player-hero { grid-template-columns: 65px minmax(0, 1fr); }
   .projection-fpts-comparison { grid-column: 1 / -1; width: 100%; }
 }
+
+/* ========================================================================== */
+/* Draft board compact stat layout + Champions Projection Model 2.0           */
+/* ========================================================================== */
+
+.champions-player-table-scroll {
+  overflow-x: auto;
+  scrollbar-gutter: stable;
+}
+
+.champions-player-table {
+  width: 100%;
+  min-width: 760px;
+  table-layout: fixed;
+}
+
+.champions-player-table th:nth-child(1) { width: 5%; text-align: center; }
+.champions-player-table th:nth-child(2) { width: 6%; padding-inline: 1px; }
+.champions-player-table th:nth-child(3) { width: 29%; min-width: 0; padding-left: 3px; }
+.champions-player-table th:nth-child(4),
+.champions-player-table th:nth-child(5) { width: 9%; text-align: center; }
+.champions-player-table th:nth-child(6),
+.champions-player-table th:nth-child(7) { width: 10%; text-align: center; }
+.champions-player-table th:nth-child(8) { width: 11%; text-align: center; }
+.champions-player-table th:nth-child(9) { width: 11%; text-align: center; }
+
+.champions-player-table td:nth-child(1) { padding-inline: 3px; }
+.champions-player-table td:nth-child(2) { padding-left: 1px; padding-right: 0; }
+.champions-player-table td:nth-child(3) { padding-left: 3px; padding-right: 5px; }
+.champions-player-table td:nth-child(n+4):nth-child(-n+8) { padding-inline: 3px; }
+
+.champions-player-table .player-headshot-preview-button,
+.champions-player-table .draft-player-headshot {
+  width: 40px;
+  height: 40px;
+}
+
+.champions-player-table .champions-player-copy strong {
+  font-size: .7rem;
+}
+
+.champions-player-meta {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  overflow: visible !important;
+  color: #9fb0c1;
+  font-size: .51rem !important;
+  white-space: nowrap;
+}
+
+.inline-team-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.inline-team-meta img {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  object-fit: contain;
+}
+
+.inline-team-meta b {
+  overflow: hidden;
+  color: #b9c7d5;
+  font-size: .51rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.draft-stat-cell {
+  color: #d6e0ea;
+  font-size: .66rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  text-align: center;
+}
+
+.champions-player-table .fantasy-points-cell {
+  font-size: .7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.champions-player-table .draft-action-cell {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  padding-inline: 4px;
+  background: #07111d;
+  box-shadow: -8px 0 12px rgba(0, 0, 0, .22);
+}
+
+.champions-player-table thead th:nth-child(9) {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  background: #0e1d2f;
+  box-shadow: -8px 0 12px rgba(0, 0, 0, .22);
+}
+
+.champions-player-table tbody tr:hover .draft-action-cell,
+.champions-player-table tbody tr.preview-row .draft-action-cell {
+  background: #0a1c30;
+}
+
+.champions-player-table .champions-draft-button {
+  width: 72px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 6px 3px;
+  font-size: .55rem;
+}
+
+.projection-advanced-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.projection-reasoning ul {
+  display: grid;
+  gap: 4px;
+  margin: 5px 0 0;
+  padding-left: 14px;
+  color: #a5b5c6;
+  font-size: .49rem;
+  line-height: 1.38;
+}
+
+.projection-reasoning li::marker {
+  color: #4eaaff;
+}
+
+@media (max-width: 1180px) {
+  .champions-player-table { min-width: 720px; }
+  .champions-player-table th:nth-child(3) { min-width: 0; }
+}
+
+@media (max-width: 720px) {
+  .champions-player-table { min-width: 650px; }
+  .champions-player-table th:nth-child(1),
+  .champions-player-table td:nth-child(1),
+  .champions-player-table th:nth-child(4),
+  .champions-player-table td:nth-child(4),
+  .champions-player-table th:nth-child(5),
+  .champions-player-table td:nth-child(5),
+  .champions-player-table th:nth-child(6),
+  .champions-player-table td:nth-child(6),
+  .champions-player-table th:nth-child(7),
+  .champions-player-table td:nth-child(7) {
+    display: table-cell;
+  }
+  .champions-player-table th:nth-child(1) { width: 5%; }
+  .champions-player-table th:nth-child(2) { width: 6%; }
+  .champions-player-table th:nth-child(3) { width: 29%; min-width: 0; }
+  .champions-player-table th:nth-child(4),
+  .champions-player-table th:nth-child(5) { width: 9%; }
+  .champions-player-table th:nth-child(6),
+  .champions-player-table th:nth-child(7) { width: 10%; }
+  .champions-player-table th:nth-child(8) { width: 11%; }
+  .champions-player-table th:nth-child(9) { width: 11%; }
+  .champions-player-table .player-headshot-preview-button,
+  .champions-player-table .draft-player-headshot { width: 34px; height: 34px; }
+  .champions-player-table .champions-player-copy strong { font-size: .61rem; }
+  .champions-player-meta,
+  .inline-team-meta b { font-size: .44rem !important; }
+  .inline-team-meta img { width: 13px; height: 13px; flex-basis: 13px; }
+  .draft-stat-cell { font-size: .57rem; }
+  .champions-player-table .champions-draft-button { width: 58px; font-size: .46rem; }
+  .projection-advanced-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

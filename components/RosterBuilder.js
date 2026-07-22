@@ -170,7 +170,18 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
             <th className="player-sort-heading" aria-sort={sort.column === "name" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
             </th>
-            <th>Team</th>
+            <th aria-sort={sort.column === "goals" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="G" column="goals" sort={sort} onSort={changeSort} compact />
+            </th>
+            <th aria-sort={sort.column === "assists" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="A" column="assists" sort={sort} onSort={changeSort} compact />
+            </th>
+            <th aria-sort={sort.column === "shots" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="SOG" column="shots" sort={sort} onSort={changeSort} compact />
+            </th>
+            <th aria-sort={sort.column === "hits" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="HIT" column="hits" sort={sort} onSort={changeSort} compact />
+            </th>
             <th aria-sort={sort.column === "fantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} compact />
             </th>
@@ -210,22 +221,28 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                   >
                     <span className="champions-player-copy">
                       <strong>{player.name}</strong>
-                      <small>{compactMoney(player.capHit)} · {player.team || "NHL"}</small>
+                      <small className="champions-player-meta">
+                        <span>{compactMoney(player.capHit)}</span>
+                        <span className="inline-team-meta">
+                          {player.teamLogo ? (
+                            <img
+                              src={player.teamLogo}
+                              alt=""
+                              loading="lazy"
+                              onError={(event) => { event.currentTarget.style.display = "none"; }}
+                            />
+                          ) : null}
+                          <b>{player.team || "NHL"}</b>
+                        </span>
+                      </small>
                       {reason && !drafted ? <em>{reason}</em> : null}
                     </span>
                   </button>
                 </td>
-                <td className="draft-team-cell">
-                  {player.teamLogo ? (
-                    <img
-                      className="draft-team-logo"
-                      src={player.teamLogo}
-                      alt={`${player.team || "NHL"} logo`}
-                      loading="lazy"
-                      onError={(event) => { event.currentTarget.style.display = "none"; }}
-                    />
-                  ) : <span>{player.team || "NHL"}</span>}
-                </td>
+                <td className="draft-stat-cell">{Number(player.goals || 0)}</td>
+                <td className="draft-stat-cell">{Number(player.assists || 0)}</td>
+                <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.shots || 0)}</td>
+                <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.hits || 0)}</td>
                 <td className="fantasy-points-cell">{actualFantasyPoints(player).toFixed(1)}</td>
                 <td className="draft-action-cell">
                   <button
@@ -397,30 +414,19 @@ function ProjectionComparisonStat({ label, previous, projected, accent = false, 
 
 function projectionReasoning(player) {
   const projection = player?.projection;
-  if (!projection) return "";
+  if (!projection) return [];
+
+  const categoryReasons = Object.values(projection.statReasons || {}).filter(Boolean);
+  if (categoryReasons.length) return categoryReasons;
+  if (Array.isArray(projection.reasons) && projection.reasons.length) return projection.reasons;
 
   const gpDelta = Number(projection.gamesPlayed || 0) - Number(player.gamesPlayed || 0);
-  const workloadText = Math.abs(gpDelta) >= 4
-    ? `The model expects ${Math.abs(gpDelta)} ${gpDelta > 0 ? "more" : "fewer"} games than last season, which changes the counting-stat ceiling.`
-    : "The workload forecast is close to last season, so most changes come from rate regression rather than games played.";
-
-  if (player.rosterType === "G") {
-    const winDelta = Number(projection.wins || 0) - Number(player.wins || 0);
-    const gaDelta = Number(projection.goalsAgainst || 0) - Number(player.goalsAgainst || 0);
-    const performanceText = projection.advanced?.goalsSavedAboveExpected != null
-      ? `Goalie results are adjusted using ${projection.advanced.goalsSavedAboveExpected} GSAx and ${projection.advanced.expectedGoalsAgainst ?? "available"} xGA, then blended with his consensus rank.`
-      : "Goalie results are regressed toward league-average save and win rates, then adjusted by workload and consensus rank.";
-    const directionText = `That produces ${Math.abs(winDelta)} ${winDelta >= 0 ? "more" : "fewer"} projected wins and ${Math.abs(gaDelta)} ${gaDelta >= 0 ? "more" : "fewer"} goals against.`;
-    return `${workloadText} ${performanceText} ${directionText}`;
-  }
-
-  const goalDelta = Number(projection.goals || 0) - Number(player.goals || 0);
-  const assistDelta = Number(projection.assists || 0) - Number(player.assists || 0);
-  const rateText = projection.advanced?.shootingTalentAdjustedXGoals != null || projection.advanced?.xGoals != null
-    ? `Goal scoring is pulled toward the expected-goal inputs (${projection.advanced.shootingTalentAdjustedXGoals ?? projection.advanced.xGoals} talent-adjusted/xG) instead of simply repeating last season's shooting result.`
-    : "Scoring rates are blended with positional norms so one unusually hot or cold season is not copied directly.";
-  const directionText = `The result is ${signedDelta(goalDelta)} goals and ${signedDelta(assistDelta)} assists versus last season, with hits and shots projected from his per-game usage.`;
-  return `${workloadText} ${rateText} ${directionText}`;
+  return [
+    Math.abs(gpDelta) >= 3
+      ? `${Math.abs(gpDelta)} ${gpDelta > 0 ? "more" : "fewer"} games are projected from recent durability.`
+      : "The projected workload is close to last season.",
+    "The category forecast combines three-season production, expected-stat inputs, role/environment and a bounded consensus check."
+  ];
 }
 
 function ProjectedPerformancePanel({ player, players, onSelect, projectionData }) {
@@ -446,7 +452,7 @@ function ProjectedPerformancePanel({ player, players, onSelect, projectionData }
           <p className="eyebrow">Champions draft assistant</p>
           <h2>Projected Performance</h2>
         </div>
-        <span className="projection-status">MODEL 1.0</span>
+        <span className="projection-status">MODEL 2.0</span>
       </header>
 
       <div className="projection-finder">
@@ -506,8 +512,10 @@ function ProjectedPerformancePanel({ player, players, onSelect, projectionData }
           </div>
 
           <div className="projection-reasoning">
-            <strong>Why the model moved him</strong>
-            <p>{projectionReasoning(player)}</p>
+            <strong>Why each category moved</strong>
+            <ul>
+              {projectionReasoning(player).map((reason, index) => <li key={`${player.playerId}-reason-${index}`}>{reason}</li>)}
+            </ul>
           </div>
 
           <div className="projection-advanced-strip">
@@ -519,15 +527,16 @@ function ProjectedPerformancePanel({ player, players, onSelect, projectionData }
               </>
             ) : (
               <>
-                <span><small>xG input</small><strong>{projection.advanced?.xGoals ?? "—"}</strong></span>
-                <span><small>Talent xG</small><strong>{projection.advanced?.shootingTalentAdjustedXGoals ?? "—"}</strong></span>
+                <span><small>Talent xG</small><strong>{projection.advanced?.shootingTalentAdjustedXGoals ?? projection.advanced?.xGoals ?? "—"}</strong></span>
+                <span><small>Line xGF/60</small><strong>{projection.context?.lineXGoalsForPer60 ?? "—"}</strong></span>
+                <span><small>Team xGF/60</small><strong>{projection.context?.teamXGoalsForPer60 ?? "—"}</strong></span>
                 <span><small>Consensus rank</small><strong>{projection.consensusRank ?? "—"}</strong></span>
               </>
             )}
           </div>
 
           <p className="projection-method-note">
-            Champions model blends 2025–26 NHL production, regressed category rates, public MoneyPuck advanced inputs when available, and 2026–27 expert rank signals.
+            Model 2.0 is a category-by-category ensemble: three NHL seasons, three MoneyPuck seasons, role/linemate and team-coach environment, plus a small public-rank sanity check. Projected numbers never replace the actual FPTS shown in the draft table.
           </p>
         </article>
       ) : (
@@ -557,7 +566,7 @@ function ProjectedPerformancePanel({ player, players, onSelect, projectionData }
       </div>
 
       <footer className="projection-source-footer">
-        <span>{projectionData?.warning ? "Advanced feed fallback active" : "NHL + MoneyPuck + consensus inputs"}</span>
+        <span>{projectionData?.warning ? "Advanced feed fallback active" : "Four-source ensemble active"}</span>
         <small>These are Champions League estimates, not official NHL projections.</small>
       </footer>
     </aside>

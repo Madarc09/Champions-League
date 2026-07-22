@@ -5,6 +5,8 @@ import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
 import { createPlayerProjection } from "@/lib/projections";
+import { getNhlHistorySnapshot, findNhlHistory } from "@/lib/nhl-history";
+import { projectionContextFor } from "@/data/projection-context";
 import {
   canonicalPlayerName,
   getCapSpaceSalarySnapshot
@@ -79,7 +81,7 @@ export async function GET(request) {
     }
   }
 
-  const [playerResult, salaryResult, rankingResult, moneyPuckResult] = await Promise.all([
+  const [playerResult, salaryResult, rankingResult, moneyPuckResult, historyResult] = await Promise.all([
     getPlayerPool()
       .then((pool) => ({ pool, error: null }))
       .catch((error) => ({ pool: null, error })),
@@ -90,6 +92,9 @@ export async function GET(request) {
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error })),
     getMoneyPuckSnapshot()
+      .then((snapshot) => ({ snapshot, error: null }))
+      .catch((error) => ({ snapshot: null, error })),
+    getNhlHistorySnapshot()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error }))
   ]);
@@ -133,7 +138,16 @@ export async function GET(request) {
     const advanced = moneyPuckResult.snapshot
       ? findMoneyPuckRecord(moneyPuckResult.snapshot, player)
       : null;
-    const projection = createPlayerProjection(player, advanced, expectedRanks);
+    const nhlHistory = historyResult.snapshot
+      ? findNhlHistory(historyResult.snapshot, player)
+      : [];
+    const projection = createPlayerProjection(
+      player,
+      nhlHistory,
+      advanced,
+      expectedRanks,
+      projectionContextFor(player)
+    );
 
     return {
       ...player,
@@ -166,13 +180,19 @@ export async function GET(request) {
       error: salaryError
     },
     projectionData: {
-      model: "Champions Projection Model 1.0",
+      model: "Champions Projection Model 2.0",
       season: "2026-27",
       updatedAt: new Date().toISOString(),
       rankingUpdatedAt: rankingResult.snapshot?.updatedAt || null,
       advancedUpdatedAt: moneyPuckResult.snapshot?.updatedAt || null,
-      sources: ["NHL 2025-26 stats", "MoneyPuck advanced data", "NHL.com/ESPN consensus ranks"],
-      warning: rankingResult.error?.message || moneyPuckResult.snapshot?.warning || moneyPuckResult.error?.message || null
+      historyUpdatedAt: historyResult.snapshot?.updatedAt || null,
+      sources: [
+        "NHL three-season production and usage",
+        "MoneyPuck three-season expected, line and team data",
+        "Role/linemate and team/coach environment",
+        "NHL.com/ESPN/Yahoo/CBS rank sanity check"
+      ],
+      warning: historyResult.error?.message || rankingResult.error?.message || moneyPuckResult.snapshot?.warning || moneyPuckResult.error?.message || null
     }
   });
 }
