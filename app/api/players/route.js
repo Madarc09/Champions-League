@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
+import { VERIFIED_SALARY_CORRECTIONS_BY_NAME } from "@/data/verified-salary-corrections";
 import { getStaticSalaryMaster, salaryTeamNameKey } from "@/lib/static-salary-master";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
@@ -9,7 +10,7 @@ import { createPlayerProjection } from "@/lib/projections";
 import { applyStaticProjection, staticProjectionSummary } from "@/lib/static-projections";
 import { getNhlHistorySnapshot, findNhlHistory } from "@/lib/nhl-history";
 import { projectionContextFor } from "@/data/projection-context";
-import { canonicalPlayerName } from "@/lib/capspace-snapshot";
+import { canonicalPlayerName, getCapSpaceSalarySnapshot } from "@/lib/capspace-snapshot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -87,8 +88,17 @@ export async function GET(request) {
       .then((pool) => ({ pool, error: null }))
       .catch((error) => ({ pool: null, error })),
     getStaticSalaryMaster()
-      .then((snapshot) => ({ snapshot, error: null }))
-      .catch((error) => ({ snapshot: null, error })),
+      .then((snapshot) => ({ snapshot, error: null, fallback: false }))
+      .catch(async (masterError) => {
+        // A failed freeze or Redis write must never erase every cap hit. The
+        // previous working snapshot remains a display fallback.
+        try {
+          const snapshot = await getCapSpaceSalarySnapshot({ force: false, strict: false });
+          return { snapshot, error: masterError, fallback: true };
+        } catch (fallbackError) {
+          return { snapshot: null, error: fallbackError || masterError, fallback: false };
+        }
+      }),
     getRankingSnapshot()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error })),
@@ -130,9 +140,10 @@ export async function GET(request) {
       || salarySnapshot?.byTeamAndName?.[salaryTeamNameKey(player.team, canonicalName)]
       || salarySnapshot?.byName?.[canonicalName]
       || null;
+    const verifiedCorrection = VERIFIED_SALARY_CORRECTIONS_BY_NAME[canonicalName] || null;
     const rookieSeed = SEED_SALARIES_BY_NAME[canonicalName] || null;
     const override = trustedSalaryOverride(storedOverrides[String(player.playerId)]);
-    const selected = override || publicRecord || rookieSeed;
+    const selected = override || verifiedCorrection || publicRecord || rookieSeed;
     const demoCapHit = player.capHit != null ? Number(player.capHit) : null;
     const capHit = selected?.capHit != null ? Number(selected.capHit) : demoCapHit;
 
@@ -191,9 +202,12 @@ export async function GET(request) {
       correctionCount: salarySnapshot?.correctionCount || 0,
       matchedPlayerCount: players.length - unresolvedSalaryCount,
       unresolvedPlayerCount: unresolvedSalaryCount,
-      frozen: Boolean(salarySnapshot),
-      auditedTeamCount: salarySnapshot?.sourceTeamCount || 0,
-      error: salaryError
+      frozen: Boolean(salarySnapshot) && !salaryResult.fallback,
+      fallback: Boolean(salaryResult.fallback),
+      auditComplete: Boolean(salarySnapshot?.auditComplete),
+      auditedTeamCount: salarySnapshot?.sourceTeamCount || salarySnapshot?.teamCount || 0,
+      error: salaryResult.fallback ? null : salaryError,
+      warning: salaryResult.fallback ? salaryError : null
     },
     projectionData: {
       model: "Champions Static Projection Board 2.0",
