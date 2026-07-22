@@ -8,5 +8,6 @@ export const LOCKER_BACKGROUNDS = {
   darren: "/darren-locker-room.png",
   nick: "/nick-locker-room.png",
   rob: "/rob-locker-room.png",
-  ernie: "/ernie-locker-room.png"
+  ernie: "/ernie-locker-room.png",
+  ethan: "/ethan-locker-room.svg"
 };

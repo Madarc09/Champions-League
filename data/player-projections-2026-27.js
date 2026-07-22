@@ -1,9 +1,9 @@
 /**
  * Champions League 2026-27 static projection board.
  *
- * This is the authoritative manual layer used by the draft room.  A record in
- * this file always wins over the live formula.  The live model remains only as
- * a fallback for players who have not been reviewed yet.
+ * This file stores the authoritative editorial overrides used by the draft room.
+ * Every other NHL player is still covered by the frozen full-board review rules
+ * in lib/static-projections.js, so nobody falls back to a random live estimate.
  *
  * Each reviewed player has three scenarios:
  *   floor    = cautious outcome
@@ -13,11 +13,12 @@
  * Update this file rather than changing numbers inside a React component.
  */
 export const STATIC_PROJECTION_META = {
-  model: "Champions Static Projection Board 1.1",
+  model: "Champions Static Projection Board 2.0",
   season: "2026-27",
   updatedAt: "2026-07-22",
-  reviewedPlayers: 50,
-  method: "Three-scenario manual review with a balanced projection used by the website."
+  editorialOverrides: 50,
+  coverage: "Full NHL player pool",
+  method: "Top-player editorial overrides plus a frozen three-scenario full-board review policy for every remaining player."
 };
 
 export const STATIC_PLAYER_PROJECTIONS = {

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Nick's Locker Room | Champions League",
-  description: "Nick's Champions League Locker Room. Roster selections are visible only to Nick."
+  description: "Nick's Champions League Locker Room. Predictions are public; the roster is concealed until opening night."
 };
 
 export default async function NickLockerRoomPage() {

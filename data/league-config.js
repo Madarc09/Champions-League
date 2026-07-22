@@ -3,6 +3,14 @@ export const SEASON_LABEL = "2026–27";
 export const STATS_SEASON_ID = 20252026;
 export const SALARY_CAP = 104_000_000;
 
+// Locker-room rosters stay private through the draft and are revealed
+// automatically when the 2026-27 NHL regular season begins.
+export const ROSTER_REVEAL_AT = "2026-09-29T17:00:00-04:00";
+export function rostersArePublic(now = Date.now()) {
+  const revealTime = Date.parse(ROSTER_REVEAL_AT);
+  return Number.isFinite(revealTime) && Number(now) >= revealTime;
+}
+
 // Change skater scoring here later.
 export const SCORING = {
   goals: 2.0,
@@ -16,6 +24,7 @@ export const GOALIE_SCORING = {
   saves: 0.25,
   goalsAgainst: -1.0,
   wins: 5.0,
+  shutouts: 5.0,
   goals: 50.0,
   assists: 7.0
 };
@@ -34,7 +43,8 @@ export const TEAMS = [
   { slug: "darren", name: "Darren" },
   { slug: "nick", name: "Nick" },
   { slug: "rob", name: "Rob" },
-  { slug: "ernie", name: "Ernie" }
+  { slug: "ernie", name: "Ernie" },
+  { slug: "ethan", name: "Ethan" }
 ];
 
 export const DEFAULT_STANDINGS = TEAMS.map((team) => ({

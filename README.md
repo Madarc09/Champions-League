@@ -4,10 +4,10 @@ A Vercel-ready Next.js site for the Champions League salary-cap fantasy league.
 
 ## Current build
 
-- Home page standings with links for Joe, Lucas, Dan, Adam, Darren, Nick, Rob, and Ernie.
+- Home page standings with links for Joe, Lucas, Dan, Adam, Darren, Nick, Rob, Ernie, and Ethan.
 - Individual draft room and saved roster page for every manager.
 - Complete 2025–26 NHL regular-season leaderboard plus current zero-game rookies and recent 2024–2026 NHL draft picks.
-- Click a player name to add him; click his NHL headshot on the projected roster to remove him.
+- Click a player image to inspect his projection, use the Draft button to add him, and use the × control in the projected roster to remove him.
 - Search by player or NHL team.
 - Filters for all players, forwards, defence, and goalies.
 - NHL.com player headshots and current team information appear directly on the draft board when available. Zero-game prospects fall back to the player silhouette until NHL publishes a headshot.
@@ -22,14 +22,14 @@ A Vercel-ready Next.js site for the Champions League salary-cap fantasy league.
   - Fantasy points
 - Salaries load for the entire leaderboard before the table opens. There is no per-player salary button.
 - Sticky leaderboard headings.
-- Daily Faceoff-style projected lineup:
-  - Four forward lines
-  - Three defence pairs
-  - Two goalie spots
+- Compact projected roster beside the player pool:
+  - 12 forward spots
+  - 6 defence spots
+  - 2 goalie spots
 - Sticky projected-roster header showing cap remaining, cap used, roster size, and league cap.
 - Automatic cap and position validation.
 - Rosters can be edited and re-saved at any time until a future deadline feature is added.
-- Shared roster storage through Upstash Redis, with a browser-storage fallback.
+- Shared private roster storage through Upstash Redis. An older browser copy is read only as an emergency recovery aid if one already exists.
 
 ## League settings
 
@@ -57,6 +57,7 @@ Goalies:
 - Save: 0.25
 - Goal against: -1.0
 - Win: 5.0
+- Shutout: 5.0
 - Goal: 50.0
 - Assist: 7.0
 
@@ -109,7 +110,7 @@ Upstash stores:
 - Manager login records and server-side sessions.
 - The latest complete salary snapshot, including a stale fallback if the live source is temporarily unavailable.
 
-Without Upstash, rosters still save in the current browser and salary requests still use Next.js/Vercel caching.
+Without Upstash, manager login and shared roster saving are unavailable. Salary requests may still use Next.js/Vercel caching.
 
 ## Optional admin key
 
@@ -141,7 +142,9 @@ app/api/rosters/[team]/route.js     Shared roster loading and saving
 app/api/salaries/refresh/route.js   Forced salary refresh for an administrator
 lib/nhl.js                          NHL stats, current zero-game rookies, recent draft classes, rosters, and headshots
 lib/capspace-snapshot.js            League-wide 2026–27 salary loader and cache
-data/league-config.js               Teams, cap, roster limits, and scoring
+data/league-config.js               Teams, roster reveal date, cap, roster limits, and scoring
+data/player-projections-2026-27.js  Editorial static projection overrides
+lib/static-projections.js           Full-pool static review and three-scenario ranges
 ```
 
 
@@ -212,8 +215,9 @@ Every manager now has a Draft Room and Locker Room:
 - `/team/nick/locker-room`
 - `/team/rob/locker-room`
 - `/team/ernie/locker-room`
+- `/team/ethan/locker-room`
 
-Each page reads that manager's own saved roster, statistics, ranking cards, and total fantasy points. Until custom artwork is created for the other managers, all pages intentionally use Nick's finished locker as a temporary background. Replace individual paths in `data/locker-config.js` as each background is completed.
+Each page reads that manager's saved roster, statistics, ranking cards, public predictions, and total fantasy points. Before opening day, the owner can see the roster while other visitors receive a sealed-roster display. Every manager has a separate background selected through `data/locker-config.js`.
 
 ## Individual Locker Room backgrounds
 
@@ -230,15 +234,16 @@ Current themes:
 - Darren: Vegas-style wall, one Forever League championship.
 - Rob: Matthew Knies/Leafs room, one Basement Bar championship and no Forever title.
 - Ernie: Blues Brothers/St. Louis room, one Forever League championship.
+- Ethan: general hockey room with subtle Edmonton-style navy/orange accents and one Stanley Cup in the Forever Pool display.
 - Nick: existing custom locker retained unchanged.
 
 ## Live fantasy standings and locker navigation
 
-The home standings table now ranks all eight managers by the summed fantasy points of their saved roster. The calculation uses the active player-stat snapshot and automatically falls back to the fantasy-point values stored with each roster.
+The home standings table now ranks all nine managers by the summed fantasy points of their saved roster. The calculation uses the active player-stat snapshot and automatically falls back to the fantasy-point values stored with each roster.
 
 Each Locker Room displays the manager's total fantasy points and current place. The lower-left and lower-right locker links follow the live standings order: the higher-ranked neighbour is on the left and the lower-ranked neighbour is on the right. First place has no left link, and last place has no right link.
 
-Shared rosters are read from the existing Upstash connection. Browser-only roster saves are also included on that browser.
+Shared rosters are read from the existing Upstash connection. Before the reveal date, individual player selections never leave the roster API for another manager; only aggregate team totals are used by the public standings endpoint.
 
 ## Joe concert-stage background
 Joe now uses the Oilers concert-stage artwork while retaining the shared roster overlay, standings navigation, and mobile behavior.
@@ -251,9 +256,9 @@ The home page now uses `public/champions-home-arena.png` as a full-width arena b
 
 The live dashboard includes:
 
-- Eight-team standings ranked only by total fantasy points from saved rosters.
+- Nine-team standings ranked by completed-season fantasy points, with a separate 2026–27 projected team-points column.
 - Top 10 forwards, top 10 defence, top 10 goalies and a top-five rookie race.
-- Player headshots, NHL team, fantasy points and the Champions League manager(s) rostering each player.
+- Player headshots, NHL team and fantasy points. Private manager roster assignments are not shown before opening day.
 - A transparent `public/champions-league-logo.png` watermark generated from the supplied league logo.
 - NHL 2025–26 regular-season statistics using the scoring values in `data/league-config.js`.
 
@@ -291,6 +296,7 @@ Temporary starter credentials are case-insensitive:
 | Nick | `kcin` |
 | Rob | `bor` |
 | Ernie | `einre` |
+| Ethan | `nahte` |
 
 Each password is simply the manager name written backwards. These intentionally simple starter passwords should be replaced with manager-selected passwords after the login flow is confirmed.
 
@@ -313,13 +319,13 @@ The site accepts either Vercel/Upstash credential naming convention:
 - `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
 - `KV_REST_API_URL` + `KV_REST_API_TOKEN`
 
-Roster selections (draft picks) remain private to the authenticated manager. The roster API verifies ownership on both reads and writes, so changing the URL cannot reveal another manager's roster. Submitted season and player predictions are intentionally public to read in every Locker Room, while prediction writes still require the authenticated team owner.
+Each manager's roster is independent: Joe, Nick, Ethan, or any other manager may draft the same NHL player. The only duplicate restriction is that one NHL player cannot appear twice on the same manager's roster.
 
-The public home page receives only aggregate team totals: completed 2025–26 fantasy points and 2026–27 projected fantasy points. It does not receive roster player IDs, player ownership, or full roster objects. Player ownership on the Top Performers panel is therefore labelled private.
+Roster identities remain private during the draft. Before **September 29, 2026**, another manager's Locker Room returns no roster objects or player IDs and shows only the public season/player predictions plus a sealed-roster notice. The roster API automatically changes to public read access when the 2026–27 NHL regular season begins; roster writes always remain restricted to the authenticated owner.
+
+The public home page receives only aggregate team totals: completed 2025–26 fantasy points and 2026–27 projected fantasy points. Before opening night it does not receive roster player IDs or full roster objects. Submitted season and player predictions are public in every Locker Room, while only the authenticated owner receives editing controls.
 
 Older browser-only roster and prediction saves are migrated once into the signed-in manager's private Upstash records. The browser copy is deleted only after the migration succeeds. New versions no longer use browser storage as a save fallback.
-
-Locker Rooms are public display pages. A manager sees and edits only their own roster; every other visitor sees concealed roster slots. Submitted team and player predictions remain visible in every Locker Room, but only the team owner receives editing controls.
 
 ## Nick Locker Room prediction-panel update
 
@@ -355,13 +361,13 @@ Future Predictions are now edited directly inside each manager's private Locker 
 
 ## Draft room visual update
 
-The draft room now follows the approved NHL Draft-style layout: projected roster across the top, compact cap summary, arena background, player pool with salary remaining, and a Projected Performance panel replacing the old Draft Board. The right-side Projected Performance panel now uses Champions Projection Model 2.0 and keeps projected values separate from the completed-season draft-board statistics.
+The draft room uses a compact 60/40 workspace: the searchable player pool and pinned Projected Performance card occupy the left side, while the complete 20-player projected roster remains visible on the right. Projected values stay separate from completed-season draft-board statistics.
 
 ---
 
 ## Champions Projection Database (Model 2.0)
 
-The Draft Room builds a searchable 2026–27 projection for every player returned by the NHL player pool. Model 2.0 replaces the old one-season regression formula with a category-by-category four-part ensemble.
+The Draft Room builds a searchable 2026–27 projection for every player returned by the NHL player pool. **Static Projection Board 2.0** covers the entire pool: 50 editorial overrides are stored directly in `data/player-projections-2026-27.js`, and every remaining player is passed through the frozen full-board review rules in `lib/static-projections.js`. No player is labelled as a random or missing-model fallback.
 
 ### Four model components
 
@@ -398,8 +404,10 @@ The Draft Room builds a searchable 2026–27 projection for every player returne
 
 - `lib/nhl-history.js` — downloads and caches three seasons of NHL player production and usage.
 - `lib/moneypuck.js` — downloads and caches three seasons of MoneyPuck skater/goalie summaries plus current line and team data.
+- `data/player-projections-2026-27.js` — authoritative editorial floor/balanced/upside overrides and static-board metadata.
 - `data/projection-context.js` — documented manual layer for confirmed coach, line, PP and workload changes.
 - `lib/projections.js` — Champions Projection Model 2.0 ensemble, category calculations, bounded age curve and explanation generator.
+- `lib/static-projections.js` — full-pool static review policy, category guardrails, three-scenario ranges and final fantasy-point calculation.
 - `app/api/players/route.js` — attaches projections to every searchable player.
 - `components/RosterBuilder.js` — searchable projection cards, actual-versus-projected comparisons and explanations.
 
@@ -417,12 +425,44 @@ The values are **Champions League estimates**, not official projections from the
 - Locker Room team predictions now display Stanley Cup and Presidents Trophy on the top row, with West and East champions beneath them.
 
 
-## Final draft-room, visibility, and projection-board update
+## Final roster-privacy, scoring, Ethan, and projection-board update
 
-- A drafted player's identity remains hidden from every other manager. The draft availability endpoint exposes only unavailable player IDs to an authenticated Draft Room, never the selecting team or its roster. The roster save route also rejects a simultaneous duplicate pick and removes that player from the losing browser's board.
-- Season champion and player-award predictions are public in every Locker Room. Only the authenticated owner can change them.
-- The home standings board now shows two aggregate columns side by side: **FPTS — 2025–26** and **Projected — 2026–27**. Projected totals are calculated server-side from each private roster and returned only as a team total.
-- The NHL Draft banner was removed. Projected Performance now appears directly above the Player Pool, and the full FPTS scoring breakdown lives inside the Projected Roster panel.
-- The Draft Room remains a 60/40 workspace, with the Player Pool and projection assistant on the left and the complete 20-slot Projected Roster on the right.
-- The player table uses ten tightly fitted columns with no horizontal scrolling: position, image, player/team/salary, G, A, SOG, HIT, 2025–26 FPTS, 2026–27 projected FPTS, and Draft.
-- `data/player-projections-2026-27.js` now contains static floor/balanced/upside reviews for 50 players. The balanced scenario drives the site's projected totals. Players outside the reviewed 50 continue to use the clearly labelled model fallback until they are manually added to the static board.
+- Champions League drafts are independent. A player chosen by one manager remains available to every other manager, while duplicate entries inside one roster are still blocked.
+- Locker-room rosters remain sealed from other visitors until **5:00 p.m. ET on September 29, 2026**, when the NHL regular season begins. Before that date only the owner's roster and everybody's public predictions are available. The reveal changes automatically at opening night through `ROSTER_REVEAL_AT` in `data/league-config.js`.
+- The home standings continue to expose only aggregate completed-season and projected team points.
+- Goalie shutouts now score **5 fantasy points** everywhere: actual NHL totals, hockey cards, projection cards, projected team totals, and the scoring breakdown.
+- Ethan is a complete ninth manager with login, Draft Room, standings entry, public predictions, and a general-hockey Locker Room. His room records one Forever Pool championship and displays one cup.
+- The Draft Room remains a 60/40 workspace with a tightly spaced, no-horizontal-scroll ten-column player table.
+- Static Projection Board 2.0 covers the complete NHL pool. The 50 existing editorial overrides remain authoritative, while every other player receives a deterministic floor/balanced/upside static review built from the multi-source model and protected by personal-rate guardrails.
+
+## All-player static review record
+
+The projection work is intentionally separated into two layers so it can be revisited without touching React layout code:
+
+1. **Editorial overrides** — `data/player-projections-2026-27.js` stores the hand-reviewed top tier. Each entry contains floor, balanced, upside, and written reasoning.
+2. **Full-board static review** — `lib/static-projections.js` covers every remaining player returned by the NHL pool. It freezes the review methodology for the season and converts the multi-source model into three stable scenarios.
+
+The full-board review follows these rules:
+
+- Established skaters are anchored to their own completed-season per-game rates at the projected workload.
+- The NHL/MoneyPuck/usage/environment model is blended with that player-specific baseline; missing data is ignored rather than treated as zero.
+- Goals and assists have wider growth bands for young players and tighter decline/growth bands for established veterans.
+- Shots and hits use tighter category guardrails because they reflect repeatable role and playing style.
+- Goalies project games, wins, saves, goals against, and shutouts separately.
+- Every player receives floor, balanced, and upside scenarios plus a written explanation.
+- The balanced scenario is the only number used for the Draft Room projected-FPTS column and team projected totals.
+- Confirmed future changes—coach, linemates, PP unit, injury recovery, starter share—belong in `data/projection-context.js` with a dated note.
+
+This README is the permanent projection rulebook. Future projection reviews should change the data/contexts and model version here rather than silently replacing numbers inside the interface.
+
+### What “all-player static review” means in this build
+
+- The 50 named editorial entries are literal records committed in `data/player-projections-2026-27.js`.
+- Every additional player receives a deterministic season review from `lib/static-projections.js`; the same inputs always produce the same floor, balanced, and upside line.
+- Those remaining records are **model-reviewed rather than individually hand-written**. The interface labels the difference as `EDITORIAL REVIEW` or `STATIC REVIEW` instead of pretending every player received the same level of manual research.
+- The live NHL directory supplies the complete player list, so rookies, signings, and newly listed players are covered without editing React code.
+- The static-board metadata and this section preserve the model version, review rules, and source files needed to revisit any player later.
+
+### Editorial override index (50 players)
+
+Connor McDavid, Nathan MacKinnon, Nikita Kucherov, Macklin Celebrini, Leon Draisaitl, David Pastrnak, Kirill Kaprizov, Cale Makar, Jason Robertson, Matt Boldy, Zach Werenski, Quinn Hughes, Andrei Vasilevskiy, Martin Necas, Nick Suzuki, Wyatt Johnston, Auston Matthews, Jack Hughes, Cole Caufield, Brady Tkachuk, Evan Bouchard, Jack Eichel, Mikko Rantanen, Matthew Tkachuk, Lane Hutson, Logan Thompson, Connor Hellebuyck, Ilya Sorokin, Cutter Gauthier, Kyle Connor, Tage Thompson, Mark Scheifele, Dylan Guenther, Leo Carlsson, Jake Guentzel, Brandon Hagel, Sam Reinhart, Aleksander Barkov, Rasmus Dahlin, Matthew Schaefer, Jake Oettinger, Igor Shesterkin, Clayton Keller, William Nylander, Sidney Crosby, Artemi Panarin, Adrian Kempe, Alex DeBrincat, Mitch Marner, and Tim Stutzle.

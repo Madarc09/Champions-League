@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${team.name}'s Locker Room | Champions League`,
-    description: `${team.name}'s Champions League Locker Room. Roster selections are visible only to that manager.`
+    description: `${team.name}'s Champions League Locker Room. Predictions are public; the roster stays concealed until the 2026–27 season begins.`
   };
 }
 

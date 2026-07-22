@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1672" height="941" viewBox="0 0 1672 941" role="img" aria-labelledby="title desc">
+  <title id="title">Ethan's Champions League hockey locker room</title>
+  <desc id="desc">A dark general hockey locker room with subtle navy and orange accents, one Forever Pool championship cup, and an open centre display for the roster.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#070b11"/>
+      <stop offset="0.55" stop-color="#111820"/>
+      <stop offset="1" stop-color="#080b0f"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#24160f"/>
+      <stop offset="0.5" stop-color="#57331d"/>
+      <stop offset="1" stop-color="#21120c"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5a626a"/>
+      <stop offset="0.28" stop-color="#d5dde3"/>
+      <stop offset="0.52" stop-color="#818b94"/>
+      <stop offset="0.8" stop-color="#eef3f6"/>
+      <stop offset="1" stop-color="#535b63"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx="50%" cy="0" r="90%">
+      <stop offset="0" stop-color="#fff4d1" stop-opacity="0.78"/>
+      <stop offset="0.42" stop-color="#ffc55a" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="mesh" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M0 9h18M9 0v18" stroke="#91a4b4" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <rect width="1672" height="941" fill="url(#wall)"/>
+  <rect width="1672" height="941" fill="url(#mesh)"/>
+  <rect y="819" width="1672" height="122" fill="url(#wood)"/>
+  <path d="M0 819h1672" stroke="#9b5a2d" stroke-opacity="0.45" stroke-width="4"/>
+
+  <!-- locker framing -->
+  <g fill="#0a0d11" stroke="#4b2b19" stroke-width="7">
+    <rect x="22" y="42" width="438" height="775" rx="8"/>
+    <rect x="1212" y="42" width="438" height="775" rx="8"/>
+    <rect x="474" y="42" width="724" height="775" rx="8"/>
+  </g>
+  <g stroke="#9b5a2d" stroke-opacity="0.35" stroke-width="2">
+    <path d="M42 176h398M1232 176h398M494 176h684"/>
+    <path d="M42 520h398M1232 520h398"/>
+  </g>
+
+  <!-- lamps -->
+  <g>
+    <ellipse cx="252" cy="70" rx="200" ry="210" fill="url(#lamp)"/>
+    <ellipse cx="836" cy="70" rx="285" ry="260" fill="url(#lamp)"/>
+    <ellipse cx="1420" cy="70" rx="200" ry="210" fill="url(#lamp)"/>
+    <g fill="#1b1d1f" stroke="#67605a" stroke-width="3">
+      <path d="M210 35h84l-14 32h-56z"/><path d="M790 35h92l-15 32h-62z"/><path d="M1378 35h84l-14 32h-56z"/>
+    </g>
+  </g>
+
+  <!-- headings -->
+  <text x="836" y="137" text-anchor="middle" fill="#ebe4d5" font-family="Impact, Arial Black, sans-serif" font-size="84" letter-spacing="10">ETHAN</text>
+  <text x="241" y="104" text-anchor="middle" fill="#d8d2c5" font-family="Arial Black, sans-serif" font-size="24" letter-spacing="3">BASEMENT BAR LEAGUE</text>
+  <text x="241" y="139" text-anchor="middle" fill="#7d91a5" font-family="Arial Black, sans-serif" font-size="22" letter-spacing="2">NEW CHALLENGER</text>
+  <text x="1431" y="104" text-anchor="middle" fill="#d8d2c5" font-family="Arial Black, sans-serif" font-size="24" letter-spacing="3">FOREVER POOL</text>
+  <text x="1431" y="139" text-anchor="middle" fill="#ee8624" font-family="Arial Black, sans-serif" font-size="24" letter-spacing="2">1X CHAMPION</text>
+
+  <!-- centre open roster wall -->
+  <rect x="505" y="196" width="662" height="585" rx="12" fill="#06090d" stroke="#2d3f50" stroke-width="5"/>
+  <rect x="522" y="213" width="628" height="551" rx="7" fill="#0a1118"/>
+  <path d="M522 213h628v551H522z" fill="url(#mesh)" opacity="0.8"/>
+  <text x="836" y="745" text-anchor="middle" fill="#6d7d89" font-family="Arial Black, sans-serif" font-size="17" letter-spacing="6">CHAMPIONS LEAGUE · 2026–27</text>
+
+  <!-- left general hockey gear -->
+  <g>
+    <path d="M92 238h105l20 66-28 186H100L72 304z" fill="#142d48" stroke="#d6e1e9" stroke-width="5"/>
+    <path d="M105 264h80" stroke="#ee8624" stroke-width="9"/>
+    <text x="144" y="350" text-anchor="middle" fill="#f2f5f7" font-family="Arial Black, sans-serif" font-size="48">E</text>
+    <text x="144" y="410" text-anchor="middle" fill="#f2f5f7" font-family="Arial Black, sans-serif" font-size="52">27</text>
+    <path d="M315 232l34 8-112 478-34-8z" fill="#a9743d" stroke="#d2b07a" stroke-width="3"/>
+    <path d="M348 239l23 14-66 112-24-14z" fill="#1e2832"/>
+    <ellipse cx="299" cy="670" rx="72" ry="42" fill="#172431" stroke="#748697" stroke-width="5"/>
+    <path d="M244 665q55-54 110 0" fill="none" stroke="#ee8624" stroke-width="6"/>
+  </g>
+
+  <!-- Forever Pool cup -->
+  <g transform="translate(1322 218)">
+    <ellipse cx="109" cy="34" rx="66" ry="19" fill="url(#metal)"/>
+    <path d="M48 35h122c-5 66-27 99-61 110C75 134 53 101 48 35z" fill="url(#metal)" stroke="#eef3f6" stroke-width="3"/>
+    <path d="M50 56C13 48 2 76 20 103c12 18 29 21 48 15" fill="none" stroke="#b8c1c8" stroke-width="10"/>
+    <path d="M168 56c37-8 48 20 30 47-12 18-29 21-48 15" fill="none" stroke="#b8c1c8" stroke-width="10"/>
+    <rect x="96" y="141" width="26" height="58" fill="url(#metal)"/>
+    <path d="M58 199h102l18 30H40z" fill="url(#metal)"/>
+    <rect x="26" y="228" width="166" height="29" rx="5" fill="#252b31" stroke="#aeb7be" stroke-width="3"/>
+    <text x="109" y="250" text-anchor="middle" fill="#ee8624" font-family="Arial Black, sans-serif" font-size="17">FOREVER POOL</text>
+  </g>
+
+  <!-- right shelf gear -->
+  <g>
+    <rect x="1260" y="557" width="340" height="206" rx="8" fill="#10161d" stroke="#4b2b19" stroke-width="5"/>
+    <text x="1430" y="608" text-anchor="middle" fill="#e8e1d3" font-family="Arial Black, sans-serif" font-size="25" letter-spacing="4">ETHAN'S ROOM</text>
+    <path d="M1320 695q0-73 72-73t72 73z" fill="#142d48" stroke="#d6e1e9" stroke-width="5"/>
+    <path d="M1335 657h114" stroke="#ee8624" stroke-width="7"/>
+    <circle cx="1530" cy="678" r="50" fill="#121b24" stroke="#748697" stroke-width="5"/>
+    <path d="M1497 678h66M1530 645v66" stroke="#ee8624" stroke-width="5" opacity="0.8"/>
+  </g>
+
+  <!-- floor crest -->
+  <g transform="translate(836 864)" opacity="0.8">
+    <circle r="57" fill="#0d1b28" stroke="#ee8624" stroke-width="5"/>
+    <path d="M-34 0h68M0-34v68" stroke="#dce6ed" stroke-width="7"/>
+    <circle r="18" fill="#ee8624"/>
+    <text x="0" y="84" text-anchor="middle" fill="#b9c6d0" font-family="Arial Black, sans-serif" font-size="16" letter-spacing="4">GENERAL HOCKEY EDITION</text>
+  </g>
+</svg>

@@ -1,8 +1,4 @@
 import { NextResponse } from "next/server";
-import { TEAMS } from "@/data/league-config";
-import { managerFromRequest } from "@/lib/auth";
-import { getRedis } from "@/lib/redis";
-import { rosterStorageKey } from "@/lib/standings";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
@@ -30,26 +26,6 @@ function attachFantasyRanks(players) {
 }
 
 
-async function claimedPlayerIdsFromOtherTeams(request) {
-  const manager = await managerFromRequest(request).catch(() => null);
-  const redis = getRedis();
-  if (!manager || !redis) return new Set();
-
-  const results = await Promise.allSettled(
-    TEAMS
-      .filter((team) => team.slug !== manager.slug)
-      .map((team) => redis.get(rosterStorageKey(team.slug)))
-  );
-
-  const claimed = new Set();
-  for (const result of results) {
-    if (result.status !== "fulfilled") continue;
-    for (const player of result.value?.players || []) {
-      if (player?.playerId != null) claimed.add(String(player.playerId));
-    }
-  }
-  return claimed;
-}
 
 function trustedSalaryOverride(record) {
   if (!record || !Number.isFinite(Number(record.capHit))) return null;
@@ -188,12 +164,9 @@ export async function GET(request) {
     };
   });
 
-  const claimedByOthers = leaderboardMode
-    ? await claimedPlayerIdsFromOtherTeams(request)
-    : new Set();
-  const draftPlayers = leaderboardMode
-    ? players.filter((player) => !claimedByOthers.has(String(player.playerId)))
-    : players;
+  // Every Champions League roster is independent. A player selected by one
+  // manager remains available to every other manager.
+  const draftPlayers = players;
 
   return NextResponse.json({
     players,
@@ -216,15 +189,15 @@ export async function GET(request) {
       error: salaryError
     },
     projectionData: {
-      model: "Champions Static Projection Board 1.1",
+      model: "Champions Static Projection Board 2.0",
       season: "2026-27",
       updatedAt: new Date().toISOString(),
       rankingUpdatedAt: rankingResult.snapshot?.updatedAt || null,
       advancedUpdatedAt: moneyPuckResult.snapshot?.updatedAt || null,
       historyUpdatedAt: historyResult.snapshot?.updatedAt || null,
-      staticBoard: staticProjectionSummary(),
+      staticBoard: staticProjectionSummary(players.length),
       sources: [
-        "Static reviewed projection file (authoritative when present)",
+        "Full-pool static projection board with editorial overrides",
         "NHL three-season production and usage",
         "MoneyPuck three-season expected, line and team data",
         "Role/linemate and team/coach environment",

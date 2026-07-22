@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GOALIE_SCORING, SCORING } from "@/data/league-config";
+import { GOALIE_SCORING, ROSTER_REVEAL_AT, SCORING } from "@/data/league-config";
 import { LOCKER_BACKGROUNDS } from "@/data/locker-config";
 import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import useLeagueStandings from "@/components/useLeagueStandings";
@@ -136,6 +136,7 @@ function statRows(player, goalie) {
       ["Saves", numberValue(player, "saves"), numberValue(player, "saves") * GOALIE_SCORING.saves],
       ["Goals Against", numberValue(player, "goalsAgainst"), numberValue(player, "goalsAgainst") * GOALIE_SCORING.goalsAgainst],
       ["Wins", numberValue(player, "wins"), numberValue(player, "wins") * GOALIE_SCORING.wins],
+      ["Shutouts", numberValue(player, "shutouts"), numberValue(player, "shutouts") * GOALIE_SCORING.shutouts],
       ["Goals", numberValue(player, "goals"), numberValue(player, "goals") * GOALIE_SCORING.goals],
       ["Assists", numberValue(player, "assists"), numberValue(player, "assists") * GOALIE_SCORING.assists]
     ];
@@ -600,6 +601,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rosterReady, setRosterReady] = useState(false);
+  const [rosterConcealed, setRosterConcealed] = useState(!isOwnLocker);
   const [predictions, setPredictions] = useState(null);
   const [predictionEditor, setPredictionEditor] = useState(null);
   const [predictionPlayers, setPredictionPlayers] = useState([]);
@@ -633,11 +635,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     setSelection(null);
     setPlayers([]);
     setRosterReady(false);
-
-    if (!isOwnLocker) {
-      setRosterReady(true);
-      return () => { cancelled = true; };
-    }
+    setRosterConcealed(!isOwnLocker);
 
     async function loadRoster() {
       let roster = [];
@@ -648,10 +646,21 @@ export default function LockerRoom({ team, viewerSlug = null }) {
           signal: AbortSignal.timeout(10000)
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "The private roster could not be loaded.");
+        if (!response.ok) throw new Error(data.error || "The roster could not be loaded.");
+
+        if (data.concealed) {
+          if (!cancelled) {
+            setPlayers([]);
+            setRosterConcealed(true);
+            setRosterReady(true);
+          }
+          return;
+        }
+
         roster = data.roster?.players || [];
+        if (!cancelled) setRosterConcealed(false);
       } catch (error) {
-        console.error("Private locker roster unavailable:", error);
+        console.error("Locker roster unavailable:", error);
       }
 
       if (cancelled) return;
@@ -831,6 +840,8 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     G: players.filter((player) => player.rosterType === "G")
   }), [players]);
 
+  const canSeeRoster = isOwnLocker || !rosterConcealed;
+
   const privateTeamFantasyTotal = useMemo(
     () => players.reduce((total, player) => total + Number(player?.fantasyPoints || 0), 0),
     [players]
@@ -839,7 +850,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const { standings, loaded: standingsLoaded } = useLeagueStandings({
     currentTeamSlug: teamSlug,
     currentPlayers: players,
-    currentRosterReady: isOwnLocker && rosterReady
+    currentRosterReady: canSeeRoster && rosterReady
   });
   const standingIndex = standings.findIndex((entry) => entry.slug === teamSlug);
   const currentStanding = standingIndex >= 0 ? standings[standingIndex] : null;
@@ -847,7 +858,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1
     ? standings[standingIndex + 1]
     : null;
-  const teamFantasyTotal = isOwnLocker && rosterReady
+  const teamFantasyTotal = canSeeRoster && rosterReady
     ? privateTeamFantasyTotal
     : Number(currentStanding?.fantasyPoints || 0);
 
@@ -869,11 +880,19 @@ export default function LockerRoom({ team, viewerSlug = null }) {
           />
         </>
 
-        <div className="nick-locker-roster-panel">
-          <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
-          <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
-          <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} concealed={!isOwnLocker} />
-        </div>
+        {canSeeRoster ? (
+          <div className="nick-locker-roster-panel">
+            <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+            <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+            <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+          </div>
+        ) : (
+          <div className="locker-roster-sealed" aria-label="Roster concealed until the NHL season begins">
+            <span aria-hidden="true">🔒</span>
+            <strong>ROSTER SEALED</strong>
+            <small>PLAYER PICKS REVEAL ON OPENING NIGHT</small>
+          </div>
+        )}
 
         {standingsLoaded && higherStanding ? (
           <a
@@ -888,9 +907,11 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         ) : null}
 
         <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}${currentStanding ? `, ${ordinal(currentStanding.rank)} place` : ""}`}>
-          <span>TOTAL TEAM FANTASY POINTS</span>
+          <span>{canSeeRoster ? "TOTAL TEAM FANTASY POINTS" : "ROSTER HIDDEN UNTIL OPENING NIGHT"}</span>
           <strong>{teamFantasyTotal.toFixed(1)}</strong>
-          <em>{standingsLoaded && currentStanding ? `${ordinal(currentStanding.rank).toUpperCase()} PLACE` : "RANKING…"}</em>
+          <em>{canSeeRoster
+            ? (standingsLoaded && currentStanding ? `${ordinal(currentStanding.rank).toUpperCase()} PLACE` : "RANKING…")
+            : new Date(ROSTER_REVEAL_AT).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" }).toUpperCase()}</em>
         </div>
 
         {standingsLoaded && lowerStanding ? (

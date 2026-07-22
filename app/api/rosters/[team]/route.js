@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { ROSTER_LIMITS, SALARY_CAP, TEAMS } from "@/data/league-config";
+import {
+  ROSTER_LIMITS,
+  ROSTER_REVEAL_AT,
+  SALARY_CAP,
+  TEAMS,
+  rostersArePublic
+} from "@/data/league-config";
 import { getRedis } from "@/lib/redis";
 import { managerFromRequest } from "@/lib/auth";
 
@@ -24,7 +30,7 @@ function validateRoster(players) {
     seen.add(id);
 
     const rosterType = player.rosterType;
-    if (!counts.hasOwnProperty(rosterType)) return "Every player must be a forward, defence, or goalie.";
+    if (!Object.hasOwn(counts, rosterType)) return "Every player must be a forward, defence, or goalie.";
     counts[rosterType] += 1;
 
     const capHit = Number(player.capHit);
@@ -42,32 +48,26 @@ function validateRoster(players) {
   return null;
 }
 
-
-async function playerClaimedByAnotherTeam(redis, team, players) {
-  const requested = new Map(players.map((player) => [String(player.playerId), player]));
-  const results = await Promise.allSettled(
-    TEAMS
-      .filter((entry) => entry.slug !== team)
-      .map((entry) => redis.get(rosterKey(entry.slug)))
-  );
-
-  for (const result of results) {
-    if (result.status !== "fulfilled") continue;
-    for (const claimed of result.value?.players || []) {
-      const conflict = requested.get(String(claimed?.playerId));
-      if (conflict) return conflict;
-    }
-  }
-  return null;
-}
-
 export async function GET(request, context) {
   const { team } = await context.params;
   if (!validTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
 
-  const manager = await managerFromRequest(request);
-  if (!manager) return NextResponse.json({ error: "Sign in to view this private roster." }, { status: 401 });
-  if (manager.slug !== team) return NextResponse.json({ error: "This roster is private to its manager." }, { status: 403 });
+  const manager = await managerFromRequest(request).catch(() => null);
+  const isOwner = manager?.slug === team;
+  const publicAfterSeasonStart = rostersArePublic();
+
+  // Before opening night, other visitors receive only the concealment state.
+  // This keeps predictions public without sending roster player IDs to them.
+  if (!isOwner && !publicAfterSeasonStart) {
+    return NextResponse.json({
+      roster: null,
+      concealed: true,
+      visibility: "private-until-season-start",
+      revealAt: ROSTER_REVEAL_AT
+    }, {
+      headers: { "Cache-Control": "no-store, private" }
+    });
+  }
 
   const redis = getRedis();
   if (!redis) {
@@ -76,12 +76,17 @@ export async function GET(request, context) {
 
   try {
     const roster = await redis.get(rosterKey(team));
-    return NextResponse.json({ roster: roster || null, persistence: "private" }, {
+    return NextResponse.json({
+      roster: roster || null,
+      concealed: false,
+      visibility: isOwner ? "owner" : "public-after-season-start",
+      revealAt: ROSTER_REVEAL_AT
+    }, {
       headers: { "Cache-Control": "no-store, private" }
     });
   } catch (error) {
     console.error("Roster read failed:", error);
-    return NextResponse.json({ error: "The private roster could not be loaded." }, { status: 500 });
+    return NextResponse.json({ error: "The roster could not be loaded." }, { status: 500 });
   }
 }
 
@@ -111,17 +116,8 @@ export async function POST(request, context) {
     );
   }
 
-  const conflict = await playerClaimedByAnotherTeam(redis, team, roster.players);
-  if (conflict) {
-    return NextResponse.json(
-      {
-        error: `${conflict.name || "That player"} has already been drafted and is no longer available.`,
-        conflictPlayerId: String(conflict.playerId)
-      },
-      { status: 409 }
-    );
-  }
-
+  // Drafts are independent. The same NHL player may appear on multiple
+  // Champions League teams; duplicates are blocked only inside one roster.
   await redis.set(rosterKey(team), roster);
   return NextResponse.json({ roster, persistence: "private" }, {
     headers: { "Cache-Control": "no-store, private" }
