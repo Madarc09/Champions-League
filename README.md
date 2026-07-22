@@ -415,3 +415,26 @@ The values are **Champions League estimates**, not official projections from the
 - The player-pool fantasy-points column uses completed 2025–26 results only; projected fantasy points remain exclusive to the Projected Performance card.
 - Projection cards now compare every displayed category against last season, show a signed increase/decrease, and include a brief model explanation.
 - Locker Room team predictions now display Stanley Cup and Presidents Trophy on the top row, with West and East champions beneath them.
+
+## July 22, 2026 — compact draft room and static projection board
+
+The draft room now uses a 60/40 desktop layout:
+
+- **60% Player Pool** with smaller rows, headshots, filters and draft buttons.
+- **40% right rail** containing the complete projected roster and the selected player's projection card.
+- All 20 roster slots fit in the compact two-column roster without the former oversized cards across the top.
+- Hovering over a player image opens a small cursor-following projection preview. Clicking the image pins that player in the detailed projection card.
+- The old “Build your roster” block was removed. Fantasy-point formulas now appear in the compact NHL Draft banner.
+
+### Static projection architecture
+
+`data/player-projections-2026-27.js` is now the authoritative manual projection file. Each reviewed player contains:
+
+- a cautious **floor** scenario;
+- the displayed **balanced** projection;
+- a healthy/favourable **upside** scenario;
+- short written reasoning.
+
+`lib/static-projections.js` calculates Champions League fantasy points from those category totals and overlays the reviewed record on the live player object. The draft page therefore does not recalculate or randomly change a reviewed player's projection on every load.
+
+The first 25 review entries are included. Players not yet present in the static file use the stabilized multi-source model as a clearly labelled **MODEL FALLBACK**. Add each reviewed player to the static file to move the full database onto the locked projection board. The fallback safety range was also tightened from 72–132% to 84–124% of the player's own three-season baseline, and skater projections now permit the 84-game schedule.

@@ -5,6 +5,7 @@ import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
 import { createPlayerProjection } from "@/lib/projections";
+import { applyStaticProjection, staticProjectionSummary } from "@/lib/static-projections";
 import { getNhlHistorySnapshot, findNhlHistory } from "@/lib/nhl-history";
 import { projectionContextFor } from "@/data/projection-context";
 import {
@@ -141,13 +142,14 @@ export async function GET(request) {
     const nhlHistory = historyResult.snapshot
       ? findNhlHistory(historyResult.snapshot, player)
       : [];
-    const projection = createPlayerProjection(
+    const modelProjection = createPlayerProjection(
       player,
       nhlHistory,
       advanced,
       expectedRanks,
       projectionContextFor(player)
     );
+    const projection = applyStaticProjection(player, modelProjection);
 
     return {
       ...player,
@@ -180,17 +182,19 @@ export async function GET(request) {
       error: salaryError
     },
     projectionData: {
-      model: "Champions Projection Model 2.0",
+      model: "Champions Static Projection Board 1.0",
       season: "2026-27",
       updatedAt: new Date().toISOString(),
       rankingUpdatedAt: rankingResult.snapshot?.updatedAt || null,
       advancedUpdatedAt: moneyPuckResult.snapshot?.updatedAt || null,
       historyUpdatedAt: historyResult.snapshot?.updatedAt || null,
+      staticBoard: staticProjectionSummary(),
       sources: [
+        "Static reviewed projection file (authoritative when present)",
         "NHL three-season production and usage",
         "MoneyPuck three-season expected, line and team data",
         "Role/linemate and team/coach environment",
-        "NHL.com/ESPN/Yahoo/CBS rank sanity check"
+        "Public rank sanity check"
       ],
       warning: historyResult.error?.message || rankingResult.error?.message || moneyPuckResult.snapshot?.warning || moneyPuckResult.error?.message || null
     }
