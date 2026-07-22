@@ -401,3 +401,10 @@ Direct public season-summary inputs:
 - `https://moneypuck.com/moneypuck/playerData/seasonSummary/2025/regular/goalies.csv`
 
 The displayed values are **Champions League estimates**, not official NHL, MoneyPuck, ESPN or NHL.com projections.
+
+## Draft board and locker-room correction
+
+- Draft player rows now read left-to-right as position, player image, player name with salary/team, NHL team logo, last-season fantasy points, and the Draft action.
+- The player-pool fantasy-points column uses completed 2025–26 results only; projected fantasy points remain exclusive to the Projected Performance card.
+- Projection cards now compare every displayed category against last season, show a signed increase/decrease, and include a brief model explanation.
+- Locker Room team predictions now display Stanley Cup and Presidents Trophy on the top row, with West and East champions beneath them.

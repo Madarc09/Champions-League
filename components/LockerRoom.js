@@ -22,9 +22,9 @@ const RANKING_LABELS = {
 
 const TEAM_PREDICTION_FIELDS = [
   ["stanleyCup", "Stanley Cup"],
-  ["eastChamp", "East Champ"],
+  ["presidentsTrophy", "Presidents Trophy"],
   ["westChamp", "West Champ"],
-  ["presidentsTrophy", "Presidents Trophy"]
+  ["eastChamp", "East Champ"]
 ];
 
 const PLAYER_PREDICTION_FIELDS = [

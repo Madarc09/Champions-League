@@ -21,9 +21,14 @@ function compactMoney(value) {
   return `$${Math.round(amount)}`;
 }
 
+function actualFantasyPoints(player) {
+  const value = player?.fantasyPoints;
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
 function projectedFantasyPoints(player) {
   const value = player?.projection?.fantasyPoints;
-  return Number.isFinite(Number(value)) ? Number(value) : Number(player?.fantasyPoints || 0);
+  return Number.isFinite(Number(value)) ? Number(value) : actualFantasyPoints(player);
 }
 
 function projectedStat(player, key) {
@@ -103,7 +108,7 @@ function sortValue(player, column) {
     case "assists": return Number(player.assists || 0);
     case "hits": return player.rosterType === "G" ? null : Number(player.hits || 0);
     case "shots": return player.rosterType === "G" ? null : Number(player.shots || 0);
-    case "fantasyPoints": return projectedFantasyPoints(player);
+    case "fantasyPoints": return actualFantasyPoints(player);
     default: return 0;
   }
 }
@@ -124,17 +129,17 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
       const leftMissing = left == null || left === "";
       const rightMissing = right == null || right === "";
 
-      if (leftMissing && rightMissing) return projectedFantasyPoints(b) - projectedFantasyPoints(a);
+      if (leftMissing && rightMissing) return actualFantasyPoints(b) - actualFantasyPoints(a);
       if (leftMissing) return 1;
       if (rightMissing) return -1;
 
       if (typeof left === "string" || typeof right === "string") {
         const result = String(left).localeCompare(String(right), "en", { sensitivity: "base" });
-        return result === 0 ? projectedFantasyPoints(b) - projectedFantasyPoints(a) : result * direction;
+        return result === 0 ? actualFantasyPoints(b) - actualFantasyPoints(a) : result * direction;
       }
 
       const result = Number(left) - Number(right);
-      return result === 0 ? projectedFantasyPoints(b) - projectedFantasyPoints(a) : result * direction;
+      return result === 0 ? actualFantasyPoints(b) - actualFantasyPoints(a) : result * direction;
     });
   }, [players, sort]);
 
@@ -153,25 +158,23 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
     return "";
   }
 
-  const salaryRemaining = salaryCap - totalCap;
-
   return (
     <div className="draft-table-scroll champions-player-table-scroll">
       <table className="draft-table champions-player-table">
         <thead>
           <tr>
-            <th>Salary remaining</th>
-            <th><span className="visually-hidden">Draft player</span></th>
-            <th className="player-sort-heading" aria-sort={sort.column === "name" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
-            </th>
             <th aria-sort={sort.column === "position" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Pos" column="position" sort={sort} onSort={changeSort} compact />
             </th>
+            <th><span className="visually-hidden">Player image</span></th>
+            <th className="player-sort-heading" aria-sort={sort.column === "name" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
+              <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
+            </th>
             <th>Team</th>
             <th aria-sort={sort.column === "fantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="Proj FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} compact />
+              <SortButton label="FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} compact />
             </th>
+            <th><span className="visually-hidden">Draft player</span></th>
           </tr>
         </thead>
         <tbody>
@@ -185,9 +188,45 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                 key={player.playerId}
                 className={`${drafted ? "drafted-row" : ""} ${active ? "preview-row" : ""}`}
               >
-                <td className={`salary-remaining-cell ${salaryRemaining < 0 ? "over" : ""}`}>
-                  {compactMoney(salaryRemaining)}
+                <td className="draft-position-cell">
+                  <span className={`position-chip position-${player.rosterType.toLowerCase()}`}>{player.rosterType}</span>
                 </td>
+                <td className="draft-player-image-cell">
+                  <button
+                    className="player-headshot-preview-button"
+                    type="button"
+                    onClick={() => onPreview(player)}
+                    title={`Open ${player.name}'s projection card`}
+                  >
+                    <PlayerHeadshot player={player} className="draft-player-headshot" alt="" />
+                  </button>
+                </td>
+                <td className="champions-player-cell">
+                  <button
+                    className="player-preview-button"
+                    type="button"
+                    onClick={() => onPreview(player)}
+                    title={`Open ${player.name}'s projection card`}
+                  >
+                    <span className="champions-player-copy">
+                      <strong>{player.name}</strong>
+                      <small>{compactMoney(player.capHit)} · {player.team || "NHL"}</small>
+                      {reason && !drafted ? <em>{reason}</em> : null}
+                    </span>
+                  </button>
+                </td>
+                <td className="draft-team-cell">
+                  {player.teamLogo ? (
+                    <img
+                      className="draft-team-logo"
+                      src={player.teamLogo}
+                      alt={`${player.team || "NHL"} logo`}
+                      loading="lazy"
+                      onError={(event) => { event.currentTarget.style.display = "none"; }}
+                    />
+                  ) : <span>{player.team || "NHL"}</span>}
+                </td>
+                <td className="fantasy-points-cell">{actualFantasyPoints(player).toFixed(1)}</td>
                 <td className="draft-action-cell">
                   <button
                     className="champions-draft-button"
@@ -199,36 +238,6 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                     {drafted ? "ON TEAM" : reason || "DRAFT"}
                   </button>
                 </td>
-                <td className="champions-player-cell">
-                  <button
-                    className="player-preview-button"
-                    type="button"
-                    onClick={() => onPreview(player)}
-                    title={`Open ${player.name}'s projection card`}
-                  >
-                    <span className="draft-favourite-star" aria-hidden="true">☆</span>
-                    <PlayerHeadshot player={player} className="draft-player-headshot" alt="" />
-                    <span className="champions-player-copy">
-                      <strong>{player.name}</strong>
-                      <small>{compactMoney(player.capHit)} · {player.rosterType} · {player.team || "NHL"}</small>
-                      {reason && !drafted ? <em>{reason}</em> : null}
-                    </span>
-                  </button>
-                </td>
-                <td><span className={`position-chip position-${player.rosterType.toLowerCase()}`}>{player.rosterType}</span></td>
-                <td className="draft-team-cell">
-                  {player.teamLogo ? (
-                    <img
-                      className="draft-team-logo"
-                      src={player.teamLogo}
-                      alt=""
-                      loading="lazy"
-                      onError={(event) => { event.currentTarget.style.display = "none"; }}
-                    />
-                  ) : null}
-                  <span>{player.team || "NHL"}</span>
-                </td>
-                <td className="fantasy-points-cell">{projectedFantasyPoints(player).toFixed(1)}</td>
               </tr>
             );
           })}
@@ -362,13 +371,56 @@ function LineupCard({
   );
 }
 
-function ProjectionStat({ label, value, accent = false }) {
+function signedDelta(value) {
+  const number = Number(value || 0);
+  if (number === 0) return "±0";
+  return `${number > 0 ? "+" : ""}${number}`;
+}
+
+function ProjectionComparisonStat({ label, previous, projected, accent = false, lowerIsBetter = false }) {
+  const last = Number(previous || 0);
+  const next = Number(projected || 0);
+  const delta = next - last;
+  const favourable = delta === 0 ? "neutral" : (lowerIsBetter ? delta < 0 : delta > 0) ? "positive" : "negative";
+
   return (
-    <div className={`projection-stat ${accent ? "accent" : ""}`}>
+    <div className={`projection-stat comparison ${accent ? "accent" : ""}`}>
       <small>{label}</small>
-      <strong>{value}</strong>
+      <div className="projection-stat-values">
+        <span><em>LAST</em><strong>{last}</strong></span>
+        <span><em>PROJ</em><strong>{next}</strong></span>
+      </div>
+      <b className={`projection-delta ${favourable}`}>{signedDelta(delta)}</b>
     </div>
   );
+}
+
+function projectionReasoning(player) {
+  const projection = player?.projection;
+  if (!projection) return "";
+
+  const gpDelta = Number(projection.gamesPlayed || 0) - Number(player.gamesPlayed || 0);
+  const workloadText = Math.abs(gpDelta) >= 4
+    ? `The model expects ${Math.abs(gpDelta)} ${gpDelta > 0 ? "more" : "fewer"} games than last season, which changes the counting-stat ceiling.`
+    : "The workload forecast is close to last season, so most changes come from rate regression rather than games played.";
+
+  if (player.rosterType === "G") {
+    const winDelta = Number(projection.wins || 0) - Number(player.wins || 0);
+    const gaDelta = Number(projection.goalsAgainst || 0) - Number(player.goalsAgainst || 0);
+    const performanceText = projection.advanced?.goalsSavedAboveExpected != null
+      ? `Goalie results are adjusted using ${projection.advanced.goalsSavedAboveExpected} GSAx and ${projection.advanced.expectedGoalsAgainst ?? "available"} xGA, then blended with his consensus rank.`
+      : "Goalie results are regressed toward league-average save and win rates, then adjusted by workload and consensus rank.";
+    const directionText = `That produces ${Math.abs(winDelta)} ${winDelta >= 0 ? "more" : "fewer"} projected wins and ${Math.abs(gaDelta)} ${gaDelta >= 0 ? "more" : "fewer"} goals against.`;
+    return `${workloadText} ${performanceText} ${directionText}`;
+  }
+
+  const goalDelta = Number(projection.goals || 0) - Number(player.goals || 0);
+  const assistDelta = Number(projection.assists || 0) - Number(player.assists || 0);
+  const rateText = projection.advanced?.shootingTalentAdjustedXGoals != null || projection.advanced?.xGoals != null
+    ? `Goal scoring is pulled toward the expected-goal inputs (${projection.advanced.shootingTalentAdjustedXGoals ?? projection.advanced.xGoals} talent-adjusted/xG) instead of simply repeating last season's shooting result.`
+    : "Scoring rates are blended with positional norms so one unusually hot or cold season is not copied directly.";
+  const directionText = `The result is ${signedDelta(goalDelta)} goals and ${signedDelta(assistDelta)} assists versus last season, with hits and shots projected from his per-game usage.`;
+  return `${workloadText} ${rateText} ${directionText}`;
 }
 
 function ProjectedPerformancePanel({ player, players, onSelect, projectionData }) {
@@ -422,30 +474,40 @@ function ProjectedPerformancePanel({ player, players, onSelect, projectionData }
               <h3>{player.name}</h3>
               <span>{compactMoney(player.capHit)} cap hit</span>
             </div>
-            <div className="projection-fpts-badge">
-              <small>PROJ FPTS</small>
-              <strong>{projectedFantasyPoints(player).toFixed(1)}</strong>
+            <div className="projection-fpts-badge projection-fpts-comparison">
+              <span><small>LAST FPTS</small><strong>{actualFantasyPoints(player).toFixed(1)}</strong></span>
+              <span><small>PROJ FPTS</small><strong>{projectedFantasyPoints(player).toFixed(1)}</strong></span>
+              <b className={projectedFantasyPoints(player) >= actualFantasyPoints(player) ? "positive" : "negative"}>
+                {projectedFantasyPoints(player) === actualFantasyPoints(player)
+                  ? "±0.0"
+                  : `${projectedFantasyPoints(player) > actualFantasyPoints(player) ? "+" : ""}${(projectedFantasyPoints(player) - actualFantasyPoints(player)).toFixed(1)}`}
+              </b>
             </div>
           </div>
 
-          <div className={`projection-stat-grid ${isGoalie ? "goalie-grid" : "skater-grid"}`}>
-            <ProjectionStat label="GP" value={projectedStat(player, "gamesPlayed")} />
+          <div className={`projection-stat-grid comparison-grid ${isGoalie ? "goalie-grid" : "skater-grid"}`}>
+            <ProjectionComparisonStat label="GP" previous={player.gamesPlayed} projected={projectedStat(player, "gamesPlayed")} />
             {isGoalie ? (
               <>
-                <ProjectionStat label="W" value={projectedStat(player, "wins")} accent />
-                <ProjectionStat label="SV" value={projectedStat(player, "saves")} />
-                <ProjectionStat label="GA" value={projectedStat(player, "goalsAgainst")} />
-                <ProjectionStat label="G" value={projectedStat(player, "goals")} />
-                <ProjectionStat label="A" value={projectedStat(player, "assists")} />
+                <ProjectionComparisonStat label="W" previous={player.wins} projected={projectedStat(player, "wins")} accent />
+                <ProjectionComparisonStat label="SV" previous={player.saves} projected={projectedStat(player, "saves")} />
+                <ProjectionComparisonStat label="GA" previous={player.goalsAgainst} projected={projectedStat(player, "goalsAgainst")} lowerIsBetter />
+                <ProjectionComparisonStat label="G" previous={player.goals} projected={projectedStat(player, "goals")} />
+                <ProjectionComparisonStat label="A" previous={player.assists} projected={projectedStat(player, "assists")} />
               </>
             ) : (
               <>
-                <ProjectionStat label="G" value={projectedStat(player, "goals")} accent />
-                <ProjectionStat label="A" value={projectedStat(player, "assists")} accent />
-                <ProjectionStat label="HIT" value={projectedStat(player, "hits")} />
-                <ProjectionStat label="SOG" value={projectedStat(player, "shots")} />
+                <ProjectionComparisonStat label="G" previous={player.goals} projected={projectedStat(player, "goals")} accent />
+                <ProjectionComparisonStat label="A" previous={player.assists} projected={projectedStat(player, "assists")} accent />
+                <ProjectionComparisonStat label="HIT" previous={player.hits} projected={projectedStat(player, "hits")} />
+                <ProjectionComparisonStat label="SOG" previous={player.shots} projected={projectedStat(player, "shots")} />
               </>
             )}
+          </div>
+
+          <div className="projection-reasoning">
+            <strong>Why the model moved him</strong>
+            <p>{projectionReasoning(player)}</p>
           </div>
 
           <div className="projection-advanced-strip">

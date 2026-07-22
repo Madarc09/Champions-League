@@ -6134,3 +6134,230 @@ body:has(.champions-draft-page) .header-auth-button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ========================================================================== */
+/* Draft board correction — compact order and actual 2025-26 fantasy points   */
+/* ========================================================================== */
+
+.champions-player-table-scroll {
+  overflow-x: hidden;
+}
+
+.champions-player-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.champions-player-table th:nth-child(1) { width: 54px; text-align: center; }
+.champions-player-table th:nth-child(2) { width: 50px; padding-right: 1px; }
+.champions-player-table th:nth-child(3) { width: auto; min-width: 0; padding-left: 2px; }
+.champions-player-table th:nth-child(4) { width: 58px; text-align: center; }
+.champions-player-table th:nth-child(5) { width: 72px; text-align: center; }
+.champions-player-table th:nth-child(6) { width: 92px; text-align: center; }
+
+.champions-player-table td:nth-child(1) { padding-inline: 4px; }
+.champions-player-table td:nth-child(2) { padding-left: 3px; padding-right: 1px; }
+.champions-player-table td:nth-child(3) { padding-left: 2px; }
+.champions-player-table td:nth-child(4),
+.champions-player-table td:nth-child(5),
+.champions-player-table td:nth-child(6) { padding-inline: 5px; }
+
+.draft-position-cell {
+  text-align: center;
+}
+
+.draft-player-image-cell {
+  text-align: right;
+}
+
+.player-headshot-preview-button {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.champions-player-table .draft-player-headshot {
+  width: 44px;
+  height: 44px;
+}
+
+.champions-player-table .player-preview-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+}
+
+.champions-player-table .champions-player-copy small {
+  color: #a5b4c4;
+}
+
+.champions-player-table .draft-team-cell {
+  text-align: center;
+}
+
+.champions-player-table .draft-team-cell .draft-team-logo {
+  width: 31px;
+  height: 31px;
+}
+
+.champions-player-table .fantasy-points-cell {
+  color: #39a5ff;
+  font-size: 0.75rem;
+}
+
+.champions-player-table .draft-action-cell {
+  text-align: center;
+}
+
+.champions-player-table .champions-draft-button {
+  width: 82px;
+  min-width: 0;
+  padding-inline: 4px;
+}
+
+/* Projection card: show last season beside model projection, then the delta. */
+.projection-fpts-comparison {
+  min-width: 112px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 7px;
+}
+
+.projection-fpts-comparison > span {
+  min-width: 0;
+}
+
+.projection-fpts-comparison > span:first-child strong {
+  color: #aab8c7;
+}
+
+.projection-fpts-comparison > b {
+  grid-column: 1 / -1;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  font-size: .6rem;
+}
+
+.projection-fpts-comparison > b.positive,
+.projection-delta.positive { color: #61d65d; }
+
+.projection-fpts-comparison > b.negative,
+.projection-delta.negative { color: #ff7d84; }
+
+.projection-delta.neutral { color: #9aaabd; }
+
+.projection-stat-grid.comparison-grid,
+.projection-stat-grid.comparison-grid.goalie-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+}
+
+.projection-stat.comparison {
+  min-height: 82px;
+  padding: 7px 6px 6px;
+}
+
+.projection-stat.comparison > small {
+  color: #74baff;
+  font-size: .5rem;
+  letter-spacing: .06em;
+}
+
+.projection-stat-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.projection-stat-values span {
+  min-width: 0;
+  padding: 4px 2px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 3px;
+  background: rgba(255,255,255,.025);
+}
+
+.projection-stat-values em,
+.projection-stat-values strong {
+  display: block;
+  font-style: normal;
+}
+
+.projection-stat-values em {
+  color: #778a9e;
+  font-size: .38rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+}
+
+.projection-stat-values strong {
+  margin-top: 1px;
+  font-size: .72rem;
+}
+
+.projection-stat.comparison.accent .projection-stat-values span:last-child strong {
+  color: #45a8ff;
+}
+
+.projection-delta {
+  display: block;
+  margin-top: 4px;
+  font-size: .53rem;
+}
+
+.projection-reasoning {
+  position: relative;
+  z-index: 1;
+  margin: 8px 9px 0;
+  padding: 8px 9px;
+  border: 1px solid rgba(66, 157, 244, .2);
+  border-radius: 5px;
+  background: rgba(3, 13, 23, .58);
+}
+
+.projection-reasoning strong {
+  display: block;
+  color: #63b5ff;
+  font-size: .48rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.projection-reasoning p {
+  margin: 4px 0 0;
+  color: #a5b5c6;
+  font-size: .5rem;
+  line-height: 1.48;
+}
+
+@media (max-width: 720px) {
+  .champions-player-table th:nth-child(1),
+  .champions-player-table td:nth-child(1),
+  .champions-player-table th:nth-child(4),
+  .champions-player-table td:nth-child(4),
+  .champions-player-table th:nth-child(5),
+  .champions-player-table td:nth-child(5) {
+    display: table-cell;
+  }
+
+  .champions-player-table th:nth-child(1) { width: 43px; }
+  .champions-player-table th:nth-child(2) { width: 39px; }
+  .champions-player-table th:nth-child(4) { width: 44px; }
+  .champions-player-table th:nth-child(5) { width: 52px; }
+  .champions-player-table th:nth-child(6) { width: 67px; }
+  .champions-player-table .draft-player-headshot,
+  .player-headshot-preview-button { width: 36px; height: 36px; }
+  .champions-player-table .champions-draft-button { width: 60px; font-size: .47rem; }
+  .champions-player-table .champions-player-copy strong { font-size: .62rem; }
+  .champions-player-table .champions-player-copy small { font-size: .46rem; }
+  .projection-player-hero { grid-template-columns: 65px minmax(0, 1fr); }
+  .projection-fpts-comparison { grid-column: 1 / -1; width: 100%; }
+}
