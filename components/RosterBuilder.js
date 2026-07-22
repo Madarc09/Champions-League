@@ -36,6 +36,52 @@ function projectedStat(player, key) {
   return Number.isFinite(Number(value)) ? Number(value) : 0;
 }
 
+function isProjectionOnlyPlayer(player) {
+  return Number(player?.gamesPlayed || 0) === 0;
+}
+
+function draftBoardStat(player, key) {
+  if (isProjectionOnlyPlayer(player)) return projectedStat(player, key);
+  const value = player?.[key];
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
+function playerAge(player) {
+  const birthDate = player?.birthDate ? new Date(`${String(player.birthDate).slice(0, 10)}T00:00:00Z`) : null;
+  if (!birthDate || Number.isNaN(birthDate.getTime())) return null;
+  const seasonDate = new Date("2026-10-01T00:00:00Z");
+  let age = seasonDate.getUTCFullYear() - birthDate.getUTCFullYear();
+  const beforeBirthday = seasonDate.getUTCMonth() < birthDate.getUTCMonth()
+    || (seasonDate.getUTCMonth() === birthDate.getUTCMonth() && seasonDate.getUTCDate() < birthDate.getUTCDate());
+  if (beforeBirthday) age -= 1;
+  return age;
+}
+
+function actualFantasyPointsPerGame(player) {
+  const games = Number(player?.gamesPlayed || 0);
+  return games > 0 ? actualFantasyPoints(player) / games : 0;
+}
+
+function projectedFantasyPointsPerGame(player) {
+  const games = Number(player?.projection?.gamesPlayed || 0);
+  return games > 0 ? projectedFantasyPoints(player) / games : 0;
+}
+
+function projectionRangeValue(player, scenario) {
+  const value = player?.projection?.range?.[scenario]?.fantasyPoints;
+  return Number.isFinite(Number(value)) ? Number(value) : projectedFantasyPoints(player);
+}
+
+function salaryMillions(player) {
+  const capHit = Number(player?.capHit);
+  return Number.isFinite(capHit) && capHit > 0 ? capHit / 1_000_000 : Infinity;
+}
+
+function projectedValuePerMillion(player) {
+  const salary = salaryMillions(player);
+  return Number.isFinite(salary) && salary > 0 ? projectedFantasyPoints(player) / salary : 0;
+}
+
 function localRosterKey(team) {
   return `champions-league:roster:${team}:2026-27`;
 }
@@ -246,11 +292,11 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                     </span>
                   </button>
                 </td>
-                <td className="draft-stat-cell">{Number(player.goals || 0)}</td>
-                <td className="draft-stat-cell">{Number(player.assists || 0)}</td>
-                <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.shots || 0)}</td>
-                <td className="draft-stat-cell">{player.rosterType === "G" ? "—" : Number(player.hits || 0)}</td>
-                <td className="fantasy-points-cell actual-fantasy-points-cell">{actualFantasyPoints(player).toFixed(1)}</td>
+                <td className={`draft-stat-cell ${isProjectionOnlyPlayer(player) ? "projected-only-stat" : ""}`} title={isProjectionOnlyPlayer(player) ? "Projected — no NHL games played" : "Last-season goals"}>{draftBoardStat(player, "goals")}</td>
+                <td className={`draft-stat-cell ${isProjectionOnlyPlayer(player) ? "projected-only-stat" : ""}`} title={isProjectionOnlyPlayer(player) ? "Projected — no NHL games played" : "Last-season assists"}>{draftBoardStat(player, "assists")}</td>
+                <td className={`draft-stat-cell ${isProjectionOnlyPlayer(player) ? "projected-only-stat" : ""}`} title={isProjectionOnlyPlayer(player) ? "Projected — no NHL games played" : "Last-season shots"}>{player.rosterType === "G" ? "—" : draftBoardStat(player, "shots")}</td>
+                <td className={`draft-stat-cell ${isProjectionOnlyPlayer(player) ? "projected-only-stat" : ""}`} title={isProjectionOnlyPlayer(player) ? "Projected — no NHL games played" : "Last-season hits"}>{player.rosterType === "G" ? "—" : draftBoardStat(player, "hits")}</td>
+                <td className={`fantasy-points-cell actual-fantasy-points-cell ${isProjectionOnlyPlayer(player) ? "projected-only-stat" : ""}`} title={isProjectionOnlyPlayer(player) ? "Projected FPTS — no NHL games played" : "Last-season fantasy points"}>{(isProjectionOnlyPlayer(player) ? projectedFantasyPoints(player) : actualFantasyPoints(player)).toFixed(1)}</td>
                 <td className="fantasy-points-cell projected-fantasy-points-cell">{projectedFantasyPoints(player).toFixed(1)}</td>
                 <td className="draft-action-cell">
                   <button
@@ -648,6 +694,375 @@ function HoverProjectionCard({ hoverPreview }) {
   );
 }
 
+
+const ROSTER_GENERATOR_STYLES = [
+  { value: "balanced", label: "Balanced", description: "Spreads cap and projection strength across all three positions." },
+  { value: "stars-rookies", label: "High-End + Rookie Fillers", description: "Pays for elite players, then hunts low-cost young upside." },
+  { value: "forward-heavy", label: "Forward Heavy", description: "Directs the largest share of cap toward the 12 forward spots." },
+  { value: "defence-heavy", label: "Defence Heavy", description: "Builds around premium offensive defencemen." },
+  { value: "goalie-heavy", label: "Goalie Heavy", description: "Spends aggressively on the two goalie spots." },
+  { value: "projection-max", label: "Highest Projected FPTS", description: "Prioritizes the balanced projected total above everything else." },
+  { value: "fpg-max", label: "Highest Projected FPG", description: "Targets the strongest projected per-game production." },
+  { value: "value", label: "Best Value", description: "Maximizes projected fantasy points per $1 million." },
+  { value: "rookie-upside", label: "Young Upside", description: "Leans toward rookies and young players with large upside ranges." },
+  { value: "safe-floor", label: "Safe Veterans", description: "Favours reliable floor projections and proven NHL production." },
+  { value: "boom-bust", label: "Boom or Bust", description: "Chases the largest gap between balanced and upside outcomes." },
+  { value: "chaos", label: "Random Chaos", description: "Creates a legal cap roster with maximum variety every click." }
+];
+
+function styleBudgetShares(style) {
+  const shares = {
+    balanced: { F: .60, D: .27, G: .13 },
+    "stars-rookies": { F: .63, D: .25, G: .12 },
+    "forward-heavy": { F: .69, D: .21, G: .10 },
+    "defence-heavy": { F: .51, D: .38, G: .11 },
+    "goalie-heavy": { F: .52, D: .24, G: .24 },
+    "projection-max": { F: .61, D: .27, G: .12 },
+    "fpg-max": { F: .61, D: .27, G: .12 },
+    value: { F: .58, D: .27, G: .15 },
+    "rookie-upside": { F: .60, D: .27, G: .13 },
+    "safe-floor": { F: .59, D: .27, G: .14 },
+    "boom-bust": { F: .61, D: .27, G: .12 },
+    chaos: { F: .60, D: .27, G: .13 }
+  };
+  return shares[style] || shares.balanced;
+}
+
+function playerGeneratorScore(player, style) {
+  const projection = projectedFantasyPoints(player);
+  const projectedFpg = projectedFantasyPointsPerGame(player);
+  const value = projectedValuePerMillion(player);
+  const floor = projectionRangeValue(player, "floor");
+  const upside = projectionRangeValue(player, "upside");
+  const age = playerAge(player);
+  const rookie = isProjectionOnlyPlayer(player) || Number(player?.draftYear || 0) >= 2024 || (age != null && age <= 21);
+  const proven = Number(player?.gamesPlayed || 0) >= 60;
+  const salary = salaryMillions(player);
+  const star = Number.isFinite(salary) && salary >= 8;
+  const upsideGap = Math.max(0, upside - projection);
+  const random = Math.random();
+
+  switch (style) {
+    case "stars-rookies": return projection * .48 + value * 2.2 + (star ? 95 : 0) + (rookie ? 80 : 0) + random * 18;
+    case "forward-heavy": return projection + (player.rosterType === "F" ? 75 : 0) + value * .55 + random * 12;
+    case "defence-heavy": return projection + (player.rosterType === "D" ? 105 : 0) + value * .45 + random * 12;
+    case "goalie-heavy": return projection + (player.rosterType === "G" ? 125 : 0) + projectedFpg * 8 + random * 12;
+    case "projection-max": return projection + random * 8;
+    case "fpg-max": return projectedFpg * 90 + projection * .18 + random * 8;
+    case "value": return value * 12 + projection * .15 + random * 10;
+    case "rookie-upside": return upside * .55 + upsideGap * 1.6 + (rookie ? 115 : 0) + value * .8 + random * 18;
+    case "safe-floor": return floor * .78 + projection * .22 + (proven ? 45 : 0) + random * 7;
+    case "boom-bust": return upside * .45 + upsideGap * 2.2 + (rookie ? 35 : 0) + random * 24;
+    case "chaos": return random * 250 + value * 1.2 + projection * .05;
+    default: return projection * .72 + floor * .16 + value * 1.3 + random * 10;
+  }
+}
+
+function cheapestReserve(players, count) {
+  return [...players]
+    .filter((player) => Number.isFinite(Number(player.capHit)))
+    .sort((a, b) => Number(a.capHit) - Number(b.capHit))
+    .slice(0, count)
+    .reduce((sum, player) => sum + Number(player.capHit), 0);
+}
+
+function choosePositionGroup(players, count, budget, style) {
+  const remaining = players
+    .filter((player) => Number.isFinite(Number(player.capHit)) && Number(player.capHit) > 0)
+    .map((player) => ({ player, score: playerGeneratorScore(player, style) }));
+  const selected = [];
+  let spent = 0;
+
+  while (selected.length < count && remaining.length) {
+    const slotsAfter = count - selected.length - 1;
+    const remainingPlayers = remaining.map((entry) => entry.player);
+    const eligible = remaining.filter((entry) => {
+      const others = remainingPlayers.filter((candidate) => candidate.playerId !== entry.player.playerId);
+      const reserve = cheapestReserve(others, slotsAfter);
+      return spent + Number(entry.player.capHit) + reserve <= budget;
+    });
+    const pool = eligible.length ? eligible : remaining;
+    pool.sort((a, b) => b.score - a.score || Number(a.player.capHit) - Number(b.player.capHit));
+    const shortlist = pool.slice(0, Math.min(style === "chaos" ? 18 : 7, pool.length));
+    const index = style === "projection-max" || style === "safe-floor" ? 0 : Math.floor(Math.random() * Math.min(4, shortlist.length));
+    const chosen = shortlist[index] || shortlist[0];
+    if (!chosen) break;
+    if (spent + Number(chosen.player.capHit) > budget) {
+      const cheapest = [...remaining].sort((a, b) => Number(a.player.capHit) - Number(b.player.capHit))[0];
+      if (!cheapest || spent + Number(cheapest.player.capHit) > budget) break;
+      selected.push(cheapest.player);
+      spent += Number(cheapest.player.capHit);
+      remaining.splice(remaining.indexOf(cheapest), 1);
+      continue;
+    }
+    selected.push(chosen.player);
+    spent += Number(chosen.player.capHit);
+    remaining.splice(remaining.indexOf(chosen), 1);
+  }
+
+  return { players: selected, spent };
+}
+
+function generateRosterSimulation(poolPlayers, style, salaryCap, rosterLimits) {
+  const signed = poolPlayers.filter((player) => Number.isFinite(Number(player.capHit)) && Number(player.capHit) > 0);
+  const shares = styleBudgetShares(style);
+  const groups = {};
+  let generated = [];
+
+  for (const type of ["F", "D", "G"]) {
+    const candidates = signed.filter((player) => player.rosterType === type);
+    const group = choosePositionGroup(candidates, Number(rosterLimits[type] || 0), salaryCap * shares[type], style);
+    groups[type] = group;
+    generated = generated.concat(group.players);
+  }
+
+  // Fill any rare shortfall with the cheapest legal player at that position.
+  for (const type of ["F", "D", "G"]) {
+    const needed = Number(rosterLimits[type] || 0) - generated.filter((player) => player.rosterType === type).length;
+    if (needed <= 0) continue;
+    const used = new Set(generated.map((player) => String(player.playerId)));
+    const currentSpent = generated.reduce((sum, player) => sum + Number(player.capHit || 0), 0);
+    const cheapest = signed
+      .filter((player) => player.rosterType === type && !used.has(String(player.playerId)))
+      .sort((a, b) => Number(a.capHit) - Number(b.capHit));
+    for (const player of cheapest) {
+      if (generated.filter((item) => item.rosterType === type).length >= Number(rosterLimits[type] || 0)) break;
+      const newSpent = generated.reduce((sum, item) => sum + Number(item.capHit || 0), 0) + Number(player.capHit || 0);
+      if (newSpent <= salaryCap) generated.push(player);
+    }
+    if (currentSpent > salaryCap) break;
+  }
+
+  const totalCap = generated.reduce((sum, player) => sum + Number(player.capHit || 0), 0);
+  const projected = generated.reduce((sum, player) => sum + projectedFantasyPoints(player), 0);
+  const actual = generated.reduce((sum, player) => sum + actualFantasyPoints(player), 0);
+  const rookies = generated.filter((player) => isProjectionOnlyPlayer(player) || Number(player?.draftYear || 0) >= 2024 || (playerAge(player) != null && playerAge(player) <= 21)).length;
+  return {
+    id: `${Date.now()}-${Math.random()}`,
+    style,
+    players: generated,
+    totalCap,
+    projected,
+    actual,
+    rookies,
+    valid: generated.length === Object.values(rosterLimits).reduce((sum, value) => sum + Number(value || 0), 0) && totalCap <= salaryCap
+  };
+}
+
+function assistantComparator(mode) {
+  return (a, b) => {
+    const salaryDiff = Number(a.capHit || Infinity) - Number(b.capHit || Infinity);
+    if (mode === "salary-fpg") return salaryDiff || projectedFantasyPointsPerGame(b) - projectedFantasyPointsPerGame(a);
+    if (mode === "salary-actual-fpg") return salaryDiff || actualFantasyPointsPerGame(b) - actualFantasyPointsPerGame(a);
+    if (mode === "salary-projection") return salaryDiff || projectedFantasyPoints(b) - projectedFantasyPoints(a);
+    if (mode === "actual-fpg") return actualFantasyPointsPerGame(b) - actualFantasyPointsPerGame(a) || salaryDiff;
+    if (mode === "fpg") return projectedFantasyPointsPerGame(b) - projectedFantasyPointsPerGame(a) || salaryDiff;
+    if (mode === "value") return projectedValuePerMillion(b) - projectedValuePerMillion(a) || salaryDiff;
+    return projectedFantasyPoints(b) - projectedFantasyPoints(a) || salaryDiff;
+  };
+}
+
+function buildAssistantPackage(candidates, slots, budget, mode) {
+  const selected = [];
+  let remainingBudget = budget;
+  let available = [...candidates];
+  while (selected.length < slots && available.length) {
+    const remainingSlots = slots - selected.length - 1;
+    const eligible = available.filter((player) => {
+      const others = available.filter((candidate) => candidate.playerId !== player.playerId);
+      return Number(player.capHit) + cheapestReserve(others, remainingSlots) <= remainingBudget;
+    });
+    if (!eligible.length) break;
+    eligible.sort(assistantComparator(mode));
+    let chosen = eligible[0];
+    if (mode === "balanced") {
+      const target = remainingBudget / (remainingSlots + 1);
+      chosen = [...eligible].sort((a, b) => {
+        const scoreA = projectedFantasyPoints(a) - Math.abs(Number(a.capHit) - target) / 120000;
+        const scoreB = projectedFantasyPoints(b) - Math.abs(Number(b.capHit) - target) / 120000;
+        return scoreB - scoreA;
+      })[0];
+    }
+    selected.push(chosen);
+    remainingBudget -= Number(chosen.capHit);
+    available = available.filter((player) => player.playerId !== chosen.playerId);
+  }
+  return {
+    players: selected,
+    totalCap: selected.reduce((sum, player) => sum + Number(player.capHit || 0), 0),
+    projected: selected.reduce((sum, player) => sum + projectedFantasyPoints(player), 0),
+    projectedFpg: selected.reduce((sum, player) => sum + projectedFantasyPointsPerGame(player), 0)
+  };
+}
+
+function RosterAssistant({ poolPlayers, roster, rosterLimits, capRemaining, onDraft, onPreview }) {
+  const currentCounts = roster.reduce((acc, player) => {
+    acc[player.rosterType] = (acc[player.rosterType] || 0) + 1;
+    return acc;
+  }, { F: 0, D: 0, G: 0 });
+  const initialType = ["F", "D", "G"].find((type) => currentCounts[type] < rosterLimits[type]) || "F";
+  const [type, setType] = useState(initialType);
+  const [slots, setSlots] = useState(Math.max(1, Math.min(3, rosterLimits[initialType] - currentCounts[initialType])));
+  const [budgetMillions, setBudgetMillions] = useState(Math.max(1, Math.round(capRemaining / 1_000_000)));
+  const [sortMode, setSortMode] = useState("salary-fpg");
+
+  useEffect(() => {
+    const remaining = Math.max(1, rosterLimits[type] - currentCounts[type]);
+    setSlots((value) => Math.min(Math.max(1, value), remaining));
+  }, [type, rosterLimits.F, rosterLimits.D, rosterLimits.G, currentCounts.F, currentCounts.D, currentCounts.G]);
+
+  const available = useMemo(() => {
+    const rosterIds = new Set(roster.map((player) => String(player.playerId)));
+    const totalBudget = Math.max(0, Number(budgetMillions || 0) * 1_000_000);
+    return poolPlayers
+      .filter((player) => player.rosterType === type)
+      .filter((player) => !rosterIds.has(String(player.playerId)))
+      .filter((player) => Number.isFinite(Number(player.capHit)) && Number(player.capHit) <= totalBudget)
+      .sort(assistantComparator(sortMode));
+  }, [poolPlayers, roster, type, budgetMillions, sortMode]);
+
+  const packages = useMemo(() => {
+    const budget = Math.max(0, Number(budgetMillions || 0) * 1_000_000);
+    const count = Math.max(1, Number(slots || 1));
+    const definitions = [
+      ["Projected Ceiling", "projection"],
+      ["Best Projected FPG", "fpg"],
+      ["Best Last-Season FPG", "actual-fpg"],
+      ["Best Value", "value"],
+      ["Balanced Spend", "balanced"]
+    ];
+    const seen = new Set();
+    return definitions.map(([label, mode]) => ({ label, mode, ...buildAssistantPackage(available, count, budget, mode) }))
+      .filter((option) => option.players.length === count)
+      .filter((option) => {
+        const key = option.players.map((player) => player.playerId).sort().join("-");
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }, [available, slots, budgetMillions]);
+
+  function useCurrentNeed() {
+    const nextType = ["F", "D", "G"].find((candidate) => currentCounts[candidate] < rosterLimits[candidate]) || "F";
+    setType(nextType);
+    setSlots(Math.max(1, rosterLimits[nextType] - currentCounts[nextType]));
+    setBudgetMillions(Math.max(0, Math.floor(capRemaining / 100000) / 10));
+  }
+
+  return (
+    <section className="ai-tool-card roster-assistant-card">
+      <header className="ai-tool-heading">
+        <div><p className="eyebrow">Cap problem solver</p><h2>Roster Assister</h2></div>
+        <button type="button" className="ai-secondary-button" onClick={useCurrentNeed}>Use my remaining needs</button>
+      </header>
+      <p className="ai-tool-intro">Choose the position, number of open spots and total budget. The tool returns several legal ways to spend it.</p>
+      <div className="assistant-controls">
+        <label><span>Position</span><select value={type} onChange={(event) => setType(event.target.value)}><option value="F">Forwards</option><option value="D">Defence</option><option value="G">Goalies</option></select></label>
+        <label><span>Spots needed</span><input type="number" min="1" max={Math.max(1, rosterLimits[type] - currentCounts[type])} value={slots} onChange={(event) => setSlots(Math.max(1, Number(event.target.value || 1)))} /></label>
+        <label><span>Total budget ($M)</span><input type="number" min="0.5" step="0.1" value={budgetMillions} onChange={(event) => setBudgetMillions(event.target.value)} /></label>
+        <label><span>Affordable list sort</span><select value={sortMode} onChange={(event) => setSortMode(event.target.value)}><option value="salary-fpg">Salary → highest projected FPG</option><option value="salary-actual-fpg">Salary → highest last-season FPG</option><option value="salary-projection">Salary → highest projection</option><option value="actual-fpg">Highest last-season FPG</option><option value="fpg">Highest projected FPG</option><option value="projection">Highest projected FPTS</option><option value="value">Best FPTS per $1M</option></select></label>
+      </div>
+
+      <div className="assistant-package-grid">
+        {packages.length ? packages.map((option) => (
+          <article className="assistant-package" key={option.label}>
+            <header><strong>{option.label}</strong><span>{compactMoney(option.totalCap)} · {option.projected.toFixed(1)} P-FPTS</span></header>
+            <div className="assistant-player-list">
+              {option.players.map((player) => (
+                <div className="assistant-player" key={`${option.label}-${player.playerId}`}>
+                  <button type="button" className="assistant-player-preview" onClick={() => onPreview(player)}>
+                    <PlayerHeadshot player={player} className="assistant-player-headshot" alt="" />
+                    <span><strong>{player.name}</strong><small>{compactMoney(player.capHit)} · {actualFantasyPointsPerGame(player).toFixed(2)} FPG · {projectedFantasyPointsPerGame(player).toFixed(2)} P-FPG · {projectedFantasyPoints(player).toFixed(1)} P-FPTS</small></span>
+                  </button>
+                  <button type="button" className="assistant-draft-button" onClick={() => onDraft(player)}>DRAFT</button>
+                </div>
+              ))}
+            </div>
+          </article>
+        )) : <div className="ai-empty-state">No complete {slots}-player package fits inside {compactMoney(Number(budgetMillions || 0) * 1_000_000)}. Increase the budget or reduce the number of spots.</div>}
+      </div>
+
+      <div className="affordable-board">
+        <header><strong>Affordable player board</strong><span>{available.length} options · first 12 shown</span></header>
+        <div className="affordable-list">
+          {available.slice(0, 12).map((player) => (
+            <button type="button" key={`affordable-${player.playerId}`} onClick={() => onPreview(player)}>
+              <span>{player.name}<small>{player.team} · {compactMoney(player.capHit)}</small></span>
+              <b>{actualFantasyPointsPerGame(player).toFixed(2)}<small>FPG</small></b>
+              <b>{projectedFantasyPointsPerGame(player).toFixed(2)}<small>P-FPG</small></b>
+              <b>{projectedFantasyPoints(player).toFixed(1)}<small>P-FPTS</small></b>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GeneratedRosterTable({ simulation, onPreview, salaryCap }) {
+  if (!simulation) return <div className="ai-empty-state generated-roster-empty">Choose a roster style and generate a private simulation. It will not replace your actual draft roster.</div>;
+  const groups = [
+    ["Forwards", simulation.players.filter((player) => player.rosterType === "F")],
+    ["Defence", simulation.players.filter((player) => player.rosterType === "D")],
+    ["Goalies", simulation.players.filter((player) => player.rosterType === "G")]
+  ];
+  return (
+    <div className="generated-roster-result">
+      <div className="generated-roster-summary">
+        <span><small>Status</small><strong className={simulation.valid ? "summary-green" : "summary-red"}>{simulation.valid ? "LEGAL" : "INCOMPLETE"}</strong></span>
+        <span><small>Cap used</small><strong>{money(simulation.totalCap)}</strong></span>
+        <span><small>Cap remaining</small><strong>{money(salaryCap - simulation.totalCap)}</strong></span>
+        <span><small>Projected FPTS</small><strong className="summary-blue">{simulation.projected.toFixed(1)}</strong></span>
+        <span><small>Last-season FPTS</small><strong>{simulation.actual.toFixed(1)}</strong></span>
+        <span><small>Young / rookies</small><strong>{simulation.rookies}</strong></span>
+      </div>
+      <div className="generated-roster-groups">
+        {groups.map(([label, players]) => (
+          <section key={label}>
+            <h3>{label}<span>{players.length}</span></h3>
+            <div className="generated-roster-player-grid">
+              {players.map((player) => (
+                <button type="button" key={`generated-${player.playerId}`} onClick={() => onPreview(player)}>
+                  <PlayerHeadshot player={player} className="generated-player-headshot" alt="" />
+                  <span><strong>{player.name}</strong><small>{player.team} · {compactMoney(player.capHit)}</small></span>
+                  <b>{projectedFantasyPoints(player).toFixed(1)}</b>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RandomRosterGenerator({ poolPlayers, salaryCap, rosterLimits, onPreview }) {
+  const [style, setStyle] = useState("balanced");
+  const [simulation, setSimulation] = useState(null);
+  const selectedStyle = ROSTER_GENERATOR_STYLES.find((item) => item.value === style) || ROSTER_GENERATOR_STYLES[0];
+  return (
+    <section className="ai-tool-card roster-generator-card">
+      <header className="ai-tool-heading"><div><p className="eyebrow">Private computer simulation</p><h2>Random Roster Generator</h2></div><span className="ai-simulation-badge">DOES NOT CHANGE YOUR TEAM</span></header>
+      <p className="ai-tool-intro">Pick a construction style. Every click creates a different legal 12F / 6D / 2G roster under the cap using the static projections.</p>
+      <div className="generator-controls">
+        <label><span>Roster style</span><select value={style} onChange={(event) => setStyle(event.target.value)}>{ROSTER_GENERATOR_STYLES.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
+        <div className="generator-style-description"><strong>{selectedStyle.label}</strong><span>{selectedStyle.description}</span></div>
+        <button type="button" className="generate-roster-button" onClick={() => setSimulation(generateRosterSimulation(poolPlayers, style, salaryCap, rosterLimits))}>GENERATE RANDOM ROSTER</button>
+      </div>
+      <GeneratedRosterTable simulation={simulation} onPreview={onPreview} salaryCap={salaryCap} />
+    </section>
+  );
+}
+
+function AiGeneratedTab({ poolPlayers, roster, rosterLimits, salaryCap, capRemaining, onDraft, onPreview }) {
+  return (
+    <div className="ai-generated-tab-content">
+      <RosterAssistant poolPlayers={poolPlayers} roster={roster} rosterLimits={rosterLimits} capRemaining={capRemaining} onDraft={onDraft} onPreview={onPreview} />
+      <RandomRosterGenerator poolPlayers={poolPlayers} salaryCap={salaryCap} rosterLimits={rosterLimits} onPreview={onPreview} />
+    </div>
+  );
+}
+
 export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, goalieScoring }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("ALL");
@@ -656,6 +1071,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [hoverPreview, setHoverPreview] = useState(null);
   const [poolPlayers, setPoolPlayers] = useState([]);
   const [projectionQuery, setProjectionQuery] = useState("");
+  const [activeDraftView, setActiveDraftView] = useState("pool");
   const [players, setPlayers] = useState([]);
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
@@ -958,16 +1374,23 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     <div className="draft-page-stack champions-draft-page compact-draft-page">
       <div className="draft-workspace-grid compact-draft-workspace">
         <main className="draft-left-column">
-          <ProjectedPerformancePanel
-            player={previewPlayer}
-            projectionData={projectionData}
-            players={poolPlayers}
-            query={projectionQuery}
-            onQuery={setProjectionQuery}
-            onSelect={(player) => setPreviewPlayerId(player.playerId)}
-          />
+          <div className="draft-room-subtabs" role="tablist" aria-label="Draft room tools">
+            <button type="button" className={activeDraftView === "pool" ? "active" : ""} onClick={() => setActiveDraftView("pool")} role="tab" aria-selected={activeDraftView === "pool"}>PLAYER POOL</button>
+            <button type="button" className={activeDraftView === "ai" ? "active" : ""} onClick={() => setActiveDraftView("ai")} role="tab" aria-selected={activeDraftView === "ai"}>AI GENERATED</button>
+          </div>
 
-          <section className="panel champions-player-pool compact-player-pool">
+          {activeDraftView === "pool" ? (
+            <>
+              <ProjectedPerformancePanel
+                player={previewPlayer}
+                projectionData={projectionData}
+                players={poolPlayers}
+                query={projectionQuery}
+                onQuery={setProjectionQuery}
+                onSelect={(player) => setPreviewPlayerId(player.playerId)}
+              />
+
+              <section className="panel champions-player-pool compact-player-pool">
           <div className="player-pool-heading">
             <div>
               <p className="eyebrow">2025–26 actual statistics</p>
@@ -1030,8 +1453,20 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               previewPlayerId={previewPlayer?.playerId || null}
             />
           ) : null}
-          <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
-          </section>
+                <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
+              </section>
+            </>
+          ) : (
+            <AiGeneratedTab
+              poolPlayers={poolPlayers}
+              roster={players}
+              rosterLimits={rosterLimits}
+              salaryCap={salaryCap}
+              capRemaining={capRemaining}
+              onDraft={addPlayer}
+              onPreview={(player) => { setPreviewPlayerId(player.playerId); setActiveDraftView("pool"); }}
+            />
+          )}
         </main>
 
         <aside className="draft-right-rail">

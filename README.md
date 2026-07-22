@@ -466,3 +466,31 @@ This README is the permanent projection rulebook. Future projection reviews shou
 ### Editorial override index (50 players)
 
 Connor McDavid, Nathan MacKinnon, Nikita Kucherov, Macklin Celebrini, Leon Draisaitl, David Pastrnak, Kirill Kaprizov, Cale Makar, Jason Robertson, Matt Boldy, Zach Werenski, Quinn Hughes, Andrei Vasilevskiy, Martin Necas, Nick Suzuki, Wyatt Johnston, Auston Matthews, Jack Hughes, Cole Caufield, Brady Tkachuk, Evan Bouchard, Jack Eichel, Mikko Rantanen, Matthew Tkachuk, Lane Hutson, Logan Thompson, Connor Hellebuyck, Ilya Sorokin, Cutter Gauthier, Kyle Connor, Tage Thompson, Mark Scheifele, Dylan Guenther, Leo Carlsson, Jake Guentzel, Brandon Hagel, Sam Reinhart, Aleksander Barkov, Rasmus Dahlin, Matthew Schaefer, Jake Oettinger, Igor Shesterkin, Clayton Keller, William Nylander, Sidney Crosby, Artemi Panarin, Adrian Kempe, Alex DeBrincat, Mitch Marner, and Tim Stutzle.
+
+
+## Draft Room AI Generated tab
+
+The Draft Room now has two internal views: **Player Pool** and **AI Generated**. The AI Generated view is a local decision-support tool; it does not expose another manager’s roster and the random generator does not overwrite the user’s saved roster.
+
+### Roster Assister
+
+The assister accepts a position, number of remaining spots and a total salary budget. It creates several legal packages from the signed player pool:
+
+- Projected Ceiling
+- Best Projected Fantasy Points per Game
+- Best Value per $1 million
+- Balanced Spend
+
+It also includes an affordable-player board that can be sorted by salary followed by projected FPG, salary followed by projected FPTS, projected FPG, projected FPTS or value. The **Use my remaining needs** button fills the controls from the manager’s current private roster and cap space.
+
+### Random roster generator
+
+The generator creates a private 12-forward, 6-defence and 2-goalie simulation under the league salary cap. Styles include Balanced, High-End + Rookie Fillers, Forward Heavy, Defence Heavy, Goalie Heavy, Highest Projected FPTS, Highest Projected FPG, Best Value, Young Upside, Safe Veterans, Boom or Bust and Random Chaos. Generated teams remain inside the AI Generated view and never replace the actual saved roster.
+
+### Players with zero NHL games
+
+When a player has no NHL games played, the Player Pool displays the static projected G/A/SOG/HIT and projected FPTS in blue instead of misleading zeroes. The separate P-FPTS column remains the official projection column.
+
+### Mobile home standings
+
+The mobile arena board uses a taller standings area so all nine managers, including ninth place, remain visible.
