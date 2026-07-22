@@ -351,3 +351,8 @@ Future Predictions are now edited directly inside each manager's private Locker 
 - Adam now uses the Team Canada / Dirty Doni background.
 - Empty prediction selections now render as solid, high-contrast panels so the background does not show through them.
 - Rob, Ernie, and Adam use the outer prediction-well alignment shared by Joe, Darren, Lucas, and Dan.
+
+
+## Draft room visual update
+
+The draft room now follows the approved NHL Draft-style layout: projected roster across the top, compact cap summary, arena background, player pool with salary remaining, and a Projected Performance panel replacing the old Draft Board. Projection values remain intentionally marked TBD until a data source is selected.

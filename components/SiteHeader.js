@@ -37,8 +37,8 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header">
-      <a className="brand" href="/" aria-label="Champions League home">
-        <span className="brand-mark">CL</span>
+      <a className="brand champions-brand" href="/" aria-label="Champions League home">
+        <img src="/champions-league-logo.png" alt="" />
         <span>
           <strong>Champions League</strong>
           <small>Fantasy Hockey</small>
