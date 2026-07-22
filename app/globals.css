@@ -3808,14 +3808,23 @@ button.performer-row:focus-visible {
 }
 
 .locker-prediction-tile.is-empty {
-  border-style: dashed;
-  border-color: rgba(214, 217, 220, 0.12);
-  background: rgba(2, 2, 2, 0.16);
+  border-style: solid;
+  border-color: rgba(235, 198, 122, 0.62);
+  background: linear-gradient(180deg, rgba(10, 12, 16, 0.97), rgba(2, 3, 5, 0.98));
+  box-shadow:
+    inset 0 0 22px rgba(0, 0, 0, 0.78),
+    0 0 0 1px rgba(0, 0, 0, 0.58);
+}
+
+.locker-prediction-tile.is-empty .locker-prediction-image span {
+  color: #f0d79f;
+  text-shadow: 0 3px 8px #000;
 }
 
 .locker-prediction-tile.is-empty strong,
 .locker-prediction-tile.is-empty small {
-  opacity: 0.64;
+  color: #fff1ce;
+  opacity: 1;
 }
 
 .locker-team-nick .nick-locker-team-total {
@@ -4491,7 +4500,10 @@ body.prediction-editor-open {
 .locker-team-joe .locker-prediction-panel-left,
 .locker-team-darren .locker-prediction-panel-left,
 .locker-team-lucas .locker-prediction-panel-left,
-.locker-team-dan .locker-prediction-panel-left {
+.locker-team-dan .locker-prediction-panel-left,
+.locker-team-rob .locker-prediction-panel-left,
+.locker-team-ernie .locker-prediction-panel-left,
+.locker-team-adam .locker-prediction-panel-left {
   left: 5.75%;
   width: 20.5%;
 }
@@ -4499,7 +4511,10 @@ body.prediction-editor-open {
 .locker-team-joe .locker-prediction-panel-right,
 .locker-team-darren .locker-prediction-panel-right,
 .locker-team-lucas .locker-prediction-panel-right,
-.locker-team-dan .locker-prediction-panel-right {
+.locker-team-dan .locker-prediction-panel-right,
+.locker-team-rob .locker-prediction-panel-right,
+.locker-team-ernie .locker-prediction-panel-right,
+.locker-team-adam .locker-prediction-panel-right {
   right: 5.75%;
   width: 20.5%;
 }

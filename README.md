@@ -343,3 +343,11 @@ Future Predictions are now edited directly inside each manager's private Locker 
 - Player awards open with the top 25 expected candidates and provide full eligible-player search.
 - Changes save immediately to the manager's private Upstash record.
 - The former `/team/<manager>/predictions` URL redirects to that manager's Locker Room.
+
+## Final manager backgrounds and solid TBA predictions
+
+- Rob now uses the Matthew Knies / Leafs background.
+- Ernie now uses the Blues Brothers background.
+- Adam now uses the Team Canada / Dirty Doni background.
+- Empty prediction selections now render as solid, high-contrast panels so the background does not show through them.
+- Rob, Ernie, and Adam use the outer prediction-well alignment shared by Joe, Darren, Lucas, and Dan.
