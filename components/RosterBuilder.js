@@ -1063,6 +1063,175 @@ function AiGeneratedTab({ poolPlayers, roster, rosterLimits, salaryCap, capRemai
   );
 }
 
+
+function parseSalaryInput(value) {
+  const text = String(value || "").trim().toLowerCase().replaceAll(",", "").replaceAll("$", "");
+  if (!text) return null;
+  const multiplier = text.endsWith("m") ? 1_000_000 : text.endsWith("k") ? 1_000 : 1;
+  const numeric = Number(text.replace(/[mk]$/, ""));
+  if (!Number.isFinite(numeric)) return null;
+  return Math.round(numeric * multiplier);
+}
+
+function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt }) {
+  const [query, setQuery] = useState("");
+  const [unresolvedOnly, setUnresolvedOnly] = useState(true);
+  const [values, setValues] = useState({});
+  const [savingId, setSavingId] = useState(null);
+  const [status, setStatus] = useState("");
+  const [rebuilding, setRebuilding] = useState(false);
+
+  const visiblePlayers = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return [...players]
+      .filter((player) => !unresolvedOnly || player.capHit == null)
+      .filter((player) => !normalized
+        || String(player.name || "").toLowerCase().includes(normalized)
+        || String(player.team || "").toLowerCase().includes(normalized))
+      .sort((left, right) => {
+        const unresolvedDifference = Number(left.capHit != null) - Number(right.capHit != null);
+        return unresolvedDifference || String(left.name).localeCompare(String(right.name), "en", { sensitivity: "base" });
+      });
+  }, [players, query, unresolvedOnly]);
+
+  const unresolvedCount = useMemo(
+    () => players.filter((player) => player.capHit == null).length,
+    [players]
+  );
+
+  async function save(player) {
+    const rawValue = values[String(player.playerId)] ?? (player.capHit == null ? "" : String(player.capHit));
+    const capHit = parseSalaryInput(rawValue);
+    if (!Number.isFinite(capHit) || capHit < 0 || capHit > 30_000_000) {
+      setStatus(`Enter a valid salary for ${player.name}, such as 12000000 or 12m.`);
+      return;
+    }
+
+    setSavingId(player.playerId);
+    setStatus(`Saving ${player.name}…`);
+    try {
+      const response = await fetch("/api/salaries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          playerId: player.playerId,
+          name: player.name,
+          capHit,
+          source: "manual"
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Salary could not be saved.");
+
+      onSalarySaved(player, capHit, data.record || null);
+      setValues((current) => ({ ...current, [String(player.playerId)]: String(capHit) }));
+      setStatus(`${player.name} is now ${money(capHit)} for every manager.`);
+      window.dispatchEvent(new CustomEvent("champions-league:salary-updated", {
+        detail: { playerId: player.playerId, capHit }
+      }));
+    } catch (error) {
+      setStatus(error.message || "Salary could not be saved.");
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function rebuildMaster() {
+    setRebuilding(true);
+    setStatus("Rebuilding the frozen salary master…");
+    try {
+      const response = await fetch("/api/salaries/refresh", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "The salary master could not be rebuilt.");
+      setStatus(`Frozen master rebuilt with ${Number(data.recordCount || 0).toLocaleString("en-CA")} contracts and ${Number(data.correctionCount || 0)} verified corrections.`);
+      onMasterRebuilt();
+    } catch (error) {
+      setStatus(error.message || "The salary master could not be rebuilt.");
+    } finally {
+      setRebuilding(false);
+    }
+  }
+
+  return (
+    <section className="panel salary-admin-panel">
+      <div className="salary-admin-heading">
+        <div>
+          <p className="eyebrow">Nick only · league-wide control</p>
+          <h2>Salary Admin</h2>
+          <p>Corrections saved here override the frozen master for every manager.</p>
+        </div>
+        <div className="salary-admin-summary">
+          <span><small>Master contracts</small><strong>{Number(salaryData?.recordCount || 0).toLocaleString("en-CA")}</strong></span>
+          <span><small>Unresolved pool players</small><strong>{unresolvedCount}</strong></span>
+        </div>
+      </div>
+
+      <div className="salary-admin-actions">
+        <div className="search-box draft-search-box">
+          <span>⌕</span>
+          <input
+            type="search"
+            placeholder="Search a player or team…"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+        <label className="salary-admin-toggle">
+          <input
+            type="checkbox"
+            checked={unresolvedOnly}
+            onChange={(event) => setUnresolvedOnly(event.target.checked)}
+          />
+          <span>Show unresolved only</span>
+        </label>
+        <a className="salary-admin-link" href="/api/salaries/export">Download master CSV</a>
+        <button type="button" className="salary-admin-rebuild" onClick={rebuildMaster} disabled={rebuilding}>
+          {rebuilding ? "REBUILDING…" : "REBUILD FROZEN MASTER"}
+        </button>
+      </div>
+
+      <p className="salary-admin-status" aria-live="polite">{status || "Use the editor only for a contract that escaped the completed audit or is signed later."}</p>
+
+      <div className="salary-admin-table-wrap">
+        <table className="salary-admin-table">
+          <thead>
+            <tr><th>Player</th><th>Team</th><th>Position</th><th>Current</th><th>New salary</th><th>Save</th></tr>
+          </thead>
+          <tbody>
+            {visiblePlayers.map((player) => (
+              <tr key={player.playerId} className={player.capHit == null ? "unresolved" : ""}>
+                <td><strong>{player.name}</strong><small>ID {player.playerId}</small></td>
+                <td>{player.team || "—"}</td>
+                <td>{player.position || player.rosterType || "—"}</td>
+                <td>{compactMoney(player.capHit)}</td>
+                <td>
+                  <input
+                    inputMode="decimal"
+                    aria-label={`New salary for ${player.name}`}
+                    placeholder={player.capHit == null ? "e.g. 1.2m" : String(player.capHit)}
+                    value={values[String(player.playerId)] ?? ""}
+                    onChange={(event) => setValues((current) => ({
+                      ...current,
+                      [String(player.playerId)]: event.target.value
+                    }))}
+                    onKeyDown={(event) => { if (event.key === "Enter") save(player); }}
+                  />
+                </td>
+                <td>
+                  <button type="button" onClick={() => save(player)} disabled={savingId === player.playerId}>
+                    {savingId === player.playerId ? "Saving…" : "Save"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {visiblePlayers.length === 0 ? <div className="empty-state">No players match this salary view.</div> : null}
+    </section>
+  );
+}
+
 export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, goalieScoring }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("ALL");
@@ -1070,6 +1239,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [previewPlayerId, setPreviewPlayerId] = useState(null);
   const [hoverPreview, setHoverPreview] = useState(null);
   const [poolPlayers, setPoolPlayers] = useState([]);
+  const [poolReloadVersion, setPoolReloadVersion] = useState(0);
   const [projectionQuery, setProjectionQuery] = useState("");
   const [activeDraftView, setActiveDraftView] = useState("pool");
   const [players, setPlayers] = useState([]);
@@ -1110,7 +1280,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
     loadPool();
     return () => { cancelled = true; };
-  }, []);
+  }, [poolReloadVersion]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1224,6 +1394,77 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     });
   }, [poolPlayers, position, nhlTeam, query]);
 
+
+  const poolPlayerIds = useMemo(
+    () => poolPlayers.map((player) => String(player.playerId)).filter(Boolean).join(","),
+    [poolPlayers]
+  );
+
+  function applySalaryUpdate(player, capHit, record = null) {
+    const updatedAt = record?.updatedAt || new Date().toISOString();
+    const update = (item) => String(item.playerId) === String(player.playerId)
+      ? {
+          ...item,
+          capHit,
+          salarySource: record?.source || "manual",
+          salaryUpdatedAt: updatedAt,
+          salaryState: "signed"
+        }
+      : item;
+
+    setPoolPlayers((current) => current.map(update));
+    setPlayers((current) => current.map(update));
+  }
+
+  useEffect(() => {
+    if (!poolPlayerIds) return undefined;
+    let cancelled = false;
+
+    async function syncSalaryOverrides() {
+      const ids = poolPlayerIds.split(",").filter(Boolean);
+      const chunks = [];
+      for (let index = 0; index < ids.length; index += 100) chunks.push(ids.slice(index, index + 100));
+
+      try {
+        const responses = await Promise.all(chunks.map(async (chunk) => {
+          const response = await fetch(`/api/salaries?ids=${encodeURIComponent(chunk.join(","))}`, { cache: "no-store" });
+          if (!response.ok) return {};
+          const data = await response.json();
+          return data.records || {};
+        }));
+        if (cancelled) return;
+
+        const records = Object.assign({}, ...responses);
+        if (Object.keys(records).length === 0) return;
+        const update = (item) => {
+          const record = records[String(item.playerId)];
+          if (!record || !Number.isFinite(Number(record.capHit))) return item;
+          const capHit = Number(record.capHit);
+          if (Number(item.capHit) === capHit && item.salarySource === record.source) return item;
+          return {
+            ...item,
+            capHit,
+            salarySource: record.source || "manual",
+            salaryUpdatedAt: record.updatedAt || item.salaryUpdatedAt || null,
+            salaryState: "signed"
+          };
+        };
+        setPoolPlayers((current) => current.map(update));
+        setPlayers((current) => current.map(update));
+      } catch {
+        // A brief background sync failure should not interrupt the draft room.
+      }
+    }
+
+    const interval = window.setInterval(syncSalaryOverrides, 30_000);
+    const onSalaryUpdated = () => syncSalaryOverrides();
+    window.addEventListener("champions-league:salary-updated", onSalaryUpdated);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("champions-league:salary-updated", onSalaryUpdated);
+    };
+  }, [poolPlayerIds]);
 
   const previewPlayer = useMemo(() => (
     poolPlayers.find((player) => player.playerId === previewPlayerId)
@@ -1356,18 +1597,15 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   }, [loadingRoster, players, team.slug]);
 
   const salaryNote = useMemo(() => {
-    if (loadingPool) return "Loading the complete 2026–27 salary list before opening the draft table…";
-    if (salaryData?.error) return `Salary refresh warning: ${salaryData.error}`;
-    if (!salaryData?.recordCount) return "Salary data is unavailable right now.";
+    if (loadingPool) return "Loading the frozen 2026–27 salary master before opening the draft table…";
+    if (salaryData?.error) return `Salary master warning: ${salaryData.error}`;
+    if (!salaryData?.recordCount) return "The frozen salary master is unavailable right now.";
 
-    const refreshed = salaryData.updatedAt
+    const frozen = salaryData.updatedAt
       ? new Date(salaryData.updatedAt).toLocaleString()
       : "recently";
-    const failed = salaryData.failedTeamCount
-      ? ` · ${salaryData.failedTeamCount} team page${salaryData.failedTeamCount === 1 ? "" : "s"} could not refresh`
-      : "";
-    const stale = salaryData.stale ? " · using the most recent saved snapshot" : "";
-    return `2026–27 cap hits refreshed from CapSpace ${refreshed}${failed}${stale}. Players without a signed contract are marked unsigned.`;
+    const corrections = Number(salaryData.correctionCount || 0);
+    return `${Number(salaryData.recordCount).toLocaleString("en-CA")} 2026–27 contracts frozen ${frozen}, including ${corrections} verified recent correction${corrections === 1 ? "" : "s"}. Players without a signed contract are marked unsigned.`;
   }, [loadingPool, salaryData]);
 
   return (
@@ -1377,6 +1615,9 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           <div className="draft-room-subtabs" role="tablist" aria-label="Draft room tools">
             <button type="button" className={activeDraftView === "pool" ? "active" : ""} onClick={() => setActiveDraftView("pool")} role="tab" aria-selected={activeDraftView === "pool"}>PLAYER POOL</button>
             <button type="button" className={activeDraftView === "ai" ? "active" : ""} onClick={() => setActiveDraftView("ai")} role="tab" aria-selected={activeDraftView === "ai"}>AI GENERATED</button>
+            {team.slug === "nick" ? (
+              <button type="button" className={activeDraftView === "salary" ? "active" : ""} onClick={() => setActiveDraftView("salary")} role="tab" aria-selected={activeDraftView === "salary"}>SALARY ADMIN</button>
+            ) : null}
           </div>
 
           {activeDraftView === "pool" ? (
@@ -1456,7 +1697,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
                 <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
               </section>
             </>
-          ) : (
+          ) : activeDraftView === "ai" ? (
             <AiGeneratedTab
               poolPlayers={poolPlayers}
               roster={players}
@@ -1466,7 +1707,14 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               onDraft={addPlayer}
               onPreview={(player) => { setPreviewPlayerId(player.playerId); setActiveDraftView("pool"); }}
             />
-          )}
+          ) : team.slug === "nick" ? (
+            <SalaryAdminPanel
+              players={poolPlayers}
+              salaryData={salaryData}
+              onSalarySaved={applySalaryUpdate}
+              onMasterRebuilt={() => setPoolReloadVersion((current) => current + 1)}
+            />
+          ) : null}
         </main>
 
         <aside className="draft-right-rail">

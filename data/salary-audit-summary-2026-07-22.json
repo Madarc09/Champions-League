@@ -1,0 +1,32 @@
+{
+  "season": "2026-27",
+  "completedAt": "2026-07-22",
+  "recentContractsChecked": 14,
+  "confirmedLaggingSourceEntries": 1,
+  "confirmedLaggingPlayers": [
+    {
+      "name": "Jason Robertson",
+      "team": "DAL",
+      "capHit": 12000000,
+      "signedDate": "2026-07-21"
+    }
+  ],
+  "verifiedBootstrapSafeguards": [
+    {
+      "name": "Jason Robertson",
+      "team": "DAL",
+      "capHit": 12000000
+    },
+    {
+      "name": "Gavin McKenna",
+      "team": "TOR",
+      "capHit": 1075000
+    }
+  ],
+  "staticMaster": {
+    "storage": "Upstash Redis",
+    "automaticRefresh": false,
+    "manualRebuildRole": "nick",
+    "manualOverridesRole": "nick"
+  }
+}

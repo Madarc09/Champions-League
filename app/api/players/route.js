@@ -2,16 +2,14 @@ import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
+import { getStaticSalaryMaster } from "@/lib/static-salary-master";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
 import { createPlayerProjection } from "@/lib/projections";
 import { applyStaticProjection, staticProjectionSummary } from "@/lib/static-projections";
 import { getNhlHistorySnapshot, findNhlHistory } from "@/lib/nhl-history";
 import { projectionContextFor } from "@/data/projection-context";
-import {
-  canonicalPlayerName,
-  getCapSpaceSalarySnapshot
-} from "@/lib/capspace-snapshot";
+import { canonicalPlayerName } from "@/lib/capspace-snapshot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -88,7 +86,7 @@ export async function GET(request) {
     getPlayerPool()
       .then((pool) => ({ pool, error: null }))
       .catch((error) => ({ pool: null, error })),
-    getCapSpaceSalarySnapshot()
+    getStaticSalaryMaster()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error })),
     getRankingSnapshot()
@@ -114,7 +112,7 @@ export async function GET(request) {
   const salarySnapshot = salaryResult.snapshot;
   const salaryError = salaryResult.error?.message || null;
   if (salaryResult.error) {
-    console.error("Salary snapshot unavailable:", salaryResult.error);
+    console.error("Frozen salary master unavailable:", salaryResult.error);
   }
 
   const matches = searchPlayers(
@@ -157,12 +155,14 @@ export async function GET(request) {
       ...player,
       capHit: Number.isFinite(capHit) ? capHit : null,
       salarySource: selected?.source || (demoCapHit != null ? "demo" : null),
-      salaryUpdatedAt: override?.updatedAt || salarySnapshot?.updatedAt || null,
+      salaryUpdatedAt: override?.updatedAt || selected?.verifiedAt || salarySnapshot?.initializedAt || null,
       salaryState: Number.isFinite(capHit) ? "signed" : "unsigned",
       expectedRanks,
       projection
     };
   });
+
+  const unresolvedSalaryCount = players.filter((player) => player.capHit == null).length;
 
   // Every Champions League roster is independent. A player selected by one
   // manager remains available to every other manager.
@@ -176,16 +176,19 @@ export async function GET(request) {
       updatedAt: playerResult.pool.updatedAt,
       counts: playerResult.pool.counts,
       stale: Boolean(playerResult.pool.stale),
-      warning: playerResult.pool.warning || null
+      warning: playerResult.pool.warning || null,
+      duplicateAudit: playerResult.pool.duplicateAudit || null
     },
     salaryData: {
       source: salarySnapshot?.source || null,
       sourceUrl: salarySnapshot?.sourceUrl || null,
-      updatedAt: salarySnapshot?.updatedAt || null,
+      updatedAt: salarySnapshot?.initializedAt || null,
+      sourceCapturedAt: salarySnapshot?.sourceCapturedAt || null,
       recordCount: salarySnapshot?.recordCount || 0,
-      teamCount: salarySnapshot?.teamCount || 0,
-      failedTeamCount: salarySnapshot?.failedTeams?.length || 0,
-      stale: Boolean(salarySnapshot?.stale),
+      correctionCount: salarySnapshot?.correctionCount || 0,
+      matchedPlayerCount: players.length - unresolvedSalaryCount,
+      unresolvedPlayerCount: unresolvedSalaryCount,
+      frozen: Boolean(salarySnapshot),
       error: salaryError
     },
     projectionData: {

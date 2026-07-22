@@ -1,31 +1,28 @@
 import { NextResponse } from "next/server";
-import { getCapSpaceSalarySnapshot } from "@/lib/capspace-snapshot";
+import { managerFromRequest } from "@/lib/auth";
+import { rebuildStaticSalaryMaster } from "@/lib/static-salary-master";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-function adminAuthorized(request) {
-  if (!process.env.ADMIN_KEY) return true;
-  return request.headers.get("x-admin-key") === process.env.ADMIN_KEY;
-}
-
 export async function POST(request) {
-  if (!adminAuthorized(request)) {
-    return NextResponse.json({ error: "Invalid admin key." }, { status: 401 });
+  const manager = await managerFromRequest(request);
+  if (manager?.slug !== "nick") {
+    return NextResponse.json({ error: "Only Nick can rebuild the league salary master." }, { status: 403 });
   }
 
   try {
-    const snapshot = await getCapSpaceSalarySnapshot({ force: true });
+    const master = await rebuildStaticSalaryMaster();
     return NextResponse.json({
-      source: snapshot.source,
-      updatedAt: snapshot.updatedAt,
-      recordCount: snapshot.recordCount,
-      teamCount: snapshot.teamCount,
-      failedTeams: snapshot.failedTeams
+      source: master.source,
+      initializedAt: master.initializedAt,
+      sourceCapturedAt: master.sourceCapturedAt,
+      recordCount: master.recordCount,
+      correctionCount: master.correctionCount
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error?.message || "Salary refresh failed." },
+      { error: error?.message || "Salary master rebuild failed." },
       { status: 502 }
     );
   }

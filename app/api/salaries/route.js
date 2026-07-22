@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSalaryRecords, saveSalaryRecord, saveSalaryRecords } from "@/lib/salaries";
-
-function adminAuthorized(request) {
-  if (!process.env.ADMIN_KEY) return true;
-  return request.headers.get("x-admin-key") === process.env.ADMIN_KEY;
-}
+import { managerFromRequest } from "@/lib/auth";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -19,8 +15,9 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  if (!adminAuthorized(request)) {
-    return NextResponse.json({ error: "Invalid admin key." }, { status: 401 });
+  const manager = await managerFromRequest(request);
+  if (manager?.slug !== "nick") {
+    return NextResponse.json({ error: "Only Nick can update league salaries." }, { status: 403 });
   }
 
   const body = await request.json();
