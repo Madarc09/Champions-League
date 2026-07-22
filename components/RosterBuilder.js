@@ -246,6 +246,7 @@ function LineupPlayerCard({ player, onRemove }) {
           title={`Remove ${player.name} from the roster`}
           aria-label={`Remove ${player.name} from the roster`}
         >
+          <span className="lineup-player-name" title={player.name}>{player.name}</span>
           <PlayerHeadshot player={player} className="lineup-player-headshot" alt="" />
           <span className="lineup-player-quick-stats">
             <strong>{compactMoney(player.capHit)}</strong>
@@ -254,8 +255,9 @@ function LineupPlayerCard({ player, onRemove }) {
         </button>
       ) : (
         <div className="empty-lineup-face" aria-label="Open roster slot">
+          <span className="lineup-player-name">Open spot</span>
           <img src={FALLBACK_HEADSHOT} alt="" />
-          <span>Open</span>
+          <span>Available</span>
         </div>
       )}
     </div>
@@ -290,59 +292,78 @@ function DefencePair({ number, players, onRemove }) {
   );
 }
 
-function LineupCard({ players, onRemove, salaryCap, totalCap, capRemaining }) {
+function LineupCard({
+  players,
+  onRemove,
+  salaryCap,
+  totalCap,
+  capRemaining,
+  totalFantasyPoints,
+  rosterComplete,
+  saveStatus,
+  persistence
+}) {
   const forwards = players.filter((player) => player.rosterType === "F");
   const defence = players.filter((player) => player.rosterType === "D");
   const goalies = players.filter((player) => player.rosterType === "G");
 
   return (
-    <div className="panel lineup-board">
+    <section className="panel lineup-board lineup-board-top">
       <div className="lineup-board-header">
-        <div>
-          <p className="eyebrow">Daily lineup card</p>
+        <div className="lineup-heading-copy">
+          <p className="eyebrow">Live projected lineup</p>
           <h2>Projected roster</h2>
-          <small>Click a player&apos;s face to remove him.</small>
+          <small>Names, salary and 2025–26 FPTS are shown on every card. Click a player to remove him.</small>
         </div>
-        <div className={`lineup-cap-summary ${capRemaining < 0 ? "over" : ""}`}>
-          <small>Cap remaining</small>
-          <strong>{money(capRemaining)}</strong>
-          <span>{money(totalCap)} used · {players.length}/20</span>
-          <span>{money(salaryCap)} limit</span>
+        <div className="lineup-summary-grid" aria-label="Roster and salary cap summary">
+          <div><small>Cap limit</small><strong>{compactMoney(salaryCap)}</strong></div>
+          <div><small>Cap used</small><strong>{compactMoney(totalCap)}</strong></div>
+          <div className={capRemaining < 0 ? "over" : "remaining"}><small>Remaining</small><strong>{compactMoney(capRemaining)}</strong></div>
+          <div><small>Roster</small><strong>{players.length}/20</strong></div>
+          <div><small>Team FPTS</small><strong>{totalFantasyPoints.toFixed(1)}</strong></div>
+          <div className={rosterComplete && capRemaining >= 0 ? "legal" : "building"}><small>Status</small><strong>{rosterComplete && capRemaining >= 0 ? "Legal" : "Building"}</strong></div>
         </div>
       </div>
 
-      <section className="lineup-group">
-        <h3>Forwards</h3>
-        {[0, 1, 2, 3].map((line) => (
-          <ForwardLine
-            key={line}
-            number={line + 1}
-            players={forwards.slice(line * 3, line * 3 + 3)}
-            onRemove={onRemove}
-          />
-        ))}
-      </section>
+      <div className="lineup-top-grid">
+        <section className="lineup-group forwards-group">
+          <h3>Forwards <span>{forwards.length}/12</span></h3>
+          {[0, 1, 2, 3].map((line) => (
+            <ForwardLine
+              key={line}
+              number={line + 1}
+              players={forwards.slice(line * 3, line * 3 + 3)}
+              onRemove={onRemove}
+            />
+          ))}
+        </section>
 
-      <section className="lineup-group">
-        <h3>Defence</h3>
-        {[0, 1, 2].map((pair) => (
-          <DefencePair
-            key={pair}
-            number={pair + 1}
-            players={defence.slice(pair * 2, pair * 2 + 2)}
-            onRemove={onRemove}
-          />
-        ))}
-      </section>
+        <section className="lineup-group defence-group">
+          <h3>Defence <span>{defence.length}/6</span></h3>
+          {[0, 1, 2].map((pair) => (
+            <DefencePair
+              key={pair}
+              number={pair + 1}
+              players={defence.slice(pair * 2, pair * 2 + 2)}
+              onRemove={onRemove}
+            />
+          ))}
+        </section>
 
-      <section className="lineup-group goalie-group">
-        <h3>Goalies</h3>
-        <div className="lineup-row-cards two-up">
-          <LineupPlayerCard player={goalies[0] || null} onRemove={onRemove} />
-          <LineupPlayerCard player={goalies[1] || null} onRemove={onRemove} />
-        </div>
-      </section>
-    </div>
+        <section className="lineup-group goalie-group">
+          <h3>Goalies <span>{goalies.length}/2</span></h3>
+          <div className="lineup-row-cards goalie-cards">
+            <LineupPlayerCard player={goalies[0] || null} onRemove={onRemove} />
+            <LineupPlayerCard player={goalies[1] || null} onRemove={onRemove} />
+          </div>
+        </section>
+      </div>
+
+      <div className="lineup-save-strip">
+        <span>{saveStatus}</span>
+        <strong>{persistence === "private" ? "Private Upstash · auto-save · cross-device sync" : "Storage unavailable"}</strong>
+      </div>
+    </section>
   );
 }
 
@@ -635,114 +656,87 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   }, [loadingPool, salaryData]);
 
   return (
-    <>
-      <div className="panel cap-dashboard">
-        <div className="cap-main">
+    <div className="draft-page-stack">
+      <LineupCard
+        players={players}
+        onRemove={removePlayer}
+        salaryCap={salaryCap}
+        totalCap={totalCap}
+        capRemaining={capRemaining}
+        totalFantasyPoints={totalFantasyPoints}
+        rosterComplete={rosterComplete}
+        saveStatus={loadingRoster ? "Loading roster…" : saveStatus}
+        persistence={persistence}
+      />
+
+      <section className="panel draft-room-panel draft-room-panel-full">
+        <div className="draft-room-heading">
           <div>
-            <p className="eyebrow">Salary cap</p>
-            <strong>{money(totalCap)}</strong>
-            <span>of {money(salaryCap)}</span>
+            <p className="eyebrow">2025–26 player leaderboard</p>
+            <h2>Draft room</h2>
+            <p>Click a player&apos;s name to add him. Your projected lineup stays directly above the board while you build.</p>
           </div>
-          <div className={capRemaining < 0 ? "cap-remaining over" : "cap-remaining"}>
-            <small>Remaining</small>
-            <strong>{money(capRemaining)}</strong>
+          <div className="scoring-badge scoring-badge-wide">
+            <strong>Skaters</strong>
+            <span>G {scoring.goals} · A {scoring.assists} · HIT {scoring.hits} · SOG {scoring.shots}</span>
+            <strong>Goalies</strong>
+            <span>SV {goalieScoring.saves} · GA {goalieScoring.goalsAgainst} · W {goalieScoring.wins} · G {goalieScoring.goals} · A {goalieScoring.assists}</span>
           </div>
         </div>
-        <div className="cap-track" aria-label={`${Math.max(0, Math.min(100, totalCap / salaryCap * 100)).toFixed(1)} percent of cap used`}>
-          <span style={{ width: `${Math.max(0, Math.min(100, totalCap / salaryCap * 100))}%` }} />
-        </div>
-        <div className="dashboard-stats">
-          <span><strong>{players.length}/20</strong> rostered</span>
-          <span><strong>{totalFantasyPoints.toFixed(1)}</strong> 2025–26 FP</span>
-          <span><strong>{persistence === "private" ? "Private Upstash" : "Unavailable"}</strong> storage</span>
-          <span className={rosterComplete ? "legal-status complete" : "legal-status"}>
-            <strong>{rosterComplete && capRemaining >= 0 ? "Legal" : "Building"}</strong> roster status
-          </span>
-        </div>
-        <div className="save-row auto-save-row">
-          <p>{loadingRoster ? "Loading…" : saveStatus}</p>
-          <span className="auto-save-badge">Auto-save · cross-device sync</span>
-        </div>
-      </div>
 
-      <div className="builder-grid draft-builder-grid">
-        <section className="panel draft-room-panel">
-          <div className="draft-room-heading">
-            <div>
-              <p className="eyebrow">2025–26 player leaderboard</p>
-              <h2>Draft room</h2>
-              <p>Click a player&apos;s name to add him. NHL headshots and current teams appear directly on the board, and every stat column can be sorted.</p>
-            </div>
-            <div className="scoring-badge scoring-badge-wide">
-              <strong>Skaters</strong>
-              <span>G {scoring.goals} · A {scoring.assists} · HIT {scoring.hits} · SOG {scoring.shots}</span>
-              <strong>Goalies</strong>
-              <span>SV {goalieScoring.saves} · GA {goalieScoring.goalsAgainst} · W {goalieScoring.wins} · G {goalieScoring.goals} · A {goalieScoring.assists}</span>
-            </div>
-          </div>
-
-          <div className="draft-controls">
-            <div className="search-box draft-search-box">
-              <span>⌕</span>
-              <input
-                id="player-search"
-                type="search"
-                placeholder="Search McDavid, Makar, TOR…"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </div>
-            <div className="draft-filter-group">
-              <div className="filter-tabs draft-filter-tabs" role="group" aria-label="Position filter">
-                {[["ALL", "All"], ["F", "Forwards"], ["D", "Defence"], ["G", "Goalies"]].map(([value, label]) => (
-                  <button
-                    type="button"
-                    key={value}
-                    className={position === value ? "active" : ""}
-                    onClick={() => setPosition(value)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <label className="team-filter-select">
-                <span>NHL team</span>
-                <select value={nhlTeam} onChange={(event) => setNhlTeam(event.target.value)}>
-                  <option value="ALL">All teams</option>
-                  {teamOptions.map((teamCode) => (
-                    <option key={teamCode} value={teamCode}>{teamCode}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-
-          {loadingPool ? <div className="empty-state">Loading NHL players, headshots and 2026–27 salaries…</div> : null}
-          {!loadingPool && poolError ? <div className="empty-state error-state">{poolError}</div> : null}
-          {!loadingPool && !poolError && filteredPlayers.length === 0 ? (
-            <div className="empty-state">No players match that search.</div>
-          ) : null}
-          {!loadingPool && !poolError && filteredPlayers.length > 0 ? (
-            <DraftTable
-              players={filteredPlayers}
-              roster={players}
-              rosterLimits={rosterLimits}
-              salaryCap={salaryCap}
-              totalCap={totalCap}
-              onDraft={addPlayer}
+        <div className="draft-controls">
+          <div className="search-box draft-search-box">
+            <span>⌕</span>
+            <input
+              id="player-search"
+              type="search"
+              placeholder="Search McDavid, Makar, TOR…"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
             />
-          ) : null}
-          <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
-        </section>
+          </div>
+          <div className="draft-filter-group">
+            <div className="filter-tabs draft-filter-tabs" role="group" aria-label="Position filter">
+              {[["ALL", "All"], ["F", "Forwards"], ["D", "Defence"], ["G", "Goalies"]].map(([value, label]) => (
+                <button
+                  type="button"
+                  key={value}
+                  className={position === value ? "active" : ""}
+                  onClick={() => setPosition(value)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <label className="team-filter-select">
+              <span>NHL team</span>
+              <select value={nhlTeam} onChange={(event) => setNhlTeam(event.target.value)}>
+                <option value="ALL">All teams</option>
+                {teamOptions.map((teamCode) => (
+                  <option key={teamCode} value={teamCode}>{teamCode}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
 
-        <LineupCard
-          players={players}
-          onRemove={removePlayer}
-          salaryCap={salaryCap}
-          totalCap={totalCap}
-          capRemaining={capRemaining}
-        />
-      </div>
-    </>
+        {loadingPool ? <div className="empty-state">Loading NHL players, headshots and 2026–27 salaries…</div> : null}
+        {!loadingPool && poolError ? <div className="empty-state error-state">{poolError}</div> : null}
+        {!loadingPool && !poolError && filteredPlayers.length === 0 ? (
+          <div className="empty-state">No players match that search.</div>
+        ) : null}
+        {!loadingPool && !poolError && filteredPlayers.length > 0 ? (
+          <DraftTable
+            players={filteredPlayers}
+            roster={players}
+            rosterLimits={rosterLimits}
+            salaryCap={salaryCap}
+            totalCap={totalCap}
+            onDraft={addPlayer}
+          />
+        ) : null}
+        <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
+      </section>
+    </div>
   );
 }

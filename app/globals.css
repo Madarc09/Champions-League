@@ -4518,3 +4518,241 @@ body.prediction-editor-open {
   right: 5.75%;
   width: 20.5%;
 }
+
+/* Draft Room redesign: projected roster first, all cap information inside it. */
+.draft-page-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.cap-dashboard { display: none !important; }
+
+.lineup-board.lineup-board-top {
+  position: relative;
+  max-height: none;
+  padding: 0 16px 12px;
+  overflow: visible;
+}
+
+.lineup-board-top::before { inset: 82px 10px 10px; }
+
+.lineup-board-top .lineup-board-header {
+  position: relative;
+  top: auto;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.75fr) minmax(620px, 1.75fr);
+  align-items: center;
+  gap: 18px;
+  margin: 0 -16px;
+  padding: 13px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #132742 0%, #102139 100%);
+  box-shadow: none;
+}
+
+.lineup-heading-copy h2 {
+  margin: 0;
+  font-size: 1.55rem;
+  letter-spacing: -0.035em;
+}
+
+.lineup-heading-copy small {
+  max-width: 520px;
+  line-height: 1.35;
+}
+
+.lineup-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(82px, 1fr));
+  gap: 7px;
+}
+
+.lineup-summary-grid > div {
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  background: rgba(3,10,19,0.28);
+  text-align: center;
+}
+
+.lineup-summary-grid small,
+.lineup-summary-grid strong {
+  display: block;
+  white-space: nowrap;
+}
+
+.lineup-summary-grid small {
+  color: #91a3b8;
+  font-size: 0.53rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.lineup-summary-grid strong {
+  margin-top: 3px;
+  overflow: hidden;
+  color: #eef4fb;
+  font-size: 0.77rem;
+  font-weight: 950;
+  text-overflow: ellipsis;
+}
+
+.lineup-summary-grid .remaining strong,
+.lineup-summary-grid .legal strong { color: var(--green); }
+.lineup-summary-grid .over strong { color: var(--red); }
+.lineup-summary-grid .building strong { color: var(--gold-2); }
+
+.lineup-top-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.05fr) minmax(150px, 0.5fr);
+  gap: 12px;
+  padding-top: 11px;
+}
+
+.lineup-top-grid .lineup-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.lineup-top-grid .lineup-group h3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 6px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  color: #f2f6fb;
+  background: rgba(18,33,57,0.86);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lineup-top-grid .lineup-group h3 span {
+  color: var(--gold-2);
+  font-size: 0.62rem;
+}
+
+.lineup-top-grid .lineup-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.lineup-top-grid .line-number {
+  display: grid;
+  place-items: center;
+  min-height: 98px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  color: #8394a9;
+  background: rgba(0,0,0,0.15);
+  font-size: 0.54rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.lineup-top-grid .lineup-row-cards { gap: 5px; }
+.lineup-top-grid .goalie-cards { grid-template-columns: 1fr; }
+
+.lineup-board-top .lineup-player-card.image-only,
+.lineup-board-top .lineup-player-image-button {
+  min-height: 98px;
+  height: 98px;
+}
+
+.lineup-board-top .lineup-player-image-button {
+  grid-template-rows: 21px minmax(0, 1fr) 24px;
+}
+
+.lineup-board-top .lineup-player-name {
+  display: block;
+  width: 100%;
+  padding: 4px 5px 2px;
+  overflow: hidden;
+  color: #f4f7fb;
+  background: rgba(3,8,15,0.88);
+  font-size: 0.58rem;
+  font-weight: 950;
+  line-height: 1.05;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lineup-board-top .lineup-player-headshot {
+  width: 100%;
+  height: 53px;
+  min-height: 0;
+}
+
+.lineup-board-top .lineup-player-quick-stats {
+  min-height: 24px;
+  padding: 5px 6px;
+}
+
+.lineup-board-top .lineup-player-quick-stats strong,
+.lineup-board-top .lineup-player-quick-stats span { font-size: 0.53rem; }
+
+.lineup-board-top .empty-lineup-face {
+  grid-template-rows: 21px minmax(0, 1fr) 20px;
+  height: 96px;
+  font-size: 0.52rem;
+}
+
+.lineup-board-top .empty-lineup-face .lineup-player-name { align-self: start; }
+.lineup-board-top .empty-lineup-face img { width: 45px; height: 45px; margin: 0; opacity: 0.25; }
+
+.lineup-save-strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 7px 9px 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  color: #9caec1;
+  font-size: 0.62rem;
+}
+
+.lineup-save-strip strong {
+  color: #bff1d9;
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+
+.draft-room-panel-full {
+  min-width: 0;
+  padding: 18px;
+}
+
+.draft-room-panel-full .draft-table-scroll {
+  max-height: 560px;
+}
+
+@media (max-width: 1180px) {
+  .lineup-board-top .lineup-board-header {
+    grid-template-columns: 1fr;
+  }
+  .lineup-summary-grid { grid-template-columns: repeat(6, minmax(76px, 1fr)); }
+  .lineup-top-grid { grid-template-columns: 1.7fr 1fr 0.65fr; }
+}
+
+@media (max-width: 820px) {
+  .lineup-board.lineup-board-top { padding: 0 10px 10px; }
+  .lineup-board-top .lineup-board-header { margin: 0 -10px; padding: 11px 10px; }
+  .lineup-summary-grid { grid-template-columns: repeat(3, 1fr); }
+  .lineup-top-grid { grid-template-columns: 1fr; }
+  .lineup-top-grid .goalie-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lineup-save-strip { align-items: flex-start; flex-direction: column; }
+  .lineup-save-strip strong { white-space: normal; }
+}
