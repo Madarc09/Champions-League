@@ -21,6 +21,16 @@ function compactMoney(value) {
   return `$${Math.round(amount)}`;
 }
 
+function projectedFantasyPoints(player) {
+  const value = player?.projection?.fantasyPoints;
+  return Number.isFinite(Number(value)) ? Number(value) : Number(player?.fantasyPoints || 0);
+}
+
+function projectedStat(player, key) {
+  const value = player?.projection?.[key];
+  return Number.isFinite(Number(value)) ? Number(value) : 0;
+}
+
 function localRosterKey(team) {
   return `champions-league:roster:${team}:2026-27`;
 }
@@ -93,7 +103,7 @@ function sortValue(player, column) {
     case "assists": return Number(player.assists || 0);
     case "hits": return player.rosterType === "G" ? null : Number(player.hits || 0);
     case "shots": return player.rosterType === "G" ? null : Number(player.shots || 0);
-    case "fantasyPoints": return Number(player.fantasyPoints || 0);
+    case "fantasyPoints": return projectedFantasyPoints(player);
     default: return 0;
   }
 }
@@ -114,21 +124,17 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
       const leftMissing = left == null || left === "";
       const rightMissing = right == null || right === "";
 
-      if (leftMissing && rightMissing) return Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0);
+      if (leftMissing && rightMissing) return projectedFantasyPoints(b) - projectedFantasyPoints(a);
       if (leftMissing) return 1;
       if (rightMissing) return -1;
 
       if (typeof left === "string" || typeof right === "string") {
         const result = String(left).localeCompare(String(right), "en", { sensitivity: "base" });
-        return result === 0
-          ? Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0)
-          : result * direction;
+        return result === 0 ? projectedFantasyPoints(b) - projectedFantasyPoints(a) : result * direction;
       }
 
       const result = Number(left) - Number(right);
-      return result === 0
-        ? Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0)
-        : result * direction;
+      return result === 0 ? projectedFantasyPoints(b) - projectedFantasyPoints(a) : result * direction;
     });
   }, [players, sort]);
 
@@ -154,21 +160,18 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
       <table className="draft-table champions-player-table">
         <thead>
           <tr>
+            <th>Salary remaining</th>
+            <th><span className="visually-hidden">Draft player</span></th>
             <th className="player-sort-heading" aria-sort={sort.column === "name" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
               <SortButton label="Player" column="name" sort={sort} onSort={changeSort} />
             </th>
-            <th>Salary remaining</th>
             <th aria-sort={sort.column === "position" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="Position" column="position" sort={sort} onSort={changeSort} />
+              <SortButton label="Pos" column="position" sort={sort} onSort={changeSort} compact />
             </th>
             <th>Team</th>
-            <th aria-sort={sort.column === "salary" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="Salary" column="salary" sort={sort} onSort={changeSort} />
-            </th>
             <th aria-sort={sort.column === "fantasyPoints" ? sort.direction === "asc" ? "ascending" : "descending" : "none"}>
-              <SortButton label="FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} />
+              <SortButton label="Proj FPTS" column="fantasyPoints" sort={sort} onSort={changeSort} compact />
             </th>
-            <th><span className="visually-hidden">Draft player</span></th>
           </tr>
         </thead>
         <tbody>
@@ -181,27 +184,36 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
               <tr
                 key={player.playerId}
                 className={`${drafted ? "drafted-row" : ""} ${active ? "preview-row" : ""}`}
-                onMouseEnter={() => onPreview(player)}
-                onFocus={() => onPreview(player)}
               >
+                <td className={`salary-remaining-cell ${salaryRemaining < 0 ? "over" : ""}`}>
+                  {compactMoney(salaryRemaining)}
+                </td>
+                <td className="draft-action-cell">
+                  <button
+                    className="champions-draft-button"
+                    type="button"
+                    onClick={() => onDraft(player)}
+                    disabled={Boolean(reason)}
+                    title={reason || `Draft ${player.name}`}
+                  >
+                    {drafted ? "ON TEAM" : reason || "DRAFT"}
+                  </button>
+                </td>
                 <td className="champions-player-cell">
                   <button
                     className="player-preview-button"
                     type="button"
                     onClick={() => onPreview(player)}
-                    title={`Preview ${player.name}`}
+                    title={`Open ${player.name}'s projection card`}
                   >
                     <span className="draft-favourite-star" aria-hidden="true">☆</span>
                     <PlayerHeadshot player={player} className="draft-player-headshot" alt="" />
                     <span className="champions-player-copy">
                       <strong>{player.name}</strong>
-                      <small>{player.rosterType} · {player.team || "NHL"}</small>
-                      {reason ? <em>{reason}</em> : null}
+                      <small>{compactMoney(player.capHit)} · {player.rosterType} · {player.team || "NHL"}</small>
+                      {reason && !drafted ? <em>{reason}</em> : null}
                     </span>
                   </button>
-                </td>
-                <td className={`salary-remaining-cell ${salaryRemaining < 0 ? "over" : ""}`}>
-                  {money(salaryRemaining)}
                 </td>
                 <td><span className={`position-chip position-${player.rosterType.toLowerCase()}`}>{player.rosterType}</span></td>
                 <td className="draft-team-cell">
@@ -216,19 +228,7 @@ function DraftTable({ players, roster, rosterLimits, salaryCap, totalCap, onDraf
                   ) : null}
                   <span>{player.team || "NHL"}</span>
                 </td>
-                <td className="draft-salary-cell">{compactMoney(player.capHit)}</td>
-                <td className="fantasy-points-cell">{player.fantasyPoints == null ? "—" : Number(player.fantasyPoints).toFixed(1)}</td>
-                <td className="draft-action-cell">
-                  <button
-                    className="champions-draft-button"
-                    type="button"
-                    onClick={() => onDraft(player)}
-                    disabled={Boolean(reason)}
-                    title={reason || `Draft ${player.name}`}
-                  >
-                    {drafted ? "ON TEAM" : reason || "DRAFT"}
-                  </button>
-                </td>
+                <td className="fantasy-points-cell">{projectedFantasyPoints(player).toFixed(1)}</td>
               </tr>
             );
           })}
@@ -253,7 +253,7 @@ function LineupPlayerCard({ player, onRemove }) {
           <PlayerHeadshot player={player} className="lineup-player-headshot" alt="" />
           <span className="lineup-player-quick-stats">
             <strong>{compactMoney(player.capHit)}</strong>
-            <span>{Number(player.fantasyPoints || 0).toFixed(1)} FPTS</span>
+            <span>{projectedFantasyPoints(player).toFixed(1)} PROJ</span>
           </span>
         </button>
       ) : (
@@ -311,7 +311,7 @@ function RosterStrip({ title, players, limit, slotLabel, onRemove, className = "
                 <PlayerHeadshot player={player} className="projected-mini-headshot" alt="" />
                 <strong title={player.name}>{player.name}</strong>
                 <span><b>{player.rosterType}</b><em>{compactMoney(player.capHit)}</em></span>
-                <small>{Number(player.fantasyPoints || 0).toFixed(1)}</small>
+                <small>{projectedFantasyPoints(player).toFixed(1)} PROJ</small>
               </button>
             ) : (
               <div className="projected-open-slot">
@@ -334,9 +334,7 @@ function LineupCard({
   totalCap,
   capRemaining,
   totalFantasyPoints,
-  rosterComplete,
-  saveStatus,
-  persistence
+  rosterComplete
 }) {
   const forwards = players.filter((player) => player.rosterType === "F");
   const defence = players.filter((player) => player.rosterType === "D");
@@ -359,77 +357,147 @@ function LineupCard({
       <div className="projected-roster-lower-grid">
         <RosterStrip title="Defence" players={defence} limit={6} slotLabel="D" onRemove={onRemove} className="defence-strip" />
         <RosterStrip title="Goalies" players={goalies} limit={2} slotLabel="G" onRemove={onRemove} className="goalie-strip" />
-        <aside className="draft-sync-card">
-          <span className="sync-cloud" aria-hidden="true">☁</span>
-          <div>
-            <strong>Auto-save &amp; sync</strong>
-            <p>{saveStatus}</p>
-            <small>{persistence === "private" ? "Cross-device sync active" : "Storage unavailable"}</small>
-          </div>
-        </aside>
       </div>
     </section>
   );
 }
 
-function ProjectedPerformancePanel({ player, players, onSelect }) {
-  const performanceRows = useMemo(
-    () => [...players]
-      .sort((a, b) => Number(b.fantasyPoints || 0) - Number(a.fantasyPoints || 0))
-      .slice(0, 10),
-    [players]
+function ProjectionStat({ label, value, accent = false }) {
+  return (
+    <div className={`projection-stat ${accent ? "accent" : ""}`}>
+      <small>{label}</small>
+      <strong>{value}</strong>
+    </div>
   );
+}
+
+function ProjectedPerformancePanel({ player, players, onSelect, projectionData }) {
+  const [projectionQuery, setProjectionQuery] = useState("");
+
+  const searchResults = useMemo(() => {
+    const normalized = projectionQuery.trim().toLowerCase();
+    return [...players]
+      .filter((item) => !normalized
+        || String(item.name || "").toLowerCase().includes(normalized)
+        || String(item.team || "").toLowerCase().includes(normalized))
+      .sort((a, b) => projectedFantasyPoints(b) - projectedFantasyPoints(a))
+      .slice(0, normalized ? 12 : 8);
+  }, [players, projectionQuery]);
+
+  const projection = player?.projection || null;
+  const isGoalie = player?.rosterType === "G";
 
   return (
     <aside className="panel projected-performance-panel">
       <header>
         <div>
-          <p className="eyebrow">Player outlook</p>
+          <p className="eyebrow">Champions draft assistant</p>
           <h2>Projected Performance</h2>
         </div>
-        <span className="projection-status">MODEL TBD</span>
+        <span className="projection-status">MODEL 1.0</span>
       </header>
 
-      {player ? (
-        <div className="performance-feature-card">
-          <PlayerHeadshot player={player} className="performance-headshot" alt="" />
-          <div>
-            <small>Currently previewing</small>
-            <strong>{player.name}</strong>
-            <span>{player.rosterType} · {player.team || "NHL"}</span>
+      <div className="projection-finder">
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          value={projectionQuery}
+          onChange={(event) => setProjectionQuery(event.target.value)}
+          placeholder="Search any player projection…"
+          aria-label="Search every player projection"
+        />
+      </div>
+
+      {player && projection ? (
+        <article className={`hockey-projection-card ${isGoalie ? "goalie" : "skater"}`}>
+          {player.teamLogo ? <img className="projection-card-watermark" src={player.teamLogo} alt="" /> : null}
+          <div className="projection-card-topline">
+            <span>{projection.season} projection</span>
+            <strong>{projection.confidence} confidence</strong>
           </div>
-          <div className="performance-baseline">
-            <small>2025–26 FPTS</small>
-            <strong>{Number(player.fantasyPoints || 0).toFixed(1)}</strong>
+          <div className="projection-player-hero">
+            <PlayerHeadshot player={player} className="projection-card-headshot" alt="" />
+            <div className="projection-player-copy">
+              <small>{player.team || "NHL"} · {player.position || player.rosterType}</small>
+              <h3>{player.name}</h3>
+              <span>{compactMoney(player.capHit)} cap hit</span>
+            </div>
+            <div className="projection-fpts-badge">
+              <small>PROJ FPTS</small>
+              <strong>{projectedFantasyPoints(player).toFixed(1)}</strong>
+            </div>
           </div>
-        </div>
+
+          <div className={`projection-stat-grid ${isGoalie ? "goalie-grid" : "skater-grid"}`}>
+            <ProjectionStat label="GP" value={projectedStat(player, "gamesPlayed")} />
+            {isGoalie ? (
+              <>
+                <ProjectionStat label="W" value={projectedStat(player, "wins")} accent />
+                <ProjectionStat label="SV" value={projectedStat(player, "saves")} />
+                <ProjectionStat label="GA" value={projectedStat(player, "goalsAgainst")} />
+                <ProjectionStat label="G" value={projectedStat(player, "goals")} />
+                <ProjectionStat label="A" value={projectedStat(player, "assists")} />
+              </>
+            ) : (
+              <>
+                <ProjectionStat label="G" value={projectedStat(player, "goals")} accent />
+                <ProjectionStat label="A" value={projectedStat(player, "assists")} accent />
+                <ProjectionStat label="HIT" value={projectedStat(player, "hits")} />
+                <ProjectionStat label="SOG" value={projectedStat(player, "shots")} />
+              </>
+            )}
+          </div>
+
+          <div className="projection-advanced-strip">
+            {isGoalie ? (
+              <>
+                <span><small>xGA input</small><strong>{projection.advanced?.expectedGoalsAgainst ?? "—"}</strong></span>
+                <span><small>GSAx input</small><strong>{projection.advanced?.goalsSavedAboveExpected ?? "—"}</strong></span>
+                <span><small>Consensus rank</small><strong>{projection.consensusRank ?? "—"}</strong></span>
+              </>
+            ) : (
+              <>
+                <span><small>xG input</small><strong>{projection.advanced?.xGoals ?? "—"}</strong></span>
+                <span><small>Talent xG</small><strong>{projection.advanced?.shootingTalentAdjustedXGoals ?? "—"}</strong></span>
+                <span><small>Consensus rank</small><strong>{projection.consensusRank ?? "—"}</strong></span>
+              </>
+            )}
+          </div>
+
+          <p className="projection-method-note">
+            Champions model blends 2025–26 NHL production, regressed category rates, public MoneyPuck advanced inputs when available, and 2026–27 expert rank signals.
+          </p>
+        </article>
       ) : (
-        <div className="performance-empty">Hover over a player to preview him here.</div>
+        <div className="performance-empty">Select a player name to open his projection card.</div>
       )}
 
-      <div className="projection-placeholder-copy">
-        <strong>Projection source will be connected next.</strong>
-        <p>This panel is now in the exact spot the Draft Board occupied. No made-up projection numbers have been added.</p>
+      <div className="projection-search-results-heading">
+        <span>{projectionQuery ? "Search results" : "Top projected players"}</span>
+        <small>{searchResults.length} shown</small>
       </div>
-
-      <div className="performance-list-heading">
-        <span>Player</span><span>Last FPTS</span><span>Projection</span>
-      </div>
-      <div className="performance-list">
-        {performanceRows.map((item, index) => (
+      <div className="projection-search-results">
+        {searchResults.map((item) => (
           <button
             type="button"
             key={item.playerId}
             className={player?.playerId === item.playerId ? "active" : ""}
             onClick={() => onSelect(item)}
           >
-            <span className="performance-rank">{index + 1}</span>
-            <span className="performance-player-name">{item.name}<small>{item.rosterType} · {item.team || "NHL"}</small></span>
-            <strong>{Number(item.fantasyPoints || 0).toFixed(1)}</strong>
-            <em>TBD</em>
+            <PlayerHeadshot player={item} className="projection-result-headshot" alt="" />
+            <span>
+              <strong>{item.name}</strong>
+              <small>{item.team || "NHL"} · {item.rosterType} · {compactMoney(item.capHit)}</small>
+            </span>
+            <em>{projectedFantasyPoints(item).toFixed(1)}</em>
           </button>
         ))}
       </div>
+
+      <footer className="projection-source-footer">
+        <span>{projectionData?.warning ? "Advanced feed fallback active" : "NHL + MoneyPuck + consensus inputs"}</span>
+        <small>These are Champions League estimates, not official NHL projections.</small>
+      </footer>
     </aside>
   );
 }
@@ -444,9 +512,9 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [loadingPool, setLoadingPool] = useState(true);
   const [poolError, setPoolError] = useState("");
   const [salaryData, setSalaryData] = useState(null);
+  const [projectionData, setProjectionData] = useState(null);
   const [loadingRoster, setLoadingRoster] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Loading roster…");
-  const [persistence, setPersistence] = useState("private");
   const rosterReadyRef = useRef(false);
   const lastSavedRosterRef = useRef("");
   const remoteUpdatedAtRef = useRef(0);
@@ -467,6 +535,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         if (!cancelled) {
           setPoolPlayers(data.players || []);
           setSalaryData(data.salaryData || null);
+          setProjectionData(data.projectionData || null);
         }
       } catch (error) {
         if (!cancelled) setPoolError(error.message || "Player pool could not be loaded.");
@@ -495,7 +564,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           setPlayers(data.roster.players);
           lastSavedRosterRef.current = JSON.stringify(data.roster.players);
           remoteUpdatedAtRef.current = Date.parse(data.roster.updatedAt || 0) || 0;
-          setPersistence("private");
           window.localStorage.removeItem(localRosterKey(team.slug));
           setSaveStatus(`Private roster loaded${data.roster.updatedAt ? ` · updated ${new Date(data.roster.updatedAt).toLocaleString()}` : ""}. Changes save automatically.`);
         } else if (legacyLocal?.players) {
@@ -516,7 +584,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           setPlayers(migrateData.roster.players || legacyLocal.players);
           lastSavedRosterRef.current = JSON.stringify(migrateData.roster.players || legacyLocal.players);
           remoteUpdatedAtRef.current = Date.parse(migrateData.roster.updatedAt || 0) || 0;
-          setPersistence("private");
           window.localStorage.removeItem(localRosterKey(team.slug));
           window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
           setSaveStatus(`Roster moved into your private account · ${new Date(migrateData.roster.updatedAt).toLocaleString()}`);
@@ -524,7 +591,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           setPlayers([]);
           lastSavedRosterRef.current = JSON.stringify([]);
           remoteUpdatedAtRef.current = 0;
-          setPersistence("private");
           setSaveStatus("No private roster saved yet. Changes save automatically.");
         }
       } catch (error) {
@@ -562,6 +628,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         if (
           Number(saved.capHit) !== Number(merged.capHit) ||
           Number(saved.fantasyPoints) !== Number(merged.fantasyPoints) ||
+          Number(saved.projection?.fantasyPoints) !== Number(merged.projection?.fantasyPoints) ||
           saved.team !== merged.team ||
           saved.position !== merged.position ||
           saved.headshot !== merged.headshot ||
@@ -611,7 +678,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   );
   const capRemaining = salaryCap - totalCap;
   const rosterComplete = Object.entries(rosterLimits).every(([type, limit]) => counts[type] === limit);
-  const totalFantasyPoints = players.reduce((sum, player) => sum + Number(player.fantasyPoints || 0), 0);
+  const totalFantasyPoints = players.reduce((sum, player) => sum + projectedFantasyPoints(player), 0);
 
   function addPlayer(player) {
     if (players.some((item) => item.playerId === player.playerId)) return;
@@ -662,7 +729,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
           lastSavedRosterRef.current = JSON.stringify(data.roster.players || rosterToSave);
           remoteUpdatedAtRef.current = Date.parse(data.roster.updatedAt || 0) || Date.now();
-          setPersistence("private");
           window.localStorage.removeItem(localRosterKey(team.slug));
           window.dispatchEvent(new CustomEvent("champions-league:roster-updated", { detail: { team: team.slug } }));
           setSaveStatus(`Saved automatically · ${new Date(data.roster.updatedAt).toLocaleTimeString()}`);
@@ -740,8 +806,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
         capRemaining={capRemaining}
         totalFantasyPoints={totalFantasyPoints}
         rosterComplete={rosterComplete}
-        saveStatus={loadingRoster ? "Loading roster…" : saveStatus}
-        persistence={persistence}
       />
 
       <div className="champions-draft-banner">
@@ -827,7 +891,8 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
         <ProjectedPerformancePanel
           player={previewPlayer}
-          players={filteredPlayers}
+          players={poolPlayers}
+          projectionData={projectionData}
           onSelect={(player) => setPreviewPlayerId(player.playerId)}
         />
       </div>

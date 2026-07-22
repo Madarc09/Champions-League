@@ -3,6 +3,8 @@ import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
+import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
+import { createPlayerProjection } from "@/lib/projections";
 import {
   canonicalPlayerName,
   getCapSpaceSalarySnapshot
@@ -77,11 +79,17 @@ export async function GET(request) {
     }
   }
 
-  const [playerResult, salaryResult] = await Promise.all([
+  const [playerResult, salaryResult, rankingResult, moneyPuckResult] = await Promise.all([
     getPlayerPool()
       .then((pool) => ({ pool, error: null }))
       .catch((error) => ({ pool: null, error })),
     getCapSpaceSalarySnapshot()
+      .then((snapshot) => ({ snapshot, error: null }))
+      .catch((error) => ({ snapshot: null, error })),
+    getRankingSnapshot()
+      .then((snapshot) => ({ snapshot, error: null }))
+      .catch((error) => ({ snapshot: null, error })),
+    getMoneyPuckSnapshot()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error }))
   ]);
@@ -119,12 +127,22 @@ export async function GET(request) {
     const demoCapHit = player.capHit != null ? Number(player.capHit) : null;
     const capHit = selected?.capHit != null ? Number(selected.capHit) : demoCapHit;
 
+    const expectedRanks = rankingResult.snapshot
+      ? pickPlayerRankings(rankingResult.snapshot, player.name)
+      : null;
+    const advanced = moneyPuckResult.snapshot
+      ? findMoneyPuckRecord(moneyPuckResult.snapshot, player)
+      : null;
+    const projection = createPlayerProjection(player, advanced, expectedRanks);
+
     return {
       ...player,
       capHit: Number.isFinite(capHit) ? capHit : null,
       salarySource: selected?.source || (demoCapHit != null ? "demo" : null),
       salaryUpdatedAt: override?.updatedAt || salarySnapshot?.updatedAt || null,
-      salaryState: Number.isFinite(capHit) ? "signed" : "unsigned"
+      salaryState: Number.isFinite(capHit) ? "signed" : "unsigned",
+      expectedRanks,
+      projection
     };
   });
 
@@ -146,6 +164,15 @@ export async function GET(request) {
       failedTeamCount: salarySnapshot?.failedTeams?.length || 0,
       stale: Boolean(salarySnapshot?.stale),
       error: salaryError
+    },
+    projectionData: {
+      model: "Champions Projection Model 1.0",
+      season: "2026-27",
+      updatedAt: new Date().toISOString(),
+      rankingUpdatedAt: rankingResult.snapshot?.updatedAt || null,
+      advancedUpdatedAt: moneyPuckResult.snapshot?.updatedAt || null,
+      sources: ["NHL 2025-26 stats", "MoneyPuck advanced data", "NHL.com/ESPN consensus ranks"],
+      warning: rankingResult.error?.message || moneyPuckResult.snapshot?.warning || moneyPuckResult.error?.message || null
     }
   });
 }
