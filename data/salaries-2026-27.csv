@@ -1,1 +1,17 @@
-playerId,name,capHit
+playerId,name,team,position,capHit,status,source,verifiedDate
+8479323,Adam Fox,NYR,D,9500000,signed,CapWages verified contract safeguard,2026-07-22
+8480027,Jason Robertson,DAL,LW,12000000,signed,NHL.com verified correction,2026-07-22
+,Trevor Zegras,PHI,F,9125000,signed,NHL.com 2026 contract audit,2026-07-22
+,Jamie Drysdale,PHI,D,6500000,signed,NHL.com 2026 contract audit,2026-07-22
+,Connor Bedard,CHI,C,15000000,signed,NHL.com 2026 contract audit,2026-07-22
+,Anthony Mantha,NJD,RW,4750000,signed,NHL.com 2026 contract audit,2026-07-22
+,Connor McMichael,STL,C,6750000,signed,NHL.com 2026 contract audit,2026-07-22
+,Oskar Sundqvist,STL,C,850000,signed,NHL.com 2026 contract audit,2026-07-22
+,Kirby Dach,MTL,C,3600000,signed,NHL.com 2026 contract audit,2026-07-22
+,Cole Perfetti,WPG,LW,6000000,signed,NHL.com 2026 contract audit,2026-07-22
+,Braden Schneider,NYR,D,5500000,signed,NHL.com 2026 contract audit,2026-07-22
+,Peyton Krebs,BUF,C,4500000,signed,NHL.com 2026 contract audit,2026-07-22
+,Colton Dach,EDM,LW,1200000,signed,NHL.com 2026 contract audit,2026-07-22
+,Leo Carlsson,ANA,C,18000000,signed,NHL.com 2026 contract audit,2026-07-22
+,Barrett Hayton,UTA,C,4775000,signed,NHL.com 2026 contract audit,2026-07-22
+,Gavin McKenna,TOR,LW,1075000,signed,NHL.com verified rookie safeguard,2026-07-22

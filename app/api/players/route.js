@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
-import { getStaticSalaryMaster } from "@/lib/static-salary-master";
+import { getStaticSalaryMaster, salaryTeamNameKey } from "@/lib/static-salary-master";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
 import { createPlayerProjection } from "@/lib/projections";
@@ -126,7 +126,10 @@ export async function GET(request) {
 
   const players = rankedMatches.map((player) => {
     const canonicalName = canonicalPlayerName(player.name);
-    const publicRecord = salarySnapshot?.byName?.[canonicalName] || null;
+    const publicRecord = salarySnapshot?.byPlayerId?.[String(player.playerId)]
+      || salarySnapshot?.byTeamAndName?.[salaryTeamNameKey(player.team, canonicalName)]
+      || salarySnapshot?.byName?.[canonicalName]
+      || null;
     const rookieSeed = SEED_SALARIES_BY_NAME[canonicalName] || null;
     const override = trustedSalaryOverride(storedOverrides[String(player.playerId)]);
     const selected = override || publicRecord || rookieSeed;
@@ -156,7 +159,7 @@ export async function GET(request) {
       capHit: Number.isFinite(capHit) ? capHit : null,
       salarySource: selected?.source || (demoCapHit != null ? "demo" : null),
       salaryUpdatedAt: override?.updatedAt || selected?.verifiedAt || salarySnapshot?.initializedAt || null,
-      salaryState: Number.isFinite(capHit) ? "signed" : "unsigned",
+      salaryState: Number.isFinite(capHit) ? "signed" : "unresolved",
       expectedRanks,
       projection
     };
@@ -189,6 +192,7 @@ export async function GET(request) {
       matchedPlayerCount: players.length - unresolvedSalaryCount,
       unresolvedPlayerCount: unresolvedSalaryCount,
       frozen: Boolean(salarySnapshot),
+      auditedTeamCount: salarySnapshot?.sourceTeamCount || 0,
       error: salaryError
     },
     projectionData: {

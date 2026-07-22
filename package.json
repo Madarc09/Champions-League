@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "import:salaries": "node scripts/import-salaries.mjs",
-    "audit:salaries": "node scripts/export-salary-audit.mjs"
+    "audit:salaries": "node scripts/export-salary-audit.mjs",
+    "validate:salaries": "node scripts/validate-salary-system.mjs"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",

@@ -1102,8 +1102,8 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
   async function save(player) {
     const rawValue = values[String(player.playerId)] ?? (player.capHit == null ? "" : String(player.capHit));
     const capHit = parseSalaryInput(rawValue);
-    if (!Number.isFinite(capHit) || capHit < 0 || capHit > 30_000_000) {
-      setStatus(`Enter a valid salary for ${player.name}, such as 12000000 or 12m.`);
+    if (!Number.isFinite(capHit) || capHit < 500_000 || capHit > 30_000_000) {
+      setStatus(`Enter a valid NHL cap hit for ${player.name}, such as 12000000 or 12m.`);
       return;
     }
 
@@ -1138,15 +1138,15 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
 
   async function rebuildMaster() {
     setRebuilding(true);
-    setStatus("Rebuilding the frozen salary master…");
+    setStatus("Auditing all 32 NHL team salary pages…");
     try {
       const response = await fetch("/api/salaries/refresh", { method: "POST" });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "The salary master could not be rebuilt.");
-      setStatus(`Frozen master rebuilt with ${Number(data.recordCount || 0).toLocaleString("en-CA")} contracts and ${Number(data.correctionCount || 0)} verified corrections.`);
+      if (!response.ok) throw new Error(data.error || "The 32-team salary audit could not be completed.");
+      setStatus(`All ${Number(data.auditedTeamCount || 0)} teams passed. The master now contains ${Number(data.recordCount || 0).toLocaleString("en-CA")} contracts and ${Number(data.correctionCount || 0)} verified safeguards.`);
       onMasterRebuilt();
     } catch (error) {
-      setStatus(error.message || "The salary master could not be rebuilt.");
+      setStatus(error.message || "The 32-team salary audit could not be completed.");
     } finally {
       setRebuilding(false);
     }
@@ -1186,11 +1186,11 @@ function SalaryAdminPanel({ players, salaryData, onSalarySaved, onMasterRebuilt 
         </label>
         <a className="salary-admin-link" href="/api/salaries/export">Download master CSV</a>
         <button type="button" className="salary-admin-rebuild" onClick={rebuildMaster} disabled={rebuilding}>
-          {rebuilding ? "REBUILDING…" : "REBUILD FROZEN MASTER"}
+          {rebuilding ? "AUDITING 32 TEAMS…" : "RUN FULL 32-TEAM AUDIT"}
         </button>
       </div>
 
-      <p className="salary-admin-status" aria-live="polite">{status || "Use the editor only for a contract that escaped the completed audit or is signed later."}</p>
+      <p className="salary-admin-status" aria-live="polite">{status || "The master is accepted only after all 32 team pages pass. Use the editor only for a later signing or a rare verified mismatch."}</p>
 
       <div className="salary-admin-table-wrap">
         <table className="salary-admin-table">

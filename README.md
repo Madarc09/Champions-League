@@ -69,37 +69,45 @@ data/league-config.js
 
 ## Frozen 2026–27 salary master
 
-The website no longer refreshes salary data during ordinary draft-room use. On the first request after this build is deployed, the server takes the existing mostly-correct CapSpace snapshot, merges the verified recent-contract corrections in `data/verified-salary-corrections.js`, and freezes the completed table into Upstash Redis.
+The salary system now refuses to freeze a partial import. On the first player-pool request after deployment, it audits all 32 NHL team contract pages. Each failed or abnormally short team page is retried three times. The new master is saved to Upstash only when:
+
+- all 32 team pages succeed;
+- every team’s parsed salary rows exactly match the salary-bearing roster total published on that page;
+- at least 450 signed contract records are present;
+- the verified contract safeguards pass, including Adam Fox at **$9,500,000**; and
+- the recent July 2026 contract corrections are merged.
+
+The master uses NHL player ID when available, then team plus canonical player name, and only then a name-only fallback. This prevents both missing-team freezes and same-name salary collisions. The old incomplete Redis master is ignored because this release uses a new versioned key.
 
 Normal salary order:
 
-1. Nick's saved correction, when one exists.
-2. The frozen 2026–27 salary master.
-3. A verified name-based rookie safeguard.
-4. Unsigned/unresolved, which cannot be drafted.
+1. Nick's saved league-wide correction, when one exists.
+2. NHL player-ID match in the frozen master.
+3. Team-and-name match in the frozen master.
+4. Verified contract safeguard.
+5. Unresolved, which cannot be drafted as a free `$0` player.
 
-The frozen master does not automatically change. This prevents a delayed or temporarily broken public source from changing league salaries after the audit is complete. Nick can explicitly rebuild it from the **Salary Admin** tab if the league intentionally wants a new freeze. The rebuild still reapplies every verified correction.
+After the first successful audit, normal draft-room requests use the frozen Upstash table and do not revisit the public contract pages. Nick can deliberately run another complete 32-team audit from **Salary Admin** after later signings. A failed re-audit leaves the current valid master untouched.
 
-### Completed recent-contract audit
+### Verified contract safeguards
 
-The July audit checked the major contracts announced from July 9 through July 21 against the existing source. Jason Robertson was the confirmed source gap and is permanently corrected to a one-year **$12,000,000** cap hit. Gavin McKenna's entry-level contract is also retained as a verified rookie safeguard. The complete check list remains in `data/salary-audit-recent-checks-2026-07-22.csv`.
+`data/verified-salary-corrections.js` contains deterministic safeguards for the audited July contracts and established regression checks. The bundled CSV at `data/salaries-2026-27.csv` contains the same reviewable safeguards, including:
+
+- Adam Fox — NYR — **$9,500,000**
+- Jason Robertson — DAL — **$12,000,000**
+- Connor Bedard — CHI — **$15,000,000**
+- Leo Carlsson — ANA — **$18,000,000**
+- the remaining contracts listed in `data/salary-audit-recent-checks-2026-07-22.csv`
+
+The complete pool-sized CSV is produced from the frozen master through Nick's **Download master CSV** control after deployment.
 
 ### Nick-only salary editor
 
-Only the authenticated Nick account sees **Salary Admin** in the draft room. Server-side authorization also rejects salary writes from every other manager, so hiding the tab is not the security control.
+Only the authenticated Nick account sees **Salary Admin**, and the save, export, and full-audit routes repeat that authorization check on the server. Nick can search the complete pool, show unresolved players, save a league-wide correction, download the current master, or intentionally run a new 32-team audit.
 
-Nick can:
+Saved corrections update Nick's page immediately. Other open manager pages check the shared correction table every 30 seconds, and later page loads receive the corrected salary automatically.
 
-- Search the complete pool.
-- Show only unresolved players.
-- Enter a cap hit as `12000000`, `12m`, or `850k`.
-- Save a league-wide correction to Upstash.
-- Download the complete frozen master as a CSV.
-- Explicitly rebuild the frozen master.
-
-Saved corrections update Nick's page immediately. Other open manager pages check the shared correction table every 30 seconds, and all later page loads receive the corrected salary automatically.
-
-The pool identity pass in `lib/nhl.js` removes duplicate player records after the statistical, current-roster, and recent-draft feeds are combined. It prefers an official NHL player ID and the record with NHL games, preventing the previous duplicate Celebrini problem.
+The pool identity pass in `lib/nhl.js` removes duplicate player records after the statistics, current-roster, and recent-draft feeds are combined. It prefers the official NHL identity, preventing the earlier duplicate Celebrini problem.
 
 ## GitHub and Vercel
 
@@ -148,11 +156,11 @@ app/team/[team]/page.js             Individual manager page
 components/RosterBuilder.js         Sortable draft room and projected lineup
 app/api/players/route.js            NHL stats plus frozen salary master
 app/api/rosters/[team]/route.js     Shared roster loading and saving
-app/api/salaries/refresh/route.js   Nick-only explicit frozen-master rebuild
+app/api/salaries/refresh/route.js   Nick-only strict 32-team salary audit
 lib/nhl.js                          NHL stats, current zero-game rookies, recent draft classes, rosters, and headshots
-lib/capspace-snapshot.js            One-time source snapshot used only to build/rebuild the master
-lib/static-salary-master.js         Frozen salary master and verified-correction merger
-data/verified-salary-corrections.js Verified recent contracts missing from the source
+lib/capspace-snapshot.js            Strict all-team source audit with retries and team indexes
+lib/static-salary-master.js         Versioned frozen master, validation, and salary lookup indexes
+data/verified-salary-corrections.js Verified recent contracts and regression safeguards
 data/league-config.js               Teams, roster reveal date, cap, roster limits, and scoring
 data/player-projections-2026-27.js  Editorial static projection overrides
 lib/static-projections.js           Full-pool static review and three-scenario ranges

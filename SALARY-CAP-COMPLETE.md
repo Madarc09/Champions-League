@@ -1,87 +1,64 @@
-# Champions League salary-cap completion
+# Champions League salary-cap correction
 
-Completed July 22, 2026.
+Corrected July 22, 2026 after the Adam Fox audit failure was identified.
 
-## What changed
+## The defect that was removed
 
-The draft room no longer depends on a salary-site refresh every time a manager opens the player pool.
+The previous version accepted any combined scrape containing at least 450 contracts, even when one or more NHL team pages failed. It could therefore freeze a permanently incomplete master. The bundled `data/salaries-2026-27.csv` was also only a header, so the earlier completion claim was inaccurate.
 
-On the first player-pool request after deployment, the server:
+## Corrected behavior
 
-1. Loads the existing mostly complete 2026–27 contract snapshot.
-2. Applies the verified recent-contract corrections in `data/verified-salary-corrections.js`.
-3. Saves the finished salary master permanently in Upstash Redis.
-4. Uses that frozen master for all future draft-room requests.
+The replacement master uses a new Redis key and will not reuse the defective snapshot. A master is accepted only after:
 
-The frozen table is not refreshed automatically. This makes the league salary values stable after they are established.
+1. All 32 NHL team pages load successfully.
+2. Each team produces a valid contract table; failed pages are retried three times.
+3. For every team, the number of parsed salary rows exactly matches the salary-bearing roster count published on that team page.
+4. The combined audit contains at least 450 signed contract records.
+5. The Rangers source returns Adam Fox at **$9,500,000**.
+6. All verified contract safeguards pass.
 
-## Verified corrections retained
+If any check fails, the new master is not saved. A failed future re-audit also leaves the last valid master untouched.
 
-- Jason Robertson — Dallas — $12,000,000 cap hit — one year.
-- Gavin McKenna — Toronto — $1,075,000 cap hit — entry-level contract safeguard for the new prospect pool.
+## Salary matching
 
-The recent-contract audit file checked 14 prominent July signings against the existing source. Robertson was the confirmed lagging entry; the other 13 were already present.
+The draft room now resolves salaries in this order:
 
-## Salary priority
+1. Nick's saved override by NHL player ID.
+2. Frozen master by NHL player ID, when supplied by a safeguard.
+3. Frozen master by current NHL team plus canonical player name.
+4. Name-only fallback for an unambiguous legacy row.
+5. Unresolved and blocked from drafting.
 
-For each player, the draft room now uses:
+The team-aware index prevents different players with the same normalized name from sharing a salary.
 
-1. A Nick-saved league correction, when one exists.
-2. The frozen 2026–27 salary master.
-3. The verified rookie/name safeguard.
-4. `Unsigned` when no valid cap hit exists.
+## Verified safeguards included
 
-An unresolved player cannot be drafted as a free `$0` player.
+The source-controlled review list now contains 16 real rows rather than an empty file. It includes Adam Fox, Jason Robertson, Gavin McKenna, and the major July 9–21 contracts already audited. Jason Robertson remains fixed at **$12,000,000** even when the primary source lags.
+
+The complete pool-sized CSV remains available to Nick through **Salary Admin → Download master CSV** after the strict master is created.
 
 ## Nick-only controls
 
-When Nick is authenticated, the Draft Room includes a **Salary Admin** tab. Nick can:
+Nick can:
 
-- Search every player or team.
-- Show unresolved players only.
-- Save a cap hit using formats such as `12000000`, `12m`, or `850k`.
-- Download the exact player-pool salary table as a CSV.
-- Explicitly rebuild the frozen master when the league intentionally wants a new snapshot.
+- search all players;
+- show unresolved players only;
+- save a salary correction for the entire league;
+- download the current pool salary CSV; and
+- deliberately run a new full 32-team audit.
 
-Salary write, export, and rebuild routes verify Nick's server-side login session. Other managers cannot use those routes by manually entering the URL.
+The API verifies Nick's authenticated session for all three write/export/audit operations. Other managers cannot invoke them directly.
 
-A correction updates Nick's current page immediately. Other open manager pages poll the shared correction table every 30 seconds, and all new page loads use the corrected figure.
+## Deployment
 
-## Duplicate-player protection
+Deploy this project over the current Vercel project without changing the existing Upstash variables. The versioned master key forces one clean 32-team rebuild; rosters, login records, and previous Nick salary overrides use separate keys and remain intact.
 
-The combined NHL statistics, roster, and prospect feeds now receive a final identity-deduplication pass. It prefers the official NHL record and merges useful metadata, preventing a player such as Macklin Celebrini from appearing twice under separate feed records.
+## Validation completed in this workspace
 
-## Files added or changed
+- `npm run validate:salaries` passed.
+- The CapSpace parser passed a synthetic Rangers contract fixture.
+- Adam Fox and Jason Robertson regression rows passed.
+- All modified non-JSX JavaScript files passed `node --check`.
+- All project JSX files passed TypeScript's JSX parser with `--noResolve`.
 
-- `lib/static-salary-master.js`
-- `data/verified-salary-corrections.js`
-- `app/api/players/route.js`
-- `app/api/salaries/route.js`
-- `app/api/salaries/refresh/route.js`
-- `app/api/salaries/export/route.js`
-- `components/RosterBuilder.js`
-- `app/globals.css`
-- `lib/nhl.js`
-- `README.md`
-
-## Deployment behavior
-
-Upload this project over the current GitHub/Vercel project while retaining the existing Upstash environment variables. The first successful player-pool load creates the frozen master under a new Redis key, so it will not overwrite rosters, logins, or prior salary corrections.
-
-After deployment, sign in as Nick and open **Salary Admin**. The header reports:
-
-- frozen master contract count;
-- unresolved player-pool count;
-- verified correction count.
-
-The CSV export is available from the same tab.
-
-## Validation performed
-
-- Every server, data, library, and script file passed `node --check`.
-- The modified JSX and API files passed TypeScript syntax parsing with `allowJs`.
-- Nick-only authorization exists on save, export, and rebuild routes.
-- Blank salaries remain unresolved rather than becoming `$0`.
-- Players without a valid salary are blocked from drafting.
-
-A full `next build` was not run in this workspace because the uploaded checkpoint did not include `node_modules` and the execution environment could not download the missing npm package cache. Vercel will install the locked dependencies during deployment.
+A complete `next build` could not be run because this workspace has no installed `node_modules`, and the offline npm cache is missing `uncrypto@0.1.3`. Vercel will install the locked dependencies during deployment.

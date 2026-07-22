@@ -8,7 +8,7 @@ export const maxDuration = 60;
 export async function POST(request) {
   const manager = await managerFromRequest(request);
   if (manager?.slug !== "nick") {
-    return NextResponse.json({ error: "Only Nick can rebuild the league salary master." }, { status: 403 });
+    return NextResponse.json({ error: "Only Nick can run the league-wide salary audit." }, { status: 403 });
   }
 
   try {
@@ -17,12 +17,13 @@ export async function POST(request) {
       source: master.source,
       initializedAt: master.initializedAt,
       sourceCapturedAt: master.sourceCapturedAt,
+      auditedTeamCount: master.sourceTeamCount,
       recordCount: master.recordCount,
       correctionCount: master.correctionCount
     });
   } catch (error) {
     return NextResponse.json(
-      { error: error?.message || "Salary master rebuild failed." },
+      { error: error?.message || "The 32-team salary audit failed. The existing master was left unchanged." },
       { status: 502 }
     );
   }

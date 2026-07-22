@@ -25,7 +25,7 @@ export async function POST(request) {
   if (Array.isArray(body.records)) {
     const validRecords = body.records.filter((item) => {
       const capHit = Number(item.capHit);
-      return Number.isInteger(Number(item.playerId)) && capHit >= 0 && capHit <= 30_000_000;
+      return Number.isInteger(Number(item.playerId)) && capHit >= 500_000 && capHit <= 30_000_000;
     });
 
     const result = await saveSalaryRecords(validRecords);
@@ -41,7 +41,7 @@ export async function POST(request) {
   const playerId = Number(body.playerId);
   const capHit = Number(body.capHit);
 
-  if (!Number.isInteger(playerId) || !Number.isFinite(capHit) || capHit < 0 || capHit > 30_000_000) {
+  if (!Number.isInteger(playerId) || !Number.isFinite(capHit) || capHit < 500_000 || capHit > 30_000_000) {
     return NextResponse.json({ error: "Invalid player ID or cap hit." }, { status: 400 });
   }
 

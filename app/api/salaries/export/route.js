@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { managerFromRequest } from "@/lib/auth";
 import { getPlayerPool } from "@/lib/nhl";
 import { getSalaryRecords } from "@/lib/salaries";
-import { getStaticSalaryMaster } from "@/lib/static-salary-master";
+import { getStaticSalaryMaster, salaryTeamNameKey } from "@/lib/static-salary-master";
 import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
 import { canonicalPlayerName } from "@/lib/capspace-snapshot";
 
@@ -34,7 +34,10 @@ export async function GET(request) {
     .map((player) => {
       const key = canonicalPlayerName(player.name);
       const override = saved[String(player.playerId)] || null;
-      const frozen = master.byName?.[key] || null;
+      const frozen = master.byPlayerId?.[String(player.playerId)]
+        || master.byTeamAndName?.[salaryTeamNameKey(player.team, key)]
+        || master.byName?.[key]
+        || null;
       const rookie = SEED_SALARIES_BY_NAME[key] || null;
       const selected = override || frozen || rookie;
       const capHit = Number(selected?.capHit);
