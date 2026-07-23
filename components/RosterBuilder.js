@@ -1064,155 +1064,6 @@ function AiGeneratedTab({ poolPlayers, roster, rosterLimits, salaryCap, capRemai
 }
 
 
-function parseSalaryInput(value) {
-  const text = String(value || "").trim().toLowerCase().replaceAll(",", "").replaceAll("$", "");
-  if (!text) return null;
-  const multiplier = text.endsWith("m") ? 1_000_000 : text.endsWith("k") ? 1_000 : 1;
-  const numeric = Number(text.replace(/[mk]$/, ""));
-  if (!Number.isFinite(numeric)) return null;
-  return Math.round(numeric * multiplier);
-}
-
-function SalaryAdminPanel({ players, salaryData, onSalarySaved }) {
-  const [query, setQuery] = useState("");
-  const [unresolvedOnly, setUnresolvedOnly] = useState(true);
-  const [values, setValues] = useState({});
-  const [savingId, setSavingId] = useState(null);
-  const [status, setStatus] = useState("");
-
-  const visiblePlayers = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return [...players]
-      .filter((player) => !unresolvedOnly || player.capHit == null)
-      .filter((player) => !normalized
-        || String(player.name || "").toLowerCase().includes(normalized)
-        || String(player.team || "").toLowerCase().includes(normalized))
-      .sort((left, right) => {
-        const unresolvedDifference = Number(left.capHit != null) - Number(right.capHit != null);
-        return unresolvedDifference || String(left.name).localeCompare(String(right.name), "en", { sensitivity: "base" });
-      });
-  }, [players, query, unresolvedOnly]);
-
-  const unresolvedCount = useMemo(
-    () => players.filter((player) => player.capHit == null).length,
-    [players]
-  );
-
-  async function save(player) {
-    const rawValue = values[String(player.playerId)] ?? (player.capHit == null ? "" : String(player.capHit));
-    const capHit = parseSalaryInput(rawValue);
-    if (!Number.isFinite(capHit) || capHit < 500_000 || capHit > 30_000_000) {
-      setStatus(`Enter a valid NHL cap hit for ${player.name}, such as 12000000 or 12m.`);
-      return;
-    }
-
-    setSavingId(player.playerId);
-    setStatus(`Saving ${player.name}…`);
-    try {
-      const response = await fetch("/api/salaries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          playerId: player.playerId,
-          name: player.name,
-          capHit,
-          source: "manual"
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Salary could not be saved.");
-
-      onSalarySaved(player, capHit, data.record || null);
-      setValues((current) => ({ ...current, [String(player.playerId)]: String(capHit) }));
-      setStatus(`${player.name} is now ${money(capHit)} for every manager.`);
-      window.dispatchEvent(new CustomEvent("champions-league:salary-updated", {
-        detail: { playerId: player.playerId, capHit }
-      }));
-    } catch (error) {
-      setStatus(error.message || "Salary could not be saved.");
-    } finally {
-      setSavingId(null);
-    }
-  }
-
-
-  return (
-    <section className="panel salary-admin-panel">
-      <div className="salary-admin-heading">
-        <div>
-          <p className="eyebrow">Nick only · league-wide control</p>
-          <h2>Salary Admin</h2>
-          <p>Corrections saved here override the static SALARY CAP SPACE file for every manager.</p>
-        </div>
-        <div className="salary-admin-summary">
-          <span><small>SALARY CAP SPACE players</small><strong>{Number(salaryData?.recordCount || 0).toLocaleString("en-CA")}</strong></span>
-          <span><small>Unresolved pool players</small><strong>{unresolvedCount}</strong></span>
-        </div>
-      </div>
-
-      <div className="salary-admin-actions">
-        <div className="search-box draft-search-box">
-          <span>⌕</span>
-          <input
-            type="search"
-            placeholder="Search a player or team…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </div>
-        <label className="salary-admin-toggle">
-          <input
-            type="checkbox"
-            checked={unresolvedOnly}
-            onChange={(event) => setUnresolvedOnly(event.target.checked)}
-          />
-          <span>Show unresolved only</span>
-        </label>
-        <a className="salary-admin-link" href="/api/salaries/export">Download SALARY CAP SPACE CSV</a>
-      </div>
-
-      <p className="salary-admin-status" aria-live="polite">{status || "The static SALARY CAP SPACE file supplies every normal salary. Use this editor only for a later signing or a rare missed contract."}</p>
-
-      <div className="salary-admin-table-wrap">
-        <table className="salary-admin-table">
-          <thead>
-            <tr><th>Player</th><th>Team</th><th>Position</th><th>Current</th><th>New salary</th><th>Save</th></tr>
-          </thead>
-          <tbody>
-            {visiblePlayers.map((player) => (
-              <tr key={player.playerId} className={player.capHit == null ? "unresolved" : ""}>
-                <td><strong>{player.name}</strong><small>ID {player.playerId}</small></td>
-                <td>{player.team || "—"}</td>
-                <td>{player.position || player.rosterType || "—"}</td>
-                <td>{compactMoney(player.capHit)}</td>
-                <td>
-                  <input
-                    inputMode="decimal"
-                    aria-label={`New salary for ${player.name}`}
-                    placeholder={player.capHit == null ? "e.g. 1.2m" : String(player.capHit)}
-                    value={values[String(player.playerId)] ?? ""}
-                    onChange={(event) => setValues((current) => ({
-                      ...current,
-                      [String(player.playerId)]: event.target.value
-                    }))}
-                    onKeyDown={(event) => { if (event.key === "Enter") save(player); }}
-                  />
-                </td>
-                <td>
-                  <button type="button" onClick={() => save(player)} disabled={savingId === player.playerId}>
-                    {savingId === player.playerId ? "Saving…" : "Save"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {visiblePlayers.length === 0 ? <div className="empty-state">No players match this salary view.</div> : null}
-    </section>
-  );
-}
-
 export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, goalieScoring }) {
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState("ALL");
@@ -1220,7 +1071,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
   const [previewPlayerId, setPreviewPlayerId] = useState(null);
   const [hoverPreview, setHoverPreview] = useState(null);
   const [poolPlayers, setPoolPlayers] = useState([]);
-  const [poolReloadVersion, setPoolReloadVersion] = useState(0);
   const [projectionQuery, setProjectionQuery] = useState("");
   const [activeDraftView, setActiveDraftView] = useState("pool");
   const [players, setPlayers] = useState([]);
@@ -1261,7 +1111,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
 
     loadPool();
     return () => { cancelled = true; };
-  }, [poolReloadVersion]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -1375,77 +1225,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     });
   }, [poolPlayers, position, nhlTeam, query]);
 
-
-  const poolPlayerIds = useMemo(
-    () => poolPlayers.map((player) => String(player.playerId)).filter(Boolean).join(","),
-    [poolPlayers]
-  );
-
-  function applySalaryUpdate(player, capHit, record = null) {
-    const updatedAt = record?.updatedAt || new Date().toISOString();
-    const update = (item) => String(item.playerId) === String(player.playerId)
-      ? {
-          ...item,
-          capHit,
-          salarySource: record?.source || "manual",
-          salaryUpdatedAt: updatedAt,
-          salaryState: "signed"
-        }
-      : item;
-
-    setPoolPlayers((current) => current.map(update));
-    setPlayers((current) => current.map(update));
-  }
-
-  useEffect(() => {
-    if (!poolPlayerIds) return undefined;
-    let cancelled = false;
-
-    async function syncSalaryOverrides() {
-      const ids = poolPlayerIds.split(",").filter(Boolean);
-      const chunks = [];
-      for (let index = 0; index < ids.length; index += 100) chunks.push(ids.slice(index, index + 100));
-
-      try {
-        const responses = await Promise.all(chunks.map(async (chunk) => {
-          const response = await fetch(`/api/salaries?ids=${encodeURIComponent(chunk.join(","))}`, { cache: "no-store" });
-          if (!response.ok) return {};
-          const data = await response.json();
-          return data.records || {};
-        }));
-        if (cancelled) return;
-
-        const records = Object.assign({}, ...responses);
-        if (Object.keys(records).length === 0) return;
-        const update = (item) => {
-          const record = records[String(item.playerId)];
-          if (!record || !Number.isFinite(Number(record.capHit))) return item;
-          const capHit = Number(record.capHit);
-          if (Number(item.capHit) === capHit && item.salarySource === record.source) return item;
-          return {
-            ...item,
-            capHit,
-            salarySource: record.source || "manual",
-            salaryUpdatedAt: record.updatedAt || item.salaryUpdatedAt || null,
-            salaryState: "signed"
-          };
-        };
-        setPoolPlayers((current) => current.map(update));
-        setPlayers((current) => current.map(update));
-      } catch {
-        // A brief background sync failure should not interrupt the draft room.
-      }
-    }
-
-    const interval = window.setInterval(syncSalaryOverrides, 30_000);
-    const onSalaryUpdated = () => syncSalaryOverrides();
-    window.addEventListener("champions-league:salary-updated", onSalaryUpdated);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-      window.removeEventListener("champions-league:salary-updated", onSalaryUpdated);
-    };
-  }, [poolPlayerIds]);
 
   const previewPlayer = useMemo(() => (
     poolPlayers.find((player) => player.playerId === previewPlayerId)
@@ -1583,10 +1362,11 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
     if (!salaryData?.recordCount) return "SALARY CAP SPACE is unavailable right now.";
 
     const generated = salaryData.updatedAt
-      ? new Date(salaryData.updatedAt).toLocaleString()
-      : "during deployment";
+      ? new Date(`${String(salaryData.updatedAt).slice(0, 10)}T00:00:00`).toLocaleDateString()
+      : "the completed salary audit";
     const zeroCount = Number(salaryData.zeroSalaryCount || 0);
-    return `${Number(salaryData.recordCount).toLocaleString("en-CA")} pool players loaded exclusively from SALARY CAP SPACE, generated ${generated}. ${zeroCount} player${zeroCount === 1 ? " has" : "s have"} a $0 salary and ${zeroCount === 1 ? "is" : "are"} blocked for salary review.`;
+    const teamCount = Number(salaryData.teamCount || 32);
+    return `${Number(salaryData.recordCount).toLocaleString("en-CA")} salary records across ${teamCount} NHL teams loaded exclusively from the frozen 2026–27 master dated ${generated}. ${zeroCount.toLocaleString("en-CA")} records have no signed 2026–27 cap hit and remain unavailable to draft.`;
   }, [loadingPool, salaryData]);
 
   return (
@@ -1596,9 +1376,6 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
           <div className="draft-room-subtabs" role="tablist" aria-label="Draft room tools">
             <button type="button" className={activeDraftView === "pool" ? "active" : ""} onClick={() => setActiveDraftView("pool")} role="tab" aria-selected={activeDraftView === "pool"}>PLAYER POOL</button>
             <button type="button" className={activeDraftView === "ai" ? "active" : ""} onClick={() => setActiveDraftView("ai")} role="tab" aria-selected={activeDraftView === "ai"}>AI GENERATED</button>
-            {team.slug === "nick" ? (
-              <button type="button" className={activeDraftView === "salary" ? "active" : ""} onClick={() => setActiveDraftView("salary")} role="tab" aria-selected={activeDraftView === "salary"}>SALARY ADMIN</button>
-            ) : null}
           </div>
 
           {activeDraftView === "pool" ? (
@@ -1678,7 +1455,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
                 <p className={`salary-data-note ${salaryData?.error ? "error-state" : ""}`}>{salaryNote}</p>
               </section>
             </>
-          ) : activeDraftView === "ai" ? (
+          ) : (
             <AiGeneratedTab
               poolPlayers={poolPlayers}
               roster={players}
@@ -1688,13 +1465,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               onDraft={addPlayer}
               onPreview={(player) => { setPreviewPlayerId(player.playerId); setActiveDraftView("pool"); }}
             />
-          ) : team.slug === "nick" ? (
-            <SalaryAdminPanel
-              players={poolPlayers}
-              salaryData={salaryData}
-              onSalarySaved={applySalaryUpdate}
-            />
-          ) : null}
+          )}
         </main>
 
         <aside className="draft-right-rail">

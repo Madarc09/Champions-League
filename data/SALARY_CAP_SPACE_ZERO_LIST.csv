@@ -1,1 +1,773 @@
-playerId,name,team,position,capHit,status,source
+name,team,teamName,position,rosterStatus,capHit,salaryState,source
+Alexandre Blais,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexis Mathieu,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Anthony Allain-Samaké,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artyom Galimov,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Austin Burnevik,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brady Turko,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Calle Clang,ANA,Anaheim Ducks,G,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Cutter Gauthier,ANA,Anaheim Ducks,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Darels Uljanskis,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Drew Schock,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Elijah Neuenschwander,ANA,Anaheim Ducks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Émile Guité,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eric Frossard,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eric Nilson,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Bowen,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Gleb Peshkov,ANA,Anaheim Ducks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jayden Kurtz,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jimmy Rieber,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kyle Kukkonen,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lasse Boelius,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mathis Preston,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Masse,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michael Callow,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Klepov,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noah Kosick,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noah Read,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rian Chudzinski,ANA,Anaheim Ducks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sasha Pastujov,ANA,Anaheim Ducks,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Tarin Smith,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vyacheslav Buteyets,ANA,Anaheim Ducks,G,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+William Francis,ANA,Anaheim Ducks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Beckett Hendrickson,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Casper Nässén,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Christopher Pelosi,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Chandler,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Spicer,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cooper Simpson,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cullen McCrate,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dean Letourneau,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Elliott Groenewold,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Vandeven,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jonathan Morello,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kirill Yemelyanov,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kristian Kostadinski,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Liam Pettersson,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mason Langenbrunner,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Poitras,BOS,Boston Bruins,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Matvei Kotkov,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nils Bartholdsson,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Oscar Olsson,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Oskar Jellvik,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Philip Svedebäck,BOS,Boston Bruins,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roberto Leonardo Henriquez,BOS,Boston Bruins,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roman Bychkov,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Walsh,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vashek Blanár,BOS,Boston Bruins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Moore,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Zellers,BOS,Boston Bruins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yuri Ivanov,BOS,Boston Bruins,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Kleber,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artyom Kriukov,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ashton Schultz,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brodie Ziemer,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+David Bedkowski,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daxon Rudolph,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Domán Kristóf Szongoth,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dylan Dumont,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ilia Morozov,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Osburn,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matous Kucharcik,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matteo Costantini,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Melvin Novotny,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noah Laberge,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Norwin Panocha,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Olivers Murnieks,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Patrick Geary,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Prokhor Poltapov,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Rucinski,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samuel Meloche,BUF,Buffalo Sabres,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sean Keohane,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Simon-Pier Brunet,BUF,Buffalo Sabres,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stiven Sardaryan,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vasii Glotov,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vasili Zelenov,BUF,Buffalo Sabres,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yevgeni Prokhorov,BUF,Buffalo Sabres,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Nikishin,CAR,Carolina Hurricanes,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Alexander Pelevin,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Perevalov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Rykov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Siryatsky,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrei Krutov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cayden Primeau,CAR,Carolina Hurricanes,G,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Filip Ekberg,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Fyodor Avramov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Kucharski,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jayden Perron,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Justin Poirier,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Justin Robidas,CAR,Carolina Hurricanes,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Kurban Limatov,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michael Emerson,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikey Berchild,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Artamonov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Guslistov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noel Gunler,CAR,Carolina Hurricanes,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Oskar Vuollet,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roman Bausov,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roman Shokhrin,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ronan Seeley,CAR,Carolina Hurricanes,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Ryder Fetterolf,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Semyon Frolov,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stanislav Yarovoy,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Timur Kol,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Timur Mukhanov,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Viggo Nordlund,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladimir Grudinin,CAR,Carolina Hurricanes,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Wiggo Sörensson,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Naumov,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Velmakin,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zach Lansard,CAR,Carolina Hurricanes,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zachary Jovanovski,CAR,Carolina Hurricanes,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Fantilli,CBJ,Columbus Blue Jackets,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Alessandro Di Iorio,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrew Strathmann,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Anttoni Uronen,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cayden Lindstrom,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Sillinger,CBJ,Columbus Blue Jackets,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Evan Jardine,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Filip Novák,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jackson Smith,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+James Fisher,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jérémy Loranger,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jet Greaves,CBJ,Columbus Blue Jackets,G,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Jonas Woo,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kirill Dolzhenkov,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Ashton,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Malte Vass,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Melvin Strahl,CBJ,Columbus Blue Jackets,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikolai Makarov,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Oscar Hemming,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Owen Griffin,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Parker Snell,CBJ,Columbus Blue Jackets,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Peter Quenneville,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Pyotr Andreyanov,CBJ,Columbus Blue Jackets,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tanner Henricks,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tim Berni,CBJ,Columbus Blue Jackets,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Victor Hedin Raftheim,CBJ,Columbus Blue Jackets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Whitelaw,CBJ,Columbus Blue Jackets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aidan Lane,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alan Shaikhlislamov,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Bode Laylin,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brennan Othmann,CGY,Calgary Flames,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Cade Littler,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carson Carels,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Chase Harrington,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Reschny,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cullen Potter,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Chechelev,CGY,Calgary Flames,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Demetrios Koumontzis,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Egor Barabanov,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eric Jamieson,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Wyttenbach,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Henry Mews,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Hextall,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jaden Lipinski,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jakob Leander,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joe Iginla,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Misa,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mace'o Phillips,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxmilian Curran,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Okhotyuk,CGY,Calgary Flames,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Pavel Karnaukhov,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rushan Rafikov,CGY,Calgary Flames,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Simon Katolicky,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tobias Trejbal,CGY,Calgary Flames,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Trevor Hoskin,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yan Matveiko,CGY,Calgary Flames,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Yegorov,CGY,Calgary Flames,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Ivanov,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artur Kayumov,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ashton Cumby,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Del Mastro,CHI,Chicago Blackhawks,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Ilya Kanarsky,CHI,Chicago Blackhawks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Janne Peltonen,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joel Svensson,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+John Mustard,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Julius Sumpf,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kevin Korchinski,CHI,Chicago Blackhawks,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Mason West,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nathan Behm,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Parker Holmes,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Roobroeck,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samu Alalauri,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ty Henry,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vaclav Nestrasil,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Sörbrand,CHI,Chicago Blackhawks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Xavier Villeneuve,CHI,Chicago Blackhawks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexandre Raymond,COL,Colorado Avalanche,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrei Buyalsky,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Axel Elofsson,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Beckett Hamilton,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Christian Humphreys,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Christopher Romaine,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Tuminaro,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Francesco Dell'Elce,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hank Kempf,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ivan Yunin,COL,Colorado Avalanche,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jake Fisher,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Linus Funck,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Louka Cloutier,COL,Colorado Avalanche,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Gulyayev,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Ishimnikov,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nolan Roed,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ondřej Ruml,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sampo Ranta,COL,Colorado Avalanche,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Sergei Boikov,COL,Colorado Avalanche,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Shamil Shmakov,COL,Colorado Avalanche,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Shawn Carrier,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Teddy Lechner,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tobias Tvrznik,COL,Colorado Avalanche,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tory Pitner,COL,Colorado Avalanche,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Shilov,COL,Colorado Avalanche,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zakhar Bardakov,COL,Colorado Avalanche,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Anton Emil Wilde Larsen,DAL,Dallas Stars,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Atte Joki,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brandon Gorzynski,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cameron Schmidt,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Charlie Paquette,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dawson Sharkey,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+George Fegaras,DAL,Dallas Stars,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jakub Vanecek,DAL,Dallas Stars,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jasper Kuhta,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Måns Goos,DAL,Dallas Stars,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Mayorov,DAL,Dallas Stars,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Cherepanov,DAL,Dallas Stars,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Brown,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sebastian Bradshaw,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Samuelsson,DAL,Dallas Stars,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Levac,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Kadeykin,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Austin Baker,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Beckham Edwards,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brady Cleveland,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brennan Ali,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brent Solomon,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carter Gylander,DET,Detroit Red Wings,G,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Charlie Forslund,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eemil Viro,DET,Detroit Red Wings,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Fisher Scott,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Grayden Robertson-Palmer,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+J.P. Hurlbert,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Phelan,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+John Whipple,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kevin Bicker,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kienan Draper,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Larry Keenan,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luka Arkko,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Max Plante,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michal Orsulak,DET,Detroit Red Wings,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michal Pradel,DET,Detroit Red Wings,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michal Svrcek,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Myles Brosnan,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Tyurin,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Owen Mehlenbacher,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rudy Guimond,DET,Detroit Red Wings,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Simon Edvinsson,DET,Detroit Red Wings,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Victor Plante,DET,Detroit Red Wings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Will Murphy,DET,Detroit Red Wings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aidan Park,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrew Robinson,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Asher Barnett,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Bauer Berry,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Caden Harvey,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dalyn Wakely,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniel Salonen,EDM,Edmonton Oilers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+David Lewandowski,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eemil Vinni,EDM,Edmonton Oilers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joel Määttä,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maksim Berezkin,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Malcom Gästrin,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matt Copponi,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Denezhkin,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Yevseyev,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Paul Fischer,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roby Jarventie,EDM,Edmonton Oilers,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Rudolfs Berzkalns,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Cameron,EDM,Edmonton Oilers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tomas Mazura,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tommy Lafrenière,EDM,Edmonton Oilers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ty Taylor,EDM,Edmonton Oilers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zack Sharp,EDM,Edmonton Oilers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Akira Schmid,FLA,Florida Panthers,G,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Albert Wikman,FLA,Florida Panthers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Arvid Drott,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brendan Dunphy,FLA,Florida Panthers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Zurawski,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Denis Gabdrakhmanov,FLA,Florida Panthers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jonas Kemps,FLA,Florida Panthers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Linus Eriksson,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Louis-Antoine Denault,FLA,Florida Panthers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Coughlin,FLA,Florida Panthers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mads Kongsbak Klyvø,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Olof Glifford,FLA,Florida Panthers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryder Cali,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Shamar Moses,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Shea Busch,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Simas Ignatavicius,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Simon Zether,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stepan Gorbunov,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stepan Zvyagin,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vilho Vanhatalo,FLA,Florida Panthers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladislav Lukashevich,FLA,Florida Panthers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Midlak,FLA,Florida Panthers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Goljer,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alex Kostov,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Dergachyov,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Blake Zielinski,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Braden Doyle,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brendan McMorrow,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Bulat Shafigullin,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Caeden Herrington,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Giorgos Pantelas,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Sparkes,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+James Reeder,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jan Chovan,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kristian Epperson,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Liam Lefebvre,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lucas Ambrosio,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Petteri Rimpinen,LAK,Los Angeles Kings,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Conmy,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Thomas Vandenberg,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tobias Krestan,LAK,Los Angeles Kings,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vertti Svensk,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Will Sharpe,LAK,Los Angeles Kings,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Rybkin,LAK,Los Angeles Kings,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aaron Pionk,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Andersson,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Benák,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aron Kiviharju,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carter Klippenstein,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jimmy Clark,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Justin Kipkie,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kayden Lemire,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lirim Amidovski,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matvey Guskov,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nate Benoit,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryder Ritchie,MIN,Minnesota Wild,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sebastian Soini,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Theodor Hallquisth,MIN,Minnesota Wild,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aatos Koivu,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Gordin,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Zharovsky,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexis Cournoyer,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrew MacNiel,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Arber Xhekaj,MTL,Montreal Canadiens,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Arseni Radkov,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ben Merrill,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brayden Klimpke,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carlos Händel,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cooper Cleaves,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Sobolev,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Kostenko,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Emmett Croteau,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Filip Eriksson,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Gleb Pugachyov,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hayden Paupanekis,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Smith,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jean-Samuel Daigneault,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+L.J. Mooney,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Logan Sawyer,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Makar Khanin,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maksymilian Szuber,MTL,Montreal Canadiens,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Maxon Vig,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michael Hage,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikus Vecvanags,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Parker Trottier,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Quentin Miller,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rasmus Bergqvist,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sam Harris,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sean Farrell,MTL,Montreal Canadiens,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Timofei Runtso,MTL,Montreal Canadiens,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ty Smilanic,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tyler Deakos,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Wesley Royston,MTL,Montreal Canadiens,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yevgeni Volokhin,MTL,Montreal Canadiens,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zack Bolduc,MTL,Montreal Canadiens,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Alexander Command,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artyom Barabosha,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Benjamin Kevan,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Charlie Leddy,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Chase Cheslock,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole Brown,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Conrad Fondrk,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Karpovich,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Orlov,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Rusakovich,NJD,New Jersey Devils,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+David Rozsíval,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Gustav Hillström,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kasper Pikkarainen,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lavr Gashilov,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Wilfley,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mason Moe,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matias Vanhanen,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Yegorov,NJD,New Jersey Devils,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Popugaev,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Shcherbakov,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Quinn McKenzie,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samu Salminen,NJD,New Jersey Devils,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sigge Holmgren,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Topias Vilen,NJD,New Jersey Devils,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Trenten Bennett,NJD,New Jersey Devils,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Veeti Louhivaara,NJD,New Jersey Devils,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Viktor Hurtig,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Zaitsev,NJD,New Jersey Devils,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Ingram,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alex Huang,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Benjamin Cossette-Ayotte,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Benjamin Strinden,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cameron Reid,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Charlie Puglisi,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Borichev,NSH,Nashville Predators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Erik Påhlsson,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Haider,NSH,Nashville Predators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Isak Walther,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Ivankovic,NSH,Nashville Predators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Rombach,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jakub Floris,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jakub Milota,NSH,Nashville Predators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Justin Graf,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Konstantin Volkov,NSH,Nashville Predators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Miguel Marques,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Philip Hemmyr,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryker Lee,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Semyon Chystyakov,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sutter Muzzatti,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Teddy Stiga,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tommy Bleyl,NSH,Nashville Predators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Viktor Nörringer,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Wyatt Cullen,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Surin,NSH,Nashville Predators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alex Jefferies,NYI,New York Islanders,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Artyom Matyuk,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Bobby Cowan,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Burke Hood,NYI,New York Islanders,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Danny Nelson,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dennis Good Bogg,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Gamzin,NYI,New York Islanders,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Kvasnicka,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joey Larson,NYI,New York Islanders,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Kamil Bednarik,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lincoln Kuehne,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luca Romano,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ruslan Iskhakov,NYI,New York Islanders,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Ryan Healey,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sam Laurila,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tomas Machu,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tomas Poletin,NYI,New York Islanders,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladimír Dravecký,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Xavier Veilleux,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zach Schulz,NYI,New York Islanders,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andre Mondoux,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artyom Gonchar,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ben Macbeath,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Charlie Morrison,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Danai Shaiikov,NYR,New York Rangers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Darian Anderson,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+EJ Emery,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Evan Passmore,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Felix Färhammar,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ivan Patrikhayev,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Karl Henriksson,NYR,New York Rangers,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Lauri Pajuniemi,NYR,New York Rangers,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Malcolm Spence,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikkel Eriksen,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Raoul Boilard,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rasmus Larsson,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rico Gredig,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samuel Jung,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Scott Morrow,NYR,New York Rangers,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Sean Barnhill,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Spencer Bowes,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tomas Chrenko,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ty Henricks,NYR,New York Rangers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vincent Iorio,NYR,New York Rangers,D,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Zeb Lindgren,NYR,New York Rangers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Nemec,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Grunin,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Andrei Trofimov,OTT,Ottawa Senators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Blake Vanek,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brandon Svoboda,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Bruno Idzan,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cameron O'Neill,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Isayev,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eerik Wallenius,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Elliot Lennon,OTT,Ottawa Senators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Filip Nordberg,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Harris Pangretitsch,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Javon Moore,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jaxon Cover,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jonas Lagerberg Hoen,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Logan Hensler,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Louis-Felix Bourque,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nicholas VanTassell,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Oscar Holmertz,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Owen Beckner,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Theo Wallberg,OTT,Ottawa Senators,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tyson Dyck,OTT,Ottawa Senators,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladimir Nikitin,OTT,Ottawa Senators,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Austin Moline,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brek Liske,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carter Amico,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Heikki Ruohonen,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hunter McDonald,PHI,Philadelphia Flyers,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Jack Murtagh,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Nesbitt,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+KJ Sauer,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Vlooswyk,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Marek Sklenicka,PHI,Philadelphia Flyers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Martin Psohlavec,PHI,Philadelphia Flyers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matej Tomek,PHI,Philadelphia Flyers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Gard,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Max Laatikainen,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Max Westergård,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Sokolovsky,PHI,Philadelphia Flyers,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nathan Quinn,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikita Grebenkin,PHI,Philadelphia Flyers,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Owen McLaughlin,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan MacPherson,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Shane Vansaghi,PHI,Philadelphia Flyers,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Zavragin,PHI,Philadelphia Flyers,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Alexeyev,PIT,Pittsburgh Penguins,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Brady Peddle,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carter Sanderson,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Charlie Trethewey,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cruz Lucius,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Emil Järventie,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joona Väisänen,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jordan Charron,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joseph Masonius,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kale Dach,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kalle Kangas,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kirill Tankov,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Liam Ruck,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Devlin,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mac Swanson,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Markus Ruck,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matvei Nikonovich,PIT,Pittsburgh Penguins,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Parker Von Richter,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Pierce Mbuyi,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Quinn Beauchesne,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Miller,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Segalla,PIT,Pittsburgh Penguins,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Travis Hayes,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vasiliy Ponomarev,PIT,Pittsburgh Penguins,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Ville Koivunen,PIT,Pittsburgh Penguins,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+William Horcoff,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zam Plante,PIT,Pittsburgh Penguins,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Barrett Hall,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ben MacDonald,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Blake Fiddler,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Casey Mutryn,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Chase Reid,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Clarke Caswell,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Finn Kearns,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Melanson,SEA,Seattle Kraken,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Jakub Fibigr,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Justin Janicke,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Karl Annborn,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Loke Krantz,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luken Huff,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Agafonov,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ola Palme,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ollie Josephson,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Peetro Seppala,SEA,Seattle Kraken,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Rylan Singh,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Semyon Vyazovoy,SEA,Seattle Kraken,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Viktor Fyodorov,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Visa Vedenpää,SEA,Seattle Kraken,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Will Reynolds,SEA,Seattle Kraken,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Tomko,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zaccharya Wisdom,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zeb Forsfjäll,SEA,Seattle Kraken,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Karmanov,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Axel Landén,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brady Knowling,SJS,San Jose Sharks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Christian Kirsch,SJS,San Jose Sharks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cole McKinney,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Collin Graf,SJS,San Jose Sharks,F,Active roster,0,unsigned,Champions League 2026-27 master salary list
+Colton Roberts,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+David Klee,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Eli Barnett,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Haoxi Wang,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ilyas Magomedsultanov,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jake Gustafson,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joey Muldowney,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joshua Ravensbergen,SJS,San Jose Sharks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Keaton Verhoeff,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Martin Kaut,SJS,San Jose Sharks,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Max Heise,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Michael Fisher,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nate Misskey,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Reese Laubach,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Richard Gallant,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryan Lin,SJS,San Jose Sharks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Teddy Mutryn,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yaroslav Korostelyov,SJS,San Jose Sharks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Rimashevsky,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yegor Spiridonov,SJS,San Jose Sharks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Antoine Dorion,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carter Stevens,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Colin Fitzgerald,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Buchelnikov,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ivan Vorobyov,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Landon Nycz,STL,St. Louis Blues,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lars Steiner,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Leo Loof,STL,St. Louis Blues,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Love Härenstam,STL,St. Louis Blues,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Luke Schairer,STL,St. Louis Blues,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maddox Dagenais,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Marcus Gidlöf,STL,St. Louis Blues,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Mayich,STL,St. Louis Blues,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matvei Korotky,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Abramov,STL,St. Louis Blues,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Fyodorov,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nick Bogas,STL,St. Louis Blues,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ondrej Kos,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tomas Mrsic,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tynan Lawrence,STL,St. Louis Blues,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladimir Proskurin,STL,St. Louis Blues,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William McIsaac,STL,St. Louis Blues,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aiden Foster,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Caleb Heil,TBL,Tampa Bay Lightning,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cooper Soller,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daniil Pylenkov,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Hay,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Everett Baldwin,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Grant Spada,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hagen Burrows,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hugo Alnefelt,TBL,Tampa Bay Lightning,G,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Jack Harvey,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jack Pridham,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jan Golicic,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jayson Shaugabay,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joe Connor,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joona Saarelainen,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Klavs Veinbergs,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Marco Mignosa,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Max Vilén,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mckade Webster,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mikhail Shalagin,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Morgan Anderberg,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Oleg Kulebyakin,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roman Luttsev,TBL,Tampa Bay Lightning,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stepan Shurygin,TBL,Tampa Bay Lightning,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Warren Clark,TBL,Tampa Bay Lightning,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Bilecki,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexander Plesovskikh,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brody Pepoy,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cooper Williams,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan MacKenzie,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Harry Nansi,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Hudson Malinoski,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joe Miller,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Juuso Ainasto,TOR,Toronto Maple Leafs,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kirill Slepets,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Måns Gudmundsson,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Lahey,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nicholas Moldenhauer,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nikolai Chebykin,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Patriks Plumins,TOR,Toronto Maple Leafs,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Roni Hirvonen,TOR,Toronto Maple Leafs,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Rylan Fellinger,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sam McCue,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Semyon Der-Arguchintsev,TOR,Toronto Maple Leafs,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Semyon Kizimov,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Timofei Obvintsev,TOR,Toronto Maple Leafs,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Topi Niemela,TOR,Toronto Maple Leafs,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Tyler Hopkins,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Veeti Miettinen,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Victor Johansson,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladimir Bobylev,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vladislav Kara,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+William Belle,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Wyatt Schingoethe,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yaroslav Fedoseyev,TOR,Toronto Maple Leafs,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zac Olsen,TOR,Toronto Maple Leafs,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Valentini,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Artyom Prima,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Cal Thomas,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carl Axelsson,UTA,Utah Mammoth,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Carsen Musser,UTA,Utah Mammoth,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ethan Belchetz,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Florent Houle,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ilya Fedotov,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ivan Tkach-Tkachenko,UTA,Utah Mammoth,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ludvig Johnson,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ludvig Lafton,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Morden,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Max Psenicka,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Melker Thelin,UTA,Utah Mammoth,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Reko Alanko,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samu Bau,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Stepan Hoch,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tanner Ludtke,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Theodor Knights,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Veeti Väisänen,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Vojtech Hradec,UTA,Utah Mammoth,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Will Skahan,UTA,Utah Mammoth,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Adam Novotný,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aiden Celebrini,VAN,Vancouver Canucks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Anthony Romani,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Basile Sansonnens,VAN,Vancouver Canucks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brooks Rogowski,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Caleb Malhotra,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Connor Davis,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Daimon Gardner,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Ivchenko,VAN,Vancouver Canucks,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Kieren Dervin,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lucian Bernat,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Lansing,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Perkins,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Niklas Aaram-Olsen,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Parker Alcos,VAN,Vancouver Canucks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Samuel Eriksson,VAN,Vancouver Canucks,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Wilson Björck,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Yaroslav Bryzgalov,VAN,Vancouver Canucks,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Arttu Kärki,VGK,Vegas Golden Knights,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ben Wilmott,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Gustav Sjöqvist,VGK,Vegas Golden Knights,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ivan Morozov,VGK,Vegas Golden Knights,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Jakob Ihs-Wozniak,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jakub Brabenec,VGK,Vegas Golden Knights,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Jonah Sivertson,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Lucas Van Vliet,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Martins Dzierkals,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Mateo Nobert,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Matthew Minchak,VGK,Vegas Golden Knights,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noah Ellis,VGK,Vegas Golden Knights,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noel Pakarinen,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Ryder Donovan,VGK,Vegas Golden Knights,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sean Burick,VGK,Vegas Golden Knights,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Will McLaughlin,VGK,Vegas Golden Knights,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Alexandre Taillefer,WPG,Winnipeg Jets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Connor Levis,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Dmitri Rashevsky,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Edison Engle,WPG,Winnipeg Jets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Harrison Blaisdell,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jacob Cloutier,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+John Parsons,WPG,Winnipeg Jets,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Landon Hafele,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Markus Loponen,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Noa Ta'amu,WPG,Winnipeg Jets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Owen Martin,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Pavel Kraskovsky,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Rasmus Kupari,WPG,Winnipeg Jets,F,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Samuel Hrenak,WPG,Winnipeg Jets,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Sascha Boumedienne,WPG,Winnipeg Jets,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tyrel Bauer,WPG,Winnipeg Jets,D,Non-roster,0,unsigned,Champions League 2026-27 master salary list
+Viktor Klingsell,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zach Wooten,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Zachary Nehring,WPG,Winnipeg Jets,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Antoine Keller,WSH,Washington Capitals,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Aron Dahlqvist,WSH,Washington Capitals,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brett Hyland,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Brian McFadden,WSH,Washington Capitals,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Chase Clark,WSH,Washington Capitals,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Jackson Crowder,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Joaquim Lemay,WSH,Washington Capitals,D,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Logan Stuart,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Maxim Schäfer,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Miroslav Satan,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Nicholas Kempf,WSH,Washington Capitals,G,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list
+Tyus Sparks,WSH,Washington Capitals,F,Unsigned draft choice,0,unsigned,Champions League 2026-27 master salary list

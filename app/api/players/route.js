@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { getPlayerPool, searchPlayers } from "@/lib/nhl";
-import { getSalaryRecords } from "@/lib/salaries";
-import { SEED_SALARIES_BY_NAME } from "@/data/seed-salaries";
-import { VERIFIED_SALARY_CORRECTIONS_BY_NAME } from "@/data/verified-salary-corrections";
 import { getRankingSnapshot, pickPlayerRankings } from "@/lib/rankings";
 import { getMoneyPuckSnapshot, findMoneyPuckRecord } from "@/lib/moneypuck";
 import { createPlayerProjection } from "@/lib/projections";
@@ -10,7 +7,6 @@ import { applyStaticProjection, staticProjectionSummary } from "@/lib/static-pro
 import { getNhlHistorySnapshot, findNhlHistory } from "@/lib/nhl-history";
 import { projectionContextFor } from "@/data/projection-context";
 import { salaryCapSpaceRecordFor, salaryCapSpaceSnapshot } from "@/lib/salary-cap-space";
-import { canonicalPlayerName, getCapSpaceSalarySnapshot } from "@/lib/capspace-snapshot";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -22,20 +18,6 @@ function attachFantasyRanks(players) {
     rank += 1;
     return { ...player, fantasyRank: rank };
   });
-}
-
-function trustedSalaryOverride(record) {
-  if (!record || !Number.isFinite(Number(record.capHit))) return null;
-  return String(record.source || "").toLowerCase() === "manual" ? record : null;
-}
-
-function fallbackSalaryRecord(snapshot, player) {
-  if (!snapshot) return null;
-  const nameKey = canonicalPlayerName(player.name);
-  return snapshot.byPlayerId?.[String(player.playerId)]
-    || snapshot.byTeamAndName?.[`${String(player.team || "").toUpperCase()}:${nameKey}`]
-    || snapshot.byName?.[nameKey]
-    || null;
 }
 
 export async function GET(request) {
@@ -92,15 +74,17 @@ export async function GET(request) {
   const staticSnapshot = salaryCapSpaceSnapshot();
   const hasStaticSalaryFile = Number(staticSnapshot?.recordCount || 0) > 0;
 
-  const [playerResult, fallbackSalaryResult, rankingResult, moneyPuckResult, historyResult] = await Promise.all([
+  if (!hasStaticSalaryFile) {
+    return NextResponse.json(
+      { error: "The frozen 2026-27 salary master is missing or empty." },
+      { status: 500 }
+    );
+  }
+
+  const [playerResult, rankingResult, moneyPuckResult, historyResult] = await Promise.all([
     getPlayerPool()
       .then((pool) => ({ pool, error: null }))
       .catch((error) => ({ pool: null, error })),
-    hasStaticSalaryFile
-      ? Promise.resolve({ snapshot: null, error: null })
-      : getCapSpaceSalarySnapshot({ force: false, strict: false })
-        .then((snapshot) => ({ snapshot, error: null }))
-        .catch((error) => ({ snapshot: null, error })),
     getRankingSnapshot()
       .then((snapshot) => ({ snapshot, error: null }))
       .catch((error) => ({ snapshot: null, error })),
@@ -126,17 +110,10 @@ export async function GET(request) {
     leaderboardMode ? null : 100
   );
   const rankedMatches = attachFantasyRanks(matches);
-  const storedOverrides = await getSalaryRecords(rankedMatches.map((player) => player.playerId));
 
   const players = rankedMatches.map((player) => {
-    const nameKey = canonicalPlayerName(player.name);
-    const override = trustedSalaryOverride(storedOverrides[String(player.playerId)]);
     const staticRecord = salaryCapSpaceRecordFor(player);
-    const verifiedCorrection = VERIFIED_SALARY_CORRECTIONS_BY_NAME[nameKey] || null;
-    const fallbackRecord = fallbackSalaryRecord(fallbackSalaryResult.snapshot, player);
-    const rookieSeed = SEED_SALARIES_BY_NAME[nameKey] || null;
-    const selected = override || staticRecord || verifiedCorrection || fallbackRecord || rookieSeed || null;
-    const selectedCapHit = Number(selected?.capHit);
+    const selectedCapHit = Number(staticRecord?.capHit);
     const capHit = Number.isFinite(selectedCapHit) && selectedCapHit >= 500_000
       ? Math.round(selectedCapHit)
       : null;
@@ -162,15 +139,18 @@ export async function GET(request) {
     return {
       ...player,
       capHit,
-      salarySource: selected?.source || null,
-      salaryUpdatedAt: override?.updatedAt || staticSnapshot?.generatedAt || fallbackSalaryResult.snapshot?.updatedAt || selected?.verifiedAt || null,
-      salaryState: capHit != null ? "signed" : "unresolved",
+      salarySource: staticRecord?.source || null,
+      salaryUpdatedAt: staticSnapshot?.generatedAt || null,
+      salaryState: capHit != null ? "signed" : (staticRecord ? "unsigned" : "unmatched"),
+      salaryMasterMatched: Boolean(staticRecord),
       expectedRanks,
       projection
     };
   });
 
   const unresolvedSalaryCount = players.filter((player) => player.capHit == null).length;
+  const matchedMasterCount = players.filter((player) => player.salaryMasterMatched).length;
+  const unmatchedMasterCount = players.length - matchedMasterCount;
 
   return NextResponse.json({
     players,
@@ -184,21 +164,22 @@ export async function GET(request) {
       duplicateAudit: playerResult.pool.duplicateAudit || null
     },
     salaryData: {
-      source: hasStaticSalaryFile ? "SALARY_CAP_SPACE.json" : (fallbackSalaryResult.snapshot?.source || "salary fallback"),
-      sourceUrl: hasStaticSalaryFile ? staticSnapshot?.sourceUrl || null : fallbackSalaryResult.snapshot?.sourceUrl || null,
-      updatedAt: hasStaticSalaryFile ? staticSnapshot?.generatedAt || null : fallbackSalaryResult.snapshot?.updatedAt || null,
-      recordCount: hasStaticSalaryFile
-        ? Number(staticSnapshot?.recordCount || 0)
-        : Number(fallbackSalaryResult.snapshot?.recordCount || 0),
-      signedCount: hasStaticSalaryFile ? Number(staticSnapshot?.signedCount || 0) : null,
-      zeroSalaryCount: hasStaticSalaryFile ? Number(staticSnapshot?.zeroSalaryCount || 0) : unresolvedSalaryCount,
-      matchedPlayerCount: players.length - unresolvedSalaryCount,
+      source: "SALARY_CAP_SPACE.json",
+      sourceFile: staticSnapshot?.sourceFile || "data/SALARY_CAP_MASTER_2026-27.xlsx",
+      updatedAt: staticSnapshot?.generatedAt || null,
+      recordCount: Number(staticSnapshot?.recordCount || 0),
+      teamCount: Number(staticSnapshot?.teamCount || 0),
+      signedCount: Number(staticSnapshot?.signedCount || 0),
+      zeroSalaryCount: Number(staticSnapshot?.zeroSalaryCount || 0),
+      matchedPlayerCount: matchedMasterCount,
+      unmatchedPlayerCount: unmatchedMasterCount,
+      signedPlayerCount: players.length - unresolvedSalaryCount,
       unresolvedPlayerCount: unresolvedSalaryCount,
-      frozen: hasStaticSalaryFile,
-      fallback: !hasStaticSalaryFile,
-      auditComplete: hasStaticSalaryFile,
+      frozen: true,
+      fallback: false,
+      auditComplete: true,
       error: null,
-      warning: fallbackSalaryResult.error?.message || null
+      warning: null
     },
     projectionData: {
       model: "Champions Static Projection Board 2.0",

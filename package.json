@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "salary-cap-space": "node scripts/build-salary-cap-space.mjs",
-    "validate:salaries": "node scripts/test-salary-cap-space-build.mjs"
+    "validate:salaries": "node scripts/validate-static-salary-master.mjs",
+    "build:salaries": "node scripts/build-static-salary-master.mjs"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",
