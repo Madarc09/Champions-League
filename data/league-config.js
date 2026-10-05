@@ -61,7 +61,7 @@ export const DREAM_TEAM = {
   slug: "dream-team",
   name: "Dream Team",
   kind: "dream",
-  description: "The best cap-legal 12F / 6D / 2G roster from current 2026–27 fantasy points, refreshed once per league week."
+  description: "The weekly AI-built cap-legal roster — unless a manager beats it in the Dream Team Challenge and takes the crown."
 };
 
 export const STANDINGS_TEAMS = [...TEAMS, BOT_TEAM];

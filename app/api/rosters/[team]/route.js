@@ -12,7 +12,9 @@ import {
 import { getRedis } from "@/lib/redis";
 import { managerFromRequest } from "@/lib/auth";
 import { rosterStorageKey } from "@/lib/standings";
-import { specialRosterFor } from "@/lib/special-teams";
+import { ensureDreamTeamRoster, specialRosterFor } from "@/lib/special-teams";
+import { getPlayerPool } from "@/lib/nhl";
+import { getDreamChallengeSnapshot } from "@/lib/dream-challenge";
 
 function validTeam(team) {
   return PUBLIC_TEAMS.some((item) => item.slug === team);
@@ -59,7 +61,14 @@ export async function GET(request, context) {
 
   if (!isHumanTeam(team)) {
     try {
-      const roster = await specialRosterFor(team);
+      let roster;
+      if (team === "dream-team") {
+        const [aiRoster, pool] = await Promise.all([ensureDreamTeamRoster(), getPlayerPool()]);
+        const challenge = await getDreamChallengeSnapshot({ aiRoster, pool });
+        roster = challenge.crownedRoster;
+      } else {
+        roster = await specialRosterFor(team);
+      }
       return NextResponse.json({
         roster,
         concealed: false,

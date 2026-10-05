@@ -11,6 +11,7 @@ import {
 import { applyStaticProjection } from "@/lib/static-projections";
 import { buildPlayerIdentityIndex, canonicalPlayerName, resolvePlayerFromIndex } from "@/lib/player-identity";
 import { ensureSpecialRosters } from "@/lib/special-teams";
+import { getDreamChallengeSnapshot } from "@/lib/dream-challenge";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -29,11 +30,13 @@ export async function GET() {
   const redis = getRedis();
   const rosters = {};
   let dreamRoster = null;
+  let aiDreamRoster = null;
 
   try {
     const special = await ensureSpecialRosters();
     rosters[special.bot.team] = special.bot;
     dreamRoster = special.dream;
+    aiDreamRoster = special.dream;
   } catch (error) {
     console.error("Special roster refresh failed:", error);
   }
@@ -62,6 +65,19 @@ export async function GET() {
 
   try {
     const pool = await getPlayerPool();
+
+    // The AI still creates the opening roster every week, but the public Dream
+    // Team slot is owned by the highest-scoring challenge entry until somebody
+    // beats it. Challenge entries live in their own Redis namespace and never
+    // touch any real drafted roster.
+    try {
+      const challenge = await getDreamChallengeSnapshot({ aiRoster: dreamRoster, pool });
+      aiDreamRoster = challenge.ai;
+      dreamRoster = challenge.crownedRoster;
+    } catch (challengeError) {
+      console.error("Dream Team Challenge crown refresh failed:", challengeError);
+    }
+
     const liveIdentityIndex = buildPlayerIdentityIndex(pool.players || []);
     livePlayersById = new Map(
       (pool.players || []).map((player) => [String(player.playerId), player])
@@ -103,7 +119,10 @@ export async function GET() {
   const standings = buildLeagueStandings(rosters, liveFantasyPoints, liveProjectedPoints)
     .map((team) => ({
       ...team,
-      dreamTeamPlayers: overlapCount(rosters[team.slug], dreamRoster)
+      // Keep the original league-side Dream Team overlap stat tied to the AI's
+      // weekly optimized roster. A mini-game winner may occupy the public Dream
+      // Team display, but cannot alter this established league metric.
+      dreamTeamPlayers: overlapCount(rosters[team.slug], aiDreamRoster || dreamRoster)
     }));
 
   const positionOrder = { F: 0, D: 1, G: 2 };
@@ -130,7 +149,9 @@ export async function GET() {
     projectedFantasyPoints: rosterProjectedTotal(dreamRoster, liveProjectedPoints),
     totalCap: Number(dreamRoster.totalCap || 0),
     weekKey: dreamRoster.weekKey || null,
-    updatedAt: dreamRoster.updatedAt || null
+    updatedAt: dreamRoster.updatedAt || null,
+    challengeHolder: dreamRoster.challengeHolder || { type: "ai", name: "AI" },
+    strategy: dreamRoster.strategy || null
   } : null;
 
   // The homepage roster carousel uses the same already-fetched NHL snapshot as

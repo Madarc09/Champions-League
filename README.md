@@ -46,3 +46,16 @@ npm run dev
 - Desktop uses integrated previous/next controls; mobile supports horizontal swipe inside the roster board.
 - All carousel rosters are enriched from the same live NHL snapshot already used by standings, avoiding extra per-team API calls.
 - Skynet T-104 uses a new command-room background with tall left/right prediction terminals and an open central roster bay.
+
+## Dream Team Challenge
+
+The live site includes `/dream-team-challenge`, a weekly mini-game that is completely isolated from drafted league rosters.
+
+- The existing AI Dream Team opens each league week as the target.
+- Logged-in managers may submit unlimited cap-legal 12F / 6D / 2G challenge rosters under the same $104M cap.
+- Challenge entries are stored under `champions-league:dream-challenge:2026-27:*` Redis keys and never write to the league roster keys.
+- Attempts are re-scored from current 2026–27 NHL fantasy totals whenever the challenge is read.
+- A human roster must strictly exceed the current holder to take the crown; ties do not dethrone the holder.
+- The public Dream Team roster display shows the current challenge crown holder.
+- The established league `Dream Team players` overlap statistic remains based on the AI weekly roster, so the mini-game cannot alter that league-side metric.
+- `dreamWeekKey()` still controls the Monday 4 AM Toronto rollover. The next request after rollover generates the new weekly AI roster if the cron has not already done so.

@@ -91,7 +91,9 @@ export default function HomeDashboard() {
       players: dreamPlayers,
       fantasyPoints: Number(dreamTeam?.fantasyPoints || 0),
       totalCap: Number(dreamTeam?.totalCap || 0),
-      subtitle: dreamTeam?.weekKey || "CURRENT WEEK"
+      subtitle: dreamTeam?.challengeHolder?.type === "manager"
+        ? `HELD BY ${String(dreamTeam.challengeHolder.name || "MANAGER").toUpperCase()} · ATTEMPT ${dreamTeam.challengeHolder.attemptNumber || "—"}`
+        : "AI WEEKLY TEAM"
     };
 
     const teams = (teamRosters || []).map((team) => ({
@@ -272,6 +274,7 @@ export default function HomeDashboard() {
                 <div>
                   <h2 id="arena-dream-title">{activeView?.name || "Dream Team"}</h2>
                   <span>{activeView?.subtitle || "CURRENT ROSTER"}</span>
+                  {activeView?.slug === "dream-team" ? <a className="dream-challenge-link" href="/dream-team-challenge">Challenge the AI →</a> : null}
                 </div>
                 <button className="roster-view-arrow next" type="button" onClick={() => changeRosterView(1)} aria-label="Next roster">›</button>
               </div>
