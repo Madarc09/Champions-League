@@ -8327,3 +8327,189 @@ body:has(.champions-draft-page) .header-auth-button {
   .generated-roster-banner { width: 70%; padding: 5px 8px; }
   .generated-roster-banner span { display: none; }
 }
+
+/* Home launch refinement: right board is the weekly Dream Team, and the
+   standings footer permanently exposes the Champions League scoring rules. */
+.home-scoring-card {
+  height: 14%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 16px;
+  padding: 7px 2.3%;
+  border-top: 1px solid rgba(233, 189, 98, 0.42);
+  background: linear-gradient(90deg, rgba(153, 103, 24, .2), rgba(4, 12, 20, .58));
+}
+
+.home-scoring-badge {
+  color: #f1c66f;
+  font-size: clamp(.47rem, .6vw, .65rem);
+  font-weight: 950;
+  letter-spacing: .11em;
+  white-space: nowrap;
+}
+
+.home-scoring-lines {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  color: #eee7da;
+  font-size: clamp(.48rem, .61vw, .67rem);
+  font-weight: 750;
+  line-height: 1.18;
+}
+
+.home-scoring-lines span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-scoring-lines strong {
+  margin-right: 5px;
+  color: #fff;
+  font-weight: 950;
+}
+
+.home-dream-board {
+  display: grid;
+  grid-template-rows: 12% 10% 78%;
+}
+
+.home-dream-heading {
+  height: auto;
+  min-height: 0;
+}
+
+.home-dream-summary {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid rgba(118, 215, 255, .25);
+  background: rgba(41, 116, 173, .09);
+}
+
+.home-dream-summary > span {
+  min-width: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, .07);
+}
+
+.home-dream-summary > span:last-child { border-right: 0; }
+
+.home-dream-summary strong,
+.home-dream-summary small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-dream-summary strong {
+  color: #76d7ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(.52rem, .67vw, .74rem);
+}
+
+.home-dream-summary small {
+  margin-top: 1px;
+  color: #9eacb7;
+  font-size: clamp(.38rem, .45vw, .5rem);
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.home-dream-list {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(118, 215, 255, .48) rgba(0, 0, 0, .12);
+}
+
+.home-dream-player-row {
+  width: 100%;
+  height: 9.3%;
+  min-height: 25px;
+  display: grid;
+  grid-template-columns: 8% 13% minmax(0, 1fr) 19%;
+  align-items: center;
+  gap: 2%;
+  padding: 0 2.2%;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .065);
+  color: inherit;
+  background: rgba(0, 0, 0, .055);
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-dream-player-row:hover,
+.home-dream-player-row:focus-visible {
+  background: rgba(118, 215, 255, .1);
+  outline: 0;
+}
+
+.home-dream-position {
+  display: grid;
+  place-items: center;
+  width: clamp(17px, 1.55vw, 24px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(118, 215, 255, .32);
+  border-radius: 50%;
+  color: #76d7ff;
+  font-size: clamp(.4rem, .49vw, .54rem);
+  font-weight: 950;
+}
+
+.home-dream-photo {
+  width: 100%;
+  height: 90%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .6));
+}
+
+.home-dream-identity { min-width: 0; }
+
+.home-dream-identity strong,
+.home-dream-identity span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-dream-identity strong {
+  color: #f7f4ed;
+  font-size: clamp(.49rem, .64vw, .72rem);
+  line-height: 1.05;
+}
+
+.home-dream-identity span {
+  margin-top: 1px;
+  color: #9ca8b1;
+  font-size: clamp(.36rem, .44vw, .5rem);
+  font-weight: 700;
+}
+
+.home-dream-points {
+  color: #76d7ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(.48rem, .62vw, .7rem);
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .home-scoring-card {
+    gap: 5px 8px;
+    padding-inline: 8px;
+  }
+  .home-scoring-badge { font-size: .4rem; }
+  .home-scoring-lines { font-size: .42rem; }
+  .home-dream-player-row { min-height: 22px; }
+  .home-dream-identity strong { font-size: .52rem; }
+  .home-dream-identity span { font-size: .39rem; }
+  .home-dream-points { font-size: .5rem; }
+}

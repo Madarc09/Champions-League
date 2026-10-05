@@ -28,3 +28,11 @@ This build converts the draft site into the live 2026–27 league.
 ## Deployment
 
 Keep the existing Upstash/KV environment variables attached to the Vercel project. `CRON_SECRET` is optional; if configured, Vercel will send it to the cron route as a Bearer token.
+
+## Homepage refinement
+- Replaced the league-wide Top Performers board with the current weekly Dream Team roster.
+- Dream Team rows show position, headshot, NHL team, salary-cap hit, and current 2026–27 fantasy points.
+- Dream Team players remain clickable for the detailed hockey card.
+- Added the full Champions League scoring breakdown directly under the public standings:
+  - Skaters: G 2.0, A 1.5, SOG 1.0, HIT 0.25.
+  - Goalies: W 5, SV 0.25, GA -1, SO 5, A 7, G 50.

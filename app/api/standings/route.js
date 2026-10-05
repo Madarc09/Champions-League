@@ -54,10 +54,14 @@ export async function GET() {
 
   let liveFantasyPoints = {};
   let liveProjectedPoints = {};
+  let livePlayersById = new Map();
   let statsUpdatedAt = null;
 
   try {
     const pool = await getPlayerPool();
+    livePlayersById = new Map(
+      (pool.players || []).map((player) => [String(player.playerId), player])
+    );
     liveFantasyPoints = Object.fromEntries(
       (pool.players || []).map((player) => [
         String(player.playerId),
@@ -86,8 +90,26 @@ export async function GET() {
       dreamTeamPlayers: overlapCount(rosters[team.slug], dreamRoster)
     }));
 
+  const positionOrder = { F: 0, D: 1, G: 2 };
+  const dreamPlayers = (dreamRoster?.players || [])
+    .map((storedPlayer) => {
+      const livePlayer = livePlayersById.get(String(storedPlayer.playerId));
+      return {
+        ...storedPlayer,
+        ...(livePlayer || {}),
+        capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
+        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0)
+      };
+    })
+    .sort((left, right) => (
+      (positionOrder[left.rosterType] ?? 9) - (positionOrder[right.rosterType] ?? 9)
+      || Number(right.fantasyPoints || 0) - Number(left.fantasyPoints || 0)
+      || String(left.name || "").localeCompare(String(right.name || ""))
+    ));
+
   const dreamTeam = dreamRoster ? {
     ...DREAM_TEAM,
+    players: dreamPlayers,
     fantasyPoints: rosterFantasyTotal(dreamRoster, liveFantasyPoints),
     projectedFantasyPoints: rosterProjectedTotal(dreamRoster, liveProjectedPoints),
     totalCap: Number(dreamRoster.totalCap || 0),

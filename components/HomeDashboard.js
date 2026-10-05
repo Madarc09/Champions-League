@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { HockeyCardOverlay } from "@/components/LockerRoom";
-
-const PANELS = [
-  { key: "forwards", label: "Forwards", shortLabel: "F", count: 10 },
-  { key: "defence", label: "Defence", shortLabel: "D", count: 10 },
-  { key: "goalies", label: "Goalies", shortLabel: "G", count: 10 },
-  { key: "rookies", label: "Rookie Race", shortLabel: "R", count: 5 }
-];
 
 function formatPoints(value) {
   return Number(value || 0).toLocaleString("en-CA", {
@@ -18,68 +11,28 @@ function formatPoints(value) {
   });
 }
 
+function formatSalary(value) {
+  const salary = Number(value || 0);
+  if (!Number.isFinite(salary) || salary <= 0) return "—";
+  return `$${(salary / 1_000_000).toFixed(salary % 1_000_000 === 0 ? 0 : 2)}M`;
+}
+
 export default function HomeDashboard() {
   const { standings, dreamTeam, loaded: standingsLoaded } = useLeagueStandings();
   const scrollerRef = useRef(null);
-  const [activePanel, setActivePanel] = useState("forwards");
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
-  const [dashboard, setDashboard] = useState({
-    performers: { forwards: [], defence: [], goalies: [], rookies: [] },
-    loaded: false,
-    error: null
-  });
 
   useEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller || window.innerWidth > 900) return;
     const frame = window.requestAnimationFrame(() => {
-      // Open on the complete standings board. The performer board remains one swipe to the right.
+      // Open on the complete standings board. The Dream Team remains one swipe to the right.
       scroller.scrollLeft = 12;
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadDashboard() {
-      try {
-        const response = await fetch("/api/home-dashboard", {
-          cache: "no-store",
-          signal: AbortSignal.timeout(60000)
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "The NHL leaderboard could not be loaded.");
-        if (cancelled) return;
-
-        setDashboard({
-          performers: data.performers || {},
-          loaded: true,
-          error: null,
-          updatedAt: data.updatedAt || null,
-          stale: Boolean(data.stale)
-        });
-      } catch (error) {
-        if (cancelled) return;
-        setDashboard((current) => ({
-          ...current,
-          loaded: true,
-          error: error.message || "The NHL leaderboard could not be loaded."
-        }));
-      }
-    }
-
-    loadDashboard();
-    return () => { cancelled = true; };
-  }, []);
-
-  const activeDefinition = PANELS.find((panel) => panel.key === activePanel) || PANELS[0];
-  const activePlayers = useMemo(
-    () => dashboard.performers?.[activePanel] || [],
-    [dashboard.performers, activePanel]
-  );
 
   useEffect(() => {
     const playerName = selection?.player?.name;
@@ -107,6 +60,8 @@ export default function HomeDashboard() {
 
     return () => { cancelled = true; };
   }, [selection?.player?.name]);
+
+  const dreamPlayers = Array.isArray(dreamTeam?.players) ? dreamTeam.players : [];
 
   return (
     <div className="champions-home">
@@ -150,68 +105,55 @@ export default function HomeDashboard() {
                 ))}
               </ol>
 
-              {dreamTeam ? (
-                <a className="home-dream-team-card" href="/team/dream-team/locker-room">
-                  <span className="home-dream-team-badge">WEEKLY BENCHMARK</span>
-                  <span className="home-dream-team-name">Dream Team</span>
-                  <strong>{formatPoints(dreamTeam.fantasyPoints)} FPTS</strong>
-                  <small>Week of {dreamTeam.weekKey || "current week"} · under the $104M cap</small>
-                </a>
-              ) : null}
+              <div className="home-scoring-card" aria-label="Champions League fantasy scoring system">
+                <span className="home-scoring-badge">SCORING SYSTEM</span>
+                <div className="home-scoring-lines">
+                  <span><strong>Skaters</strong> G 2.0 · A 1.5 · SOG 1.0 · HIT 0.25</span>
+                  <span><strong>Goalies</strong> W 5 · SV 0.25 · GA −1 · SO 5 · A 7 · G 50</span>
+                </div>
+              </div>
             </section>
 
-            <section className="home-live-board home-performers-board" aria-labelledby="home-performers-title">
-              <header className="performers-heading">
+            <section className="home-live-board home-dream-board" aria-labelledby="home-dream-title">
+              <header className="performers-heading home-dream-heading">
                 <div>
-                  <span>League-wide</span>
-                  <h2 id="home-performers-title">Top Performers</h2>
+                  <span>Weekly benchmark</span>
+                  <h2 id="home-dream-title">Dream Team</h2>
                 </div>
-                <small>{activeDefinition.count} ranked</small>
+                <small>{dreamPlayers.length || 20} players</small>
               </header>
 
-              <div className="performer-tabs" role="tablist" aria-label="Player leaderboard position">
-                {PANELS.map((panel) => (
-                  <button
-                    key={panel.key}
-                    type="button"
-                    className={activePanel === panel.key ? "active" : ""}
-                    onClick={() => setActivePanel(panel.key)}
-                    role="tab"
-                    aria-selected={activePanel === panel.key}
-                  >
-                    <span>{panel.shortLabel}</span>
-                    <strong>{panel.label}</strong>
-                  </button>
-                ))}
+              <div className="home-dream-summary">
+                <span><strong>{standingsLoaded && dreamTeam ? formatPoints(dreamTeam.fantasyPoints) : "—"}</strong><small>FPTS</small></span>
+                <span><strong>{dreamTeam ? formatSalary(dreamTeam.totalCap) : "—"}</strong><small>CAP</small></span>
+                <span><strong>{dreamTeam?.weekKey || "Current"}</strong><small>WEEK</small></span>
               </div>
 
-              <div className="performer-list" role="tabpanel">
-                {!dashboard.loaded ? (
-                  <p className="home-dashboard-message">Loading NHL.com results…</p>
-                ) : dashboard.error ? (
-                  <p className="home-dashboard-message error">{dashboard.error}</p>
-                ) : activePlayers.length === 0 ? (
-                  <p className="home-dashboard-message">No players are available for this category.</p>
+              <div className="home-dream-list">
+                {!standingsLoaded ? (
+                  <p className="home-dashboard-message">Loading this week&apos;s Dream Team…</p>
+                ) : dreamPlayers.length === 0 ? (
+                  <p className="home-dashboard-message">The Dream Team is being generated.</p>
                 ) : (
-                  activePlayers.map((player, index) => (
+                  dreamPlayers.map((player, index) => (
                     <button
-                      className="performer-row"
-                      key={`${activePanel}-${player.playerId}`}
+                      className="home-dream-player-row"
+                      key={`${player.playerId}-${index}`}
                       type="button"
                       onClick={() => setSelection({ player, goalie: player.rosterType === "G" })}
                       aria-label={`Open ${player.name} hockey card`}
                     >
-                      <span className="performer-rank">{index + 1}</span>
+                      <span className={`home-dream-position position-${String(player.rosterType || "").toLowerCase()}`}>{player.rosterType}</span>
                       <img
-                        className="performer-photo"
+                        className="home-dream-photo"
                         src={player.headshot || "/player-silhouette.svg"}
                         alt=""
                       />
-                      <span className="performer-identity">
+                      <span className="home-dream-identity">
                         <strong>{player.name}</strong>
-                        <span>{player.team}</span>
+                        <span>{player.team || "NHL"} · {formatSalary(player.capHit)}</span>
                       </span>
-                      <strong className="performer-points">{formatPoints(player.fantasyPoints)}</strong>
+                      <strong className="home-dream-points">{formatPoints(player.fantasyPoints)}</strong>
                     </button>
                   ))
                 )}
@@ -225,7 +167,7 @@ export default function HomeDashboard() {
               onClose={() => setSelection(null)}
               rankingData={rankingData}
               rankingLoading={rankingLoading}
-              teamName="Champions League"
+              teamName="Dream Team"
             />
           ) : null}
         </section>
