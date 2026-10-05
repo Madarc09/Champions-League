@@ -37,11 +37,11 @@ function DreamPlayerCard({ player, onOpen }) {
       onClick={() => onOpen(player)}
     >
       <span className="lineup-player-photo">
+        <em>{player.rosterType || player.position || "F"}</em>
         <img src={player.headshot || "/player-silhouette.svg"} alt="" />
         {player.teamLogo ? <img className="lineup-team-logo" src={player.teamLogo} alt="" /> : null}
       </span>
-      <strong>{shortName(player.name)}</strong>
-      <small>{formatPoints(player.fantasyPoints)}</small>
+      <span className="lineup-player-name"><strong>{shortName(player.name)}</strong><small>{formatPoints(player.fantasyPoints)}</small></span>
     </button>
   );
 }
@@ -66,6 +66,18 @@ function LineupGroup({ label, players, onOpen, className = "" }) {
 function fillSlots(players, count) {
   return Array.from({ length: count }, (_, index) => players[index] || null);
 }
+
+const TEAM_MARKS = {
+  chatgpt: "▲",
+  joe: "♣",
+  lucas: "♛",
+  dan: "◆",
+  darren: "◈",
+  nick: "★",
+  rob: "✦",
+  ernie: "●",
+  ethan: "⬡"
+};
 
 export default function HomeDashboard() {
   const router = useRouter();
@@ -174,6 +186,7 @@ export default function HomeDashboard() {
 
             <div className="arena-standing-head" aria-hidden="true">
               <span>#</span>
+              <span></span>
               <span>TEAM</span>
               <span>FPTS</span>
               <span>DREAM</span>
@@ -184,6 +197,7 @@ export default function HomeDashboard() {
                 <li key={team.slug} className={team.rank === 1 ? "is-leader" : ""}>
                   <a href={`/team/${team.slug}/locker-room`}>
                     <b>{team.rank}</b>
+                    <i className={`standing-team-mark standing-team-mark-${team.slug}`} aria-hidden="true">{TEAM_MARKS[team.slug] || "◆"}</i>
                     <strong>{team.name}</strong>
                     <span>{loaded ? formatPoints(team.fantasyPoints) : "—"}</span>
                     <span>{loaded ? `${team.dreamTeamPlayers || 0}/20` : "—"}</span>
