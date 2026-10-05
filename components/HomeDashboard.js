@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { HockeyCardOverlay } from "@/components/LockerRoom";
@@ -24,7 +24,7 @@ function shortName(name) {
   return parts.at(-1);
 }
 
-function DreamPlayerCard({ player, onOpen }) {
+function RosterPlayerCard({ player, onOpen }) {
   if (!player) {
     return <span className="lineup-player lineup-player-empty" aria-hidden="true" />;
   }
@@ -49,13 +49,12 @@ function DreamPlayerCard({ player, onOpen }) {
   );
 }
 
-function LineupGroup({ label = null, players, onOpen, className = "" }) {
+function LineupGroup({ players, onOpen, className = "" }) {
   return (
     <section className={`lineup-group ${className}`.trim()}>
-      {label ? <h3>{label}</h3> : null}
       <div className="lineup-group-players">
         {players.map((player, index) => (
-          <DreamPlayerCard
+          <RosterPlayerCard
             key={player ? `${player.playerId}-${index}` : `empty-${index}`}
             player={player}
             onOpen={onOpen}
@@ -70,21 +69,51 @@ function fillSlots(players, count) {
   return Array.from({ length: count }, (_, index) => players[index] || null);
 }
 
-
 export default function HomeDashboard() {
   const router = useRouter();
-  const { standings, dreamTeam, loaded } = useLeagueStandings();
+  const { standings, dreamTeam, teamRosters, loaded } = useLeagueStandings();
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [manager, setManager] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const [rosterViewIndex, setRosterViewIndex] = useState(0);
+  const touchStartRef = useRef(null);
+  const suppressClickRef = useRef(false);
 
   const dreamPlayers = Array.isArray(dreamTeam?.players) ? dreamTeam.players : [];
+
+  const rosterViews = useMemo(() => {
+    const dream = {
+      slug: "dream-team",
+      name: "Dream Team",
+      kind: "dream",
+      players: dreamPlayers,
+      fantasyPoints: Number(dreamTeam?.fantasyPoints || 0),
+      totalCap: Number(dreamTeam?.totalCap || 0),
+      subtitle: dreamTeam?.weekKey || "CURRENT WEEK"
+    };
+
+    const teams = (teamRosters || []).map((team) => ({
+      ...team,
+      subtitle: "LOCKED 2026–27 ROSTER"
+    }));
+
+    return [dream, ...teams];
+  }, [dreamPlayers, dreamTeam, teamRosters]);
+
+  const activeView = rosterViews[rosterViewIndex] || rosterViews[0];
+  const activePlayers = Array.isArray(activeView?.players) ? activeView.players : [];
+
+  useEffect(() => {
+    if (rosterViewIndex < rosterViews.length) return;
+    setRosterViewIndex(0);
+  }, [rosterViewIndex, rosterViews.length]);
+
   const lineup = useMemo(() => {
-    const forwards = fillSlots(dreamPlayers.filter((player) => player.rosterType === "F"), 12);
-    const defence = fillSlots(dreamPlayers.filter((player) => player.rosterType === "D"), 6);
-    const goalies = fillSlots(dreamPlayers.filter((player) => player.rosterType === "G"), 2);
+    const forwards = fillSlots(activePlayers.filter((player) => player.rosterType === "F"), 12);
+    const defence = fillSlots(activePlayers.filter((player) => player.rosterType === "D"), 6);
+    const goalies = fillSlots(activePlayers.filter((player) => player.rosterType === "G"), 2);
 
     return {
       forwardLines: [
@@ -100,7 +129,7 @@ export default function HomeDashboard() {
       ],
       goalies
     };
-  }, [dreamPlayers]);
+  }, [activePlayers]);
 
   useEffect(() => {
     let cancelled = false;
@@ -141,8 +170,36 @@ export default function HomeDashboard() {
     return () => { cancelled = true; };
   }, [selection?.player?.name]);
 
-  function openDreamPlayer(player) {
+  function openRosterPlayer(player) {
+    if (suppressClickRef.current) return;
     setSelection({ player, goalie: player.rosterType === "G" });
+  }
+
+  function changeRosterView(direction) {
+    if (!rosterViews.length) return;
+    setSelection(null);
+    setRosterViewIndex((current) => (current + direction + rosterViews.length) % rosterViews.length);
+  }
+
+  function handleTouchStart(event) {
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleTouchEnd(event) {
+    const start = touchStartRef.current;
+    const touch = event.changedTouches?.[0];
+    touchStartRef.current = null;
+    if (!start || !touch) return;
+
+    const dx = touch.clientX - start.x;
+    const dy = touch.clientY - start.y;
+    if (Math.abs(dx) < 52 || Math.abs(dx) < Math.abs(dy) * 1.15) return;
+
+    suppressClickRef.current = true;
+    changeRosterView(dx < 0 ? 1 : -1);
+    window.setTimeout(() => { suppressClickRef.current = false; }, 260);
   }
 
   async function handleLoginAction() {
@@ -203,15 +260,24 @@ export default function HomeDashboard() {
             </footer>
           </section>
 
-          <section className="arena-board arena-dream" aria-labelledby="arena-dream-title">
+          <section
+            className="arena-board arena-dream arena-roster-viewer"
+            aria-labelledby="arena-dream-title"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <header className="arena-board-title dream-title-row">
-              <div>
-                <h2 id="arena-dream-title">Dream Team</h2>
-                <span>{dreamTeam?.weekKey || "CURRENT WEEK"}</span>
+              <div className="roster-viewer-title">
+                <button className="roster-view-arrow previous" type="button" onClick={() => changeRosterView(-1)} aria-label="Previous roster">‹</button>
+                <div>
+                  <h2 id="arena-dream-title">{activeView?.name || "Dream Team"}</h2>
+                  <span>{activeView?.subtitle || "CURRENT ROSTER"}</span>
+                </div>
+                <button className="roster-view-arrow next" type="button" onClick={() => changeRosterView(1)} aria-label="Next roster">›</button>
               </div>
               <div className="dream-board-metrics">
-                <span><b>{loaded && dreamTeam ? formatPoints(dreamTeam.fantasyPoints) : "—"}</b> FPTS</span>
-                <span><b>{dreamTeam ? formatSalary(dreamTeam.totalCap) : "—"}</b> / $104M</span>
+                <span><b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b> FPTS</span>
+                <span><b>{activeView ? formatSalary(activeView.totalCap) : "—"}</b> / $104M</span>
               </div>
             </header>
 
@@ -219,12 +285,12 @@ export default function HomeDashboard() {
               <h3 className="dream-zone-title dream-zone-forwards">FORWARDS</h3>
               <div className="dream-offence-halves">
                 <div className="dream-offence-half dream-offence-left">
-                  <LineupGroup players={lineup.forwardLines[0]} onOpen={openDreamPlayer} />
-                  <LineupGroup players={lineup.forwardLines[1]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[0]} onOpen={openRosterPlayer} />
+                  <LineupGroup players={lineup.forwardLines[1]} onOpen={openRosterPlayer} />
                 </div>
                 <div className="dream-offence-half dream-offence-right">
-                  <LineupGroup players={lineup.forwardLines[2]} onOpen={openDreamPlayer} />
-                  <LineupGroup players={lineup.forwardLines[3]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[2]} onOpen={openRosterPlayer} />
+                  <LineupGroup players={lineup.forwardLines[3]} onOpen={openRosterPlayer} />
                 </div>
               </div>
 
@@ -234,19 +300,19 @@ export default function HomeDashboard() {
                   <LineupGroup
                     key={`pair-${index + 1}`}
                     players={pair}
-                    onOpen={openDreamPlayer}
+                    onOpen={openRosterPlayer}
                   />
                 ))}
               </div>
 
               <h3 className="dream-zone-title dream-zone-goalies">GOALIES</h3>
               <div className="goalie-pair">
-                <LineupGroup players={[lineup.goalies[0]]} onOpen={openDreamPlayer} />
-                <LineupGroup players={[lineup.goalies[1]]} onOpen={openDreamPlayer} />
+                <LineupGroup players={[lineup.goalies[0]]} onOpen={openRosterPlayer} />
+                <LineupGroup players={[lineup.goalies[1]]} onOpen={openRosterPlayer} />
               </div>
 
-              {!loaded ? <p className="dream-board-message">Loading weekly Dream Team…</p> : null}
-              {loaded && dreamPlayers.length === 0 ? <p className="dream-board-message">Generating weekly Dream Team…</p> : null}
+              {!loaded ? <p className="dream-board-message">Loading live rosters…</p> : null}
+              {loaded && activePlayers.length === 0 ? <p className="dream-board-message">Roster unavailable.</p> : null}
             </div>
           </section>
         </div>
@@ -257,7 +323,7 @@ export default function HomeDashboard() {
             onClose={() => setSelection(null)}
             rankingData={rankingData}
             rankingLoading={rankingLoading}
-            teamName="Dream Team"
+            teamName={activeView?.name || "Dream Team"}
           />
         ) : null}
       </section>

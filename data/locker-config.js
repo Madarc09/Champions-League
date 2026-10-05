@@ -9,7 +9,7 @@ export const LOCKER_BACKGROUNDS = {
   rob: "/rob-locker-room.webp",
   ernie: "/ernie-locker-room.webp",
   ethan: "/ethan-locker-room.webp",
-  chatgpt: "/skynet-t104-locker-room.webp",
+  chatgpt: "/skynet-t104-locker-room-v2.webp",
   "dream-team": "/champions-home-arena.webp",
   default: "/champions-home-arena.webp"
 };

@@ -31,6 +31,7 @@ export default function useLeagueStandings({
   const [snapshot, setSnapshot] = useState({
     standings: [],
     dreamTeam: null,
+    teamRosters: [],
     loaded: false,
     persistence: "private"
   });
@@ -47,6 +48,7 @@ export default function useLeagueStandings({
       setSnapshot({
         standings: Array.isArray(data.standings) ? data.standings : [],
         dreamTeam: data.dreamTeam || null,
+        teamRosters: Array.isArray(data.teamRosters) ? data.teamRosters : [],
         loaded: true,
         persistence: data.persistence || "private"
       });
@@ -88,6 +90,7 @@ export default function useLeagueStandings({
   return {
     standings,
     dreamTeam: snapshot.dreamTeam,
+    teamRosters: snapshot.teamRosters,
     loaded: snapshot.loaded,
     persistence: snapshot.persistence,
     refresh

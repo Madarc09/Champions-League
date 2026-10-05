@@ -40,3 +40,9 @@ Upload the extracted project to GitHub with `package.json` at the repository roo
 npm install
 npm run dev
 ```
+
+## V7 live-season UI updates
+- Homepage right board is now a roster carousel: Dream Team plus every locked league roster.
+- Desktop uses integrated previous/next controls; mobile supports horizontal swipe inside the roster board.
+- All carousel rosters are enriched from the same live NHL snapshot already used by standings, avoiding extra per-team API calls.
+- Skynet T-104 uses a new command-room background with tall left/right prediction terminals and an open central roster bay.

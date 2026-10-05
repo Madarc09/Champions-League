@@ -133,9 +133,35 @@ export async function GET() {
     updatedAt: dreamRoster.updatedAt || null
   } : null;
 
+  // The homepage roster carousel uses the same already-fetched NHL snapshot as
+  // standings, so switching teams never requires another API round-trip and
+  // never falls back to stale fantasy totals stored on draft-day roster objects.
+  const teamRosters = STANDINGS_TEAMS.map((team) => {
+    const storedRoster = rosters[team.slug];
+    const players = (storedRoster?.players || []).map((storedPlayer) => {
+      const livePlayer = livePlayersById.get(String(storedPlayer.playerId));
+      return {
+        ...storedPlayer,
+        ...(livePlayer || {}),
+        capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
+        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0)
+      };
+    });
+
+    return {
+      slug: team.slug,
+      name: team.name,
+      kind: team.kind || null,
+      players,
+      fantasyPoints: Number(standings.find((entry) => entry.slug === team.slug)?.fantasyPoints || 0),
+      totalCap: players.reduce((sum, player) => sum + Number(player.capHit || 0), 0)
+    };
+  });
+
   return NextResponse.json({
     standings,
     dreamTeam,
+    teamRosters,
     persistence: redis ? "private" : "unavailable",
     statsUpdatedAt
   }, {
