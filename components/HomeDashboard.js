@@ -90,16 +90,10 @@ export default function HomeDashboard() {
       kind: "dream",
       players: dreamPlayers,
       fantasyPoints: Number(dreamTeam?.fantasyPoints || 0),
-      totalCap: Number(dreamTeam?.totalCap || 0),
-      subtitle: dreamTeam?.challengeHolder?.type === "manager"
-        ? `HELD BY ${String(dreamTeam.challengeHolder.name || "MANAGER").toUpperCase()} · ATTEMPT ${dreamTeam.challengeHolder.attemptNumber || "—"}`
-        : "AI WEEKLY TEAM"
+      totalCap: Number(dreamTeam?.totalCap || 0)
     };
 
-    const teams = (teamRosters || []).map((team) => ({
-      ...team,
-      subtitle: "LOCKED 2026–27 ROSTER"
-    }));
+    const teams = (teamRosters || []).map((team) => ({ ...team }));
 
     return [dream, ...teams];
   }, [dreamPlayers, dreamTeam, teamRosters]);
@@ -113,9 +107,10 @@ export default function HomeDashboard() {
   }, [rosterViewIndex, rosterViews.length]);
 
   const lineup = useMemo(() => {
-    const forwards = fillSlots(activePlayers.filter((player) => player.rosterType === "F"), 12);
-    const defence = fillSlots(activePlayers.filter((player) => player.rosterType === "D"), 6);
-    const goalies = fillSlots(activePlayers.filter((player) => player.rosterType === "G"), 2);
+    const byFantasyPoints = (left, right) => Number(right?.fantasyPoints || 0) - Number(left?.fantasyPoints || 0);
+    const forwards = fillSlots(activePlayers.filter((player) => player.rosterType === "F").sort(byFantasyPoints), 12);
+    const defence = fillSlots(activePlayers.filter((player) => player.rosterType === "D").sort(byFantasyPoints), 6);
+    const goalies = fillSlots(activePlayers.filter((player) => player.rosterType === "G").sort(byFantasyPoints), 2);
 
     return {
       forwardLines: [
@@ -263,7 +258,7 @@ export default function HomeDashboard() {
           </section>
 
           <section
-            className="arena-board arena-dream arena-roster-viewer"
+            className={`arena-board arena-dream arena-roster-viewer ${activeView?.slug === "dream-team" ? "is-dream-view" : "is-team-view"}`}
             aria-labelledby="arena-dream-title"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
@@ -273,13 +268,14 @@ export default function HomeDashboard() {
                 <button className="roster-view-arrow previous" type="button" onClick={() => changeRosterView(-1)} aria-label="Previous roster">‹</button>
                 <div>
                   <h2 id="arena-dream-title">{activeView?.name || "Dream Team"}</h2>
-                  <span>{activeView?.subtitle || "CURRENT ROSTER"}</span>
-                  {activeView?.slug === "dream-team" ? <a className="dream-challenge-link" href="/dream-team-challenge">Challenge the AI →</a> : null}
                 </div>
                 <button className="roster-view-arrow next" type="button" onClick={() => changeRosterView(1)} aria-label="Next roster">›</button>
               </div>
               <div className="dream-board-metrics">
-                <span><b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b> FPTS</span>
+                <span className="dream-score-metric">
+                  <span><b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b> FPTS</span>
+                  {activeView?.slug === "dream-team" ? <a className="dream-challenge-link" href="/dream-team-challenge">Challenge the AI →</a> : null}
+                </span>
                 <span><b>{activeView ? formatSalary(activeView.totalCap) : "—"}</b> / $104M</span>
               </div>
             </header>

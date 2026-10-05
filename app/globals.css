@@ -1667,3 +1667,41 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .challenge-player-list article > strong { font-size:8px; }
   .challenge-player-list article > button { padding:6px 2px; font-size:7px; }
 }
+
+/* V8.1 HOME HEADER POLISH --------------------------------------------------
+   Carousel team names use a smaller title than the Dream Team label so long
+   manager/team names stay inside the scoreboard header without shrinking the
+   live FPTS or cap metrics. */
+.arena-roster-viewer.is-team-view .roster-viewer-title h2 {
+  font-size: clamp(18px, 1.45vw, 25px);
+  letter-spacing: .025em;
+}
+.arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
+  font-size: clamp(28px, 2.35vw, 40px);
+}
+.roster-viewer-title > div {
+  gap: 0;
+}
+.dream-board-metrics {
+  align-items: center;
+}
+.dream-score-metric {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+}
+.dream-score-metric > span {
+  white-space: nowrap;
+}
+.dream-challenge-link {
+  margin-top: 0;
+  font-size: clamp(6px, .48vw, 8px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (max-width:720px) {
+  .arena-roster-viewer.is-team-view .roster-viewer-title h2 { font-size: 23px; }
+  .arena-roster-viewer.is-dream-view .roster-viewer-title h2 { font-size: 31px; }
+  .dream-challenge-link { font-size: 8px; }
+}
