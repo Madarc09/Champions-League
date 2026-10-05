@@ -226,15 +226,15 @@ export default function HomeDashboard() {
             </header>
 
             <div className="dream-lineup-board">
-              <div className="forward-lines">
-                {lineup.forwardLines.map((line, index) => (
-                  <LineupGroup
-                    key={`line-${index + 1}`}
-                    label={`${index + 1}${index === 0 ? "ST" : index === 1 ? "ND" : index === 2 ? "RD" : "TH"} LINE`}
-                    players={line}
-                    onOpen={openDreamPlayer}
-                  />
-                ))}
+              <div className="dream-offence-halves">
+                <div className="dream-offence-half dream-offence-left">
+                  <LineupGroup label="1ST LINE" players={lineup.forwardLines[0]} onOpen={openDreamPlayer} />
+                  <LineupGroup label="2ND LINE" players={lineup.forwardLines[1]} onOpen={openDreamPlayer} />
+                </div>
+                <div className="dream-offence-half dream-offence-right">
+                  <LineupGroup label="3RD LINE" players={lineup.forwardLines[2]} onOpen={openDreamPlayer} />
+                  <LineupGroup label="4TH LINE" players={lineup.forwardLines[3]} onOpen={openDreamPlayer} />
+                </div>
               </div>
 
               <div className="defence-pairs">
