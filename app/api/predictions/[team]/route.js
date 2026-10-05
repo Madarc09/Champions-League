@@ -3,6 +3,8 @@ import { PREDICTIONS_LOCKED, PREDICTIONS_LOCKED_AT, TEAMS } from "@/data/league-
 import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import { getRedis } from "@/lib/redis";
 import { managerFromRequest } from "@/lib/auth";
+import { getPlayerPool } from "@/lib/nhl";
+import { buildPlayerIdentityIndex, resolvePlayerFromIndex } from "@/lib/player-identity";
 
 const PLAYER_KEYS = ["artRoss", "hart", "rocket", "vezina", "calder", "norris"];
 const TEAM_KEYS = ["stanleyCup", "eastChamp", "westChamp", "presidentsTrophy"];
@@ -59,6 +61,51 @@ function normalizePredictions(body = {}) {
   return { playerAwards, teamAwards };
 }
 
+function mergePredictionPlayer(saved, live) {
+  if (!saved && !live) return null;
+  if (!saved) return live;
+  if (!live) return saved;
+
+  return {
+    ...saved,
+    ...live,
+    playerId: Number(live.playerId || saved.playerId),
+    name: live.name || saved.name,
+    team: live.team || saved.team,
+    rosterType: live.rosterType || saved.rosterType,
+    position: live.position || saved.position || live.rosterType || saved.rosterType,
+    headshot: live.headshot || saved.headshot || null,
+    teamLogo: live.teamLogo || saved.teamLogo || null,
+    rookie: Boolean(live.rookie || saved.rookie),
+    draftYear: live.draftYear || saved.draftYear || null,
+    gamesPlayed: Number(live.gamesPlayed ?? saved.gamesPlayed ?? 0)
+  };
+}
+
+async function enrichPredictions(predictions) {
+  if (!predictions?.playerAwards) return predictions || null;
+
+  try {
+    const pool = await getPlayerPool();
+    const index = buildPlayerIdentityIndex(pool.players || []);
+    const repairedAwards = {};
+
+    for (const key of PLAYER_KEYS) {
+      const saved = cleanPlayer(predictions.playerAwards?.[key]);
+      const live = saved ? resolvePlayerFromIndex(saved, index) : null;
+      repairedAwards[key] = mergePredictionPlayer(saved, live);
+    }
+
+    return {
+      ...predictions,
+      playerAwards: repairedAwards
+    };
+  } catch (error) {
+    console.error("Prediction enrichment unavailable:", error);
+    return predictions;
+  }
+}
+
 export async function GET(request, context) {
   const { team } = await context.params;
   if (!validLeagueTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
@@ -68,7 +115,8 @@ export async function GET(request, context) {
 
   try {
     const predictions = await redis.get(predictionsKey(team));
-    return NextResponse.json({ predictions: predictions || null, visibility: "public" }, {
+    const enriched = await enrichPredictions(predictions || null);
+    return NextResponse.json({ predictions: enriched, visibility: "public" }, {
       headers: { "Cache-Control": "no-store" }
     });
   } catch (error) {

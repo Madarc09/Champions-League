@@ -412,10 +412,10 @@ function EmptyCard({ slotNumber, concealed = false }) {
       className={`locker-roster-card locker-roster-card-empty${concealed ? " locker-roster-card-tba" : ""}`}
       aria-label={concealed ? `Roster selection ${slotNumber} is TBA` : `Open roster spot ${slotNumber}`}
     >
-      <strong className="locker-card-player-name">{label}</strong>
       <div className="locker-card-photo-frame locker-card-empty-photo">
         <img src={EMPTY_SLOT_SILHOUETTE} alt="" />
       </div>
+      <strong className="locker-card-player-name">{label}</strong>
       <span className="locker-card-total">—</span>
     </article>
   );
@@ -432,7 +432,6 @@ function PlayerCard({ player, slotNumber, onOpen, concealed = false }) {
         onClick={onOpen}
         aria-label={`Open ${player.name} hockey card and statistics`}
       >
-        <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
         <span className="locker-card-photo-frame">
           <img
             src={player.headshot || FALLBACK_HEADSHOT}
@@ -442,6 +441,7 @@ function PlayerCard({ player, slotNumber, onOpen, concealed = false }) {
             onError={handleHeadshotError}
           />
         </span>
+        <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
         <span className="locker-card-total">{fantasyTotal(player)}</span>
       </button>
     </article>
