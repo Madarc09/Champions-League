@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { TEAMS } from "@/data/league-config";
 
 export default function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [manager, setManager] = useState(null);
-  const [authLoaded, setAuthLoaded] = useState(false);
-  const teamMatch = pathname?.match(/^\/team\/([^/]+)/);
-  const teamSlug = teamMatch?.[1] || null;
-  const currentTeam = TEAMS.find((team) => team.slug === teamSlug);
-  const ownTeamRoute = Boolean(manager && currentTeam && manager.slug === currentTeam.slug);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,7 +18,7 @@ export default function SiteHeader() {
       })
       .catch(() => {})
       .finally(() => {
-        if (!cancelled) setAuthLoaded(true);
+        if (!cancelled) setLoaded(true);
       });
     return () => { cancelled = true; };
   }, [pathname]);
@@ -36,34 +31,21 @@ export default function SiteHeader() {
   }
 
   return (
-    <header className="site-header">
-      <a className="brand champions-brand" href="/" aria-label="Champions League home">
-        <img src="/champions-league-logo.png" alt="" />
-        <span>
+    <header className="scene-header">
+      <a className="scene-brand" href="/" aria-label="Champions League home">
+        <span className="scene-brand-mark" aria-hidden="true">CL</span>
+        <span className="scene-brand-copy">
           <strong>Champions League</strong>
-          <small>Fantasy Hockey</small>
+          <small>2026–27 Fantasy Hockey</small>
         </span>
       </a>
 
-      <nav className="header-nav" aria-label="Primary navigation">
+      <nav className="scene-links" aria-label="Primary navigation">
         <a className={pathname === "/" ? "active" : ""} href="/">Home</a>
-
-        {ownTeamRoute ? (
-          <a
-            className={pathname === `/team/${teamSlug}/locker-room` ? "active" : ""}
-            href={`/team/${teamSlug}/locker-room`}
-          >
-            Locked Roster
-          </a>
-        ) : null}
-
+        {manager ? <a href={`/team/${manager.slug}/locker-room`}>My Locker</a> : null}
         {manager ? (
-          <>
-            {!ownTeamRoute ? <a href={`/team/${manager.slug}/locker-room`}>My Locked Roster</a> : null}
-            <span className="manager-session" title={`Signed in as ${manager.name}`}>{manager.name}</span>
-            <button className="header-auth-button" type="button" onClick={logout}>Log out</button>
-          </>
-        ) : authLoaded ? (
+          <button type="button" onClick={logout}>Log out</button>
+        ) : loaded ? (
           <a className={pathname === "/login" ? "active" : ""} href="/login">Manager Login</a>
         ) : null}
       </nav>

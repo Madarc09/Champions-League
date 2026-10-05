@@ -1,14 +1,11 @@
 {
   "name": "champions-league-fantasy-hockey",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "validate:salaries": "node scripts/validate-static-salary-master.mjs",
-    "build:salaries": "node scripts/build-static-salary-master.mjs"
+    "start": "next start"
   },
   "dependencies": {
     "@upstash/redis": "^1.35.3",

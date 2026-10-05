@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GOALIE_SCORING, PREDICTIONS_LOCKED, ROSTER_REVEAL_AT, SCORING } from "@/data/league-config";
+import { GOALIE_SCORING, ROSTER_REVEAL_AT, SCORING } from "@/data/league-config";
 import { BOT_PRESEASON_PREDICTIONS } from "@/data/generated-predictions";
 import { LOCKER_BACKGROUNDS } from "@/data/locker-config";
-import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { ordinal } from "@/lib/standings";
 import { buildPlayerIdentityIndex, resolvePlayerFromIndex } from "@/lib/player-identity";
@@ -21,14 +20,12 @@ const RANKING_LABELS = {
   cbs: "CBS",
   champions: "CL Rank"
 };
-
 const TEAM_PREDICTION_FIELDS = [
   ["stanleyCup", "Stanley Cup"],
   ["presidentsTrophy", "Presidents Trophy"],
   ["westChamp", "West Champ"],
   ["eastChamp", "East Champ"]
 ];
-
 const PLAYER_PREDICTION_FIELDS = [
   ["artRoss", "Art Ross"],
   ["hart", "Hart"],
@@ -37,99 +34,34 @@ const PLAYER_PREDICTION_FIELDS = [
   ["calder", "Calder"],
   ["norris", "Norris"]
 ];
-
-const PLAYER_AWARD_CONFIG = {
-  artRoss: { label: "Art Ross", filter: (player) => player.rosterType !== "G" },
-  hart: { label: "Hart", filter: () => true },
-  rocket: { label: "Rocket", filter: (player) => player.rosterType !== "G" },
-  vezina: { label: "Vezina", filter: (player) => player.rosterType === "G" },
-  calder: {
-    label: "Calder",
-    filter: (player) => Boolean(player.rookie || player.draftYear || Number(player.gamesPlayed || 0) === 0)
-  },
-  norris: { label: "Norris", filter: (player) => player.rosterType === "D" }
-};
-
-const TEAM_AWARD_CONFIG = {
-  stanleyCup: { label: "Stanley Cup", conference: null },
-  eastChamp: { label: "East Champion", conference: "East" },
-  westChamp: { label: "West Champion", conference: "West" },
-  presidentsTrophy: { label: "Presidents' Trophy", conference: null }
-};
-
 const EMPTY_PREDICTIONS = {
-  playerAwards: Object.fromEntries(Object.keys(PLAYER_AWARD_CONFIG).map((key) => [key, null])),
-  teamAwards: Object.fromEntries(Object.keys(TEAM_AWARD_CONFIG).map((key) => [key, null]))
+  teamAwards: Object.fromEntries(TEAM_PREDICTION_FIELDS.map(([key]) => [key, null])),
+  playerAwards: Object.fromEntries(PLAYER_PREDICTION_FIELDS.map(([key]) => [key, null]))
 };
 
-function normalizedPredictions(value) {
+function normalizePredictions(value) {
   return {
-    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) },
     teamAwards: { ...EMPTY_PREDICTIONS.teamAwards, ...(value?.teamAwards || {}) },
-    updatedAt: value?.updatedAt || null
+    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) }
   };
-}
-
-function predictionPayload(value) {
-  return {
-    playerAwards: { ...EMPTY_PREDICTIONS.playerAwards, ...(value?.playerAwards || {}) },
-    teamAwards: { ...EMPTY_PREDICTIONS.teamAwards, ...(value?.teamAwards || {}) }
-  };
-}
-
-function expectedRank(player) {
-  const ranks = [player?.expectedRanks?.nhl, player?.expectedRanks?.espn]
-    .map(Number)
-    .filter((rank) => Number.isFinite(rank) && rank > 0);
-  if (!ranks.length) return Number.POSITIVE_INFINITY;
-  return ranks.reduce((total, rank) => total + rank, 0) / ranks.length;
-}
-
-function awardProduction(awardKey, player) {
-  if (awardKey === "artRoss") return Number(player.goals || 0) + Number(player.assists || 0);
-  if (awardKey === "rocket") return Number(player.goals || 0);
-  if (awardKey === "vezina") {
-    return Number(player.fantasyPoints || 0) + (Number(player.wins || 0) * 4) + (Number(player.saves || 0) * 0.05);
-  }
-  if (awardKey === "calder") {
-    const draftBoost = Number(player.draftYear || 0) * 100 - Number(player.draftPick || 999);
-    return draftBoost + Number(player.fantasyPoints || 0);
-  }
-  return Number(player.fantasyPoints || 0);
-}
-
-function compareExpectedCandidates(awardKey, left, right) {
-  const leftRank = expectedRank(left);
-  const rightRank = expectedRank(right);
-  const leftHasRank = Number.isFinite(leftRank);
-  const rightHasRank = Number.isFinite(rightRank);
-
-  if (leftHasRank && rightHasRank && leftRank !== rightRank) return leftRank - rightRank;
-  if (leftHasRank !== rightHasRank) return leftHasRank ? -1 : 1;
-
-  const productionDifference = awardProduction(awardKey, right) - awardProduction(awardKey, left);
-  if (productionDifference !== 0) return productionDifference;
-  return String(left.name || "").localeCompare(String(right.name || ""), "en", { sensitivity: "base" });
 }
 
 function handleHeadshotError(event) {
-  const image = event.currentTarget;
-  if (!image.src.endsWith(FALLBACK_HEADSHOT)) image.src = FALLBACK_HEADSHOT;
+  if (!event.currentTarget.src.endsWith(FALLBACK_HEADSHOT)) event.currentTarget.src = FALLBACK_HEADSHOT;
+}
+
+function points(player) {
+  return Number(player?.fantasyPoints || 0).toFixed(1);
 }
 
 function numberValue(player, key) {
   return Number(player?.[key] || 0);
 }
 
-function fantasyTotal(player) {
-  return Number(player?.fantasyPoints || 0).toFixed(1);
-}
-
 function compactNumber(value) {
   const number = Number(value || 0);
   if (!Number.isFinite(number)) return "0";
-  const normalized = Object.is(number, -0) ? 0 : number;
-  return normalized.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+  return number.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
 }
 
 function statRows(player, goalie) {
@@ -152,317 +84,80 @@ function statRows(player, goalie) {
   ];
 }
 
-function rankedSources(rankings) {
-  return RANKING_SOURCE_ORDER
-    .filter((source) => source !== "champions" && Number.isFinite(Number(rankings?.[source])))
-    .map((source) => ({ source, rank: Number(rankings[source]) }));
-}
-
-function sourceDisplayName(source) {
-  return RANKING_LABELS[source] || source;
-}
-
-function createPlayerSynopsis(player, goalie, rankings) {
-  const publicRanks = rankedSources(rankings);
-  const championRank = Number(rankings?.champions) || null;
-  const total = fantasyTotal(player);
-  const rows = statRows(player, goalie);
-  const positiveRows = rows.filter(([, , points]) => Number(points) > 0);
-  const leading = positiveRows.sort((a, b) => Number(b[2]) - Number(a[2]))[0] || null;
-  const parts = [];
-
-  if (publicRanks.length) {
-    const average = publicRanks.reduce((sum, item) => sum + item.rank, 0) / publicRanks.length;
-    const best = [...publicRanks].sort((a, b) => a.rank - b.rank)[0];
-    const lowest = [...publicRanks].sort((a, b) => b.rank - a.rank)[0];
-    if (publicRanks.length === 1) {
-      parts.push(`${sourceDisplayName(best.source)} currently ranks ${player.name} No. ${best.rank}.`);
-    } else if (best.source === lowest.source) {
-      parts.push(`${publicRanks.length} public rankings place ${player.name} at an average of No. ${average.toFixed(1)}.`);
-    } else {
-      parts.push(`${publicRanks.length} public rankings average ${player.name} at No. ${average.toFixed(1)}; ${sourceDisplayName(best.source)} is highest at No. ${best.rank}, while ${sourceDisplayName(lowest.source)} has him No. ${lowest.rank}.`);
-    }
-  } else {
-    parts.push(`${player.name} is not currently listed by the available public ranking sources.`);
-  }
-
-  if (Number(player?.gamesPlayed || 0) === 0 && Number(player?.fantasyPoints || 0) === 0) {
-    parts.push(`He has no 2026–27 NHL fantasy production yet, so his preseason rankings are the more useful guide.`);
-  } else {
-    const rankText = championRank ? `No. ${championRank}` : "outside the current ranked pool";
-    const driver = leading ? `, led by ${leading[0].toLowerCase()} worth ${compactNumber(leading[2])} FPTS` : "";
-    parts.push(`Under Champions League scoring, his ${total} FPTS ranked ${rankText} based on 2026–27 results${driver}.`);
-  }
-
-  return parts.join(" ");
-}
-
-function RankingTile({ source, rank, sourceInfo, loading }) {
-  const content = (
-    <>
-      <span>{sourceDisplayName(source)}</span>
-      <strong>{loading ? "…" : rank ? `#${rank}` : "NR"}</strong>
-      <small>{sourceInfo?.season || (source === "champions" ? "2026–27" : "2026–27")}</small>
-    </>
-  );
-
-  if (sourceInfo?.url) {
-    return <a className="run-card-rank-tile" href={sourceInfo.url} target="_blank" rel="noreferrer">{content}</a>;
-  }
-  return <div className="run-card-rank-tile">{content}</div>;
-}
-
-function PredictionTile({ title, selection, kind, editable = false, onEdit }) {
+function PredictionTile({ title, selection, kind }) {
   const image = kind === "team" ? selection?.logo : selection?.headshot;
   const name = selection?.name || null;
-  const Tag = editable ? "button" : "article";
 
   return (
-    <Tag
-      className={`locker-prediction-tile locker-prediction-tile-${kind}${selection ? " is-selected" : " is-empty"}${editable ? " is-editable" : ""}`}
-      type={editable ? "button" : undefined}
-      onClick={editable ? onEdit : undefined}
-      aria-label={editable ? `Edit ${title} prediction${name ? `, currently ${name}` : ""}` : undefined}
-    >
+    <article className={`prediction-tile prediction-${kind}${selection ? " selected" : " empty"}`}>
       <strong>{title}</strong>
-      <div className="locker-prediction-image">
+      <div className="prediction-art">
         {image ? (
           <img
             src={image}
             alt={name ? `${name} ${kind === "team" ? "logo" : "headshot"}` : ""}
-            loading="lazy"
-            decoding="async"
             onError={kind === "player" ? handleHeadshotError : undefined}
           />
         ) : (
-          <span className="locker-prediction-missed" aria-hidden="true">×</span>
+          <span className="prediction-x" aria-label="No prediction submitted">×</span>
         )}
       </div>
-      <small title={name || "No pick"}>{name || "NO PICK"}</small>
-    </Tag>
+      <small>{name || "No pick"}</small>
+    </article>
   );
 }
 
-function PredictionsPanel({ side, predictions, editable = false, onEdit }) {
+function PredictionsPanel({ side, predictions }) {
   const fields = side === "left" ? TEAM_PREDICTION_FIELDS : PLAYER_PREDICTION_FIELDS;
   const values = side === "left" ? predictions?.teamAwards : predictions?.playerAwards;
   const kind = side === "left" ? "team" : "player";
 
   return (
-    <section
-      className={`locker-prediction-panel locker-prediction-panel-${side}`}
-      aria-label={side === "left" ? "Team predictions" : "Player award predictions"}
-    >
-      {fields.map(([key, title]) => (
-        <PredictionTile
-          key={key}
-          title={title}
-          selection={values?.[key] || null}
-          kind={kind}
-          editable={editable}
-          onEdit={() => onEdit?.({ key, title, kind })}
-        />
-      ))}
+    <section className={`prediction-panel prediction-panel-${side}`} aria-label={side === "left" ? "Team predictions" : "Player award predictions"}>
+      <div className="prediction-panel-title">{side === "left" ? "TEAM PICKS" : "AWARD PICKS"}</div>
+      <div className={`prediction-grid prediction-grid-${kind}`}>
+        {fields.map(([key, title]) => (
+          <PredictionTile key={key} title={title} selection={values?.[key] || null} kind={kind} />
+        ))}
+      </div>
     </section>
   );
 }
 
-function PredictionEditorModal({ editor, players, teams, currentSelection, loading, saving, status, onSelect, onClose }) {
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    setSearch("");
-  }, [editor?.key, editor?.kind]);
-
-  useEffect(() => {
-    if (!editor) return undefined;
-    function onKeyDown(event) {
-      if (event.key === "Escape") onClose();
-    }
-    document.body.classList.add("prediction-editor-open");
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.classList.remove("prediction-editor-open");
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [editor, onClose]);
-
-  if (!editor) return null;
-
-  const isTeam = editor.kind === "team";
-  const teamConfig = TEAM_AWARD_CONFIG[editor.key];
-  const playerConfig = PLAYER_AWARD_CONFIG[editor.key];
-  const normalizedSearch = search.trim().toLowerCase();
-
-  const eligibleTeams = isTeam
-    ? teams.filter((club) => !teamConfig?.conference || club.conference === teamConfig.conference)
-    : [];
-
-  const eligiblePlayers = !isTeam
-    ? players.filter((player) => playerConfig?.filter?.(player))
-    : [];
-
-  const expectedPlayers = !isTeam
-    ? [...eligiblePlayers].sort((left, right) => compareExpectedCandidates(editor.key, left, right)).slice(0, 25)
-    : [];
-
-  const visiblePlayers = !isTeam && normalizedSearch
-    ? eligiblePlayers
-        .filter((player) => `${player.name} ${player.team || ""}`.toLowerCase().includes(normalizedSearch))
-        .sort((left, right) => compareExpectedCandidates(editor.key, left, right))
-        .slice(0, 80)
-    : expectedPlayers;
-
-  const markup = (
-    <div className="locker-prediction-editor-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <section className="locker-prediction-editor" role="dialog" aria-modal="true" aria-label={`Edit ${editor.title} prediction`}>
-        <header>
-          <div>
-            <p>{isTeam ? "TEAM PREDICTION" : "PLAYER PREDICTION"}</p>
-            <h2>{editor.title}</h2>
-          </div>
-          <button type="button" onClick={onClose} aria-label="Close prediction editor">×</button>
-        </header>
-
-        {currentSelection ? (
-          <div className="locker-prediction-current">
-            <img
-              src={isTeam ? currentSelection.logo : currentSelection.headshot || FALLBACK_HEADSHOT}
-              alt=""
-              onError={!isTeam ? handleHeadshotError : undefined}
-            />
-            <div><span>Current choice</span><strong>{currentSelection.name}</strong></div>
-          </div>
-        ) : null}
-
-        <div className={`locker-prediction-editor-body ${isTeam ? "is-team-editor" : "is-player-editor"}`}>
-          {isTeam ? (
-            <div className="locker-prediction-team-grid">
-              {eligibleTeams.map((club) => (
-                <button
-                  type="button"
-                  key={club.abbrev}
-                  className={currentSelection?.abbrev === club.abbrev ? "selected" : ""}
-                  onClick={() => onSelect(club)}
-                  disabled={saving}
-                >
-                  <img src={club.logo} alt="" />
-                  <span>{club.name}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <>
-              <div className="locker-prediction-player-controls">
-                <label className="locker-prediction-search">
-                  <span>Search any eligible player</span>
-                  <input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder={`Search for a ${editor.title} choice…`}
-                    autoFocus
-                  />
-                </label>
-                <div className="locker-prediction-list-heading">
-                  <strong>{normalizedSearch ? "Search results" : "Top 25 expected"}</strong>
-                  <span>{visiblePlayers.length} players</span>
-                </div>
-              </div>
-              <div className="locker-prediction-player-grid">
-                {visiblePlayers.map((player, index) => (
-                  <button
-                    type="button"
-                    key={player.playerId}
-                    className={String(currentSelection?.playerId) === String(player.playerId) ? "selected" : ""}
-                    onClick={() => onSelect(player)}
-                    disabled={saving}
-                  >
-                    <span className="prediction-editor-rank">{normalizedSearch ? "" : `#${index + 1}`}</span>
-                    <img src={player.headshot || FALLBACK_HEADSHOT} alt="" onError={handleHeadshotError} />
-                    <span className="prediction-editor-player-copy">
-                      <strong>{player.name}</strong>
-                      <small>{player.team || "NHL"} · {player.rosterType || player.position || "Player"}</small>
-                    </span>
-                  </button>
-                ))}
-                {!loading && !visiblePlayers.length ? <p className="prediction-editor-empty">No eligible players match that search.</p> : null}
-              </div>
-            </>
-          )}
-        </div>
-
-        <footer>
-          <span>{loading ? "Loading choices…" : saving ? "Saving to Upstash…" : status || "Select a new choice to save immediately."}</span>
-          <button type="button" onClick={() => onSelect(null)} disabled={saving}>Clear prediction</button>
-        </footer>
-      </section>
-    </div>
-  );
-
-  return typeof document !== "undefined" ? createPortal(markup, document.body) : null;
-}
-
-function EmptyCard({ slotNumber, concealed = false }) {
-  const label = concealed ? "TBA" : `Open spot ${slotNumber}`;
+function PlayerSlot({ player, slotNumber, onOpen }) {
+  if (!player) {
+    return (
+      <article className="roster-slot empty" aria-label={`Open roster spot ${slotNumber}`}>
+        <div className="roster-photo empty-photo"><img src={EMPTY_SLOT_SILHOUETTE} alt="" /></div>
+        <strong>Open spot {slotNumber}</strong>
+        <span>—</span>
+      </article>
+    );
+  }
 
   return (
-    <article
-      className={`locker-roster-card locker-roster-card-empty${concealed ? " locker-roster-card-tba" : ""}`}
-      aria-label={concealed ? `Roster selection ${slotNumber} is TBA` : `Open roster spot ${slotNumber}`}
-    >
-      <div className="locker-card-photo-frame locker-card-empty-photo">
-        <img src={EMPTY_SLOT_SILHOUETTE} alt="" />
+    <button className="roster-slot" type="button" onClick={onOpen} aria-label={`Open ${player.name} player card`}>
+      <div className="roster-photo">
+        <img src={player.headshot || FALLBACK_HEADSHOT} alt={`${player.name} headshot`} onError={handleHeadshotError} />
       </div>
-      <strong className="locker-card-player-name">{label}</strong>
-      <span className="locker-card-total">—</span>
-    </article>
+      <strong title={player.name}>{player.name}</strong>
+      <span>{points(player)} FPTS</span>
+    </button>
   );
 }
 
-function PlayerCard({ player, slotNumber, onOpen, concealed = false }) {
-  if (!player || concealed) return <EmptyCard slotNumber={slotNumber} concealed={concealed} />;
-
+function RosterGroup({ title, type, players, limit, onOpen }) {
+  const slots = Array.from({ length: limit }, (_, index) => players[index] || null);
   return (
-    <article className="locker-roster-card">
-      <button
-        className="locker-roster-card-button"
-        type="button"
-        onClick={onOpen}
-        aria-label={`Open ${player.name} hockey card and statistics`}
-      >
-        <span className="locker-card-photo-frame">
-          <img
-            src={player.headshot || FALLBACK_HEADSHOT}
-            alt={`${player.name} headshot`}
-            loading="lazy"
-            decoding="async"
-            onError={handleHeadshotError}
-          />
-        </span>
-        <strong className="locker-card-player-name" title={player.name}>{player.name}</strong>
-        <span className="locker-card-total">{fantasyTotal(player)}</span>
-      </button>
-    </article>
-  );
-}
-
-function RosterGroup({ title, players, type, limit, onOpen, concealed = false }) {
-  const goalie = type === "G";
-  const filled = Array.from({ length: limit }, (_, index) => players[index] || null);
-
-  return (
-    <section className={`locker-card-group locker-card-group-${type.toLowerCase()}`}>
-      <h2 className="locker-card-group-title">{title}</h2>
-      <div className={`locker-player-card-grid ${goalie ? "locker-goalie-card-grid" : ""}`}>
-        {filled.map((player, index) => (
-          <PlayerCard
-            key={player ? String(player.playerId) : `${type}-open-${index}`}
+    <section className={`roster-group roster-group-${type.toLowerCase()}`}>
+      <h2>{title}</h2>
+      <div className="roster-grid">
+        {slots.map((player, index) => (
+          <PlayerSlot
+            key={player ? String(player.playerId) : `${type}-${index}`}
             player={player}
             slotNumber={index + 1}
-            onOpen={() => player && onOpen(player, goalie)}
-            concealed={concealed}
+            onOpen={() => player && onOpen(player, type === "G")}
           />
         ))}
       </div>
@@ -470,398 +165,224 @@ function RosterGroup({ title, players, type, limit, onOpen, concealed = false })
   );
 }
 
+function RankingTile({ source, rankings, sources, loading }) {
+  const rank = rankings?.[source];
+  const sourceInfo = sources?.[source];
+  const content = (
+    <>
+      <span>{RANKING_LABELS[source]}</span>
+      <strong>{loading ? "…" : rank ? `#${rank}` : "NR"}</strong>
+    </>
+  );
+
+  return sourceInfo?.url ? (
+    <a className="rank-tile" href={sourceInfo.url} target="_blank" rel="noreferrer">{content}</a>
+  ) : (
+    <div className="rank-tile">{content}</div>
+  );
+}
+
 export function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoading, teamName }) {
   const { player, goalie } = selection;
   const rows = statRows(player, goalie);
   const rankings = rankingData?.players?.[player.name] || {};
-  const synopsis = rankingLoading
-    ? "Loading the latest public ranking comparison and Champions League synopsis…"
-    : createPlayerSynopsis(player, goalie, rankings);
   const cardNumber = String(player.playerId || "00").slice(-3).padStart(3, "0");
-  const rosterLabel = goalie ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD";
 
   useEffect(() => {
     function closeOnEscape(event) {
       if (event.key === "Escape") onClose();
     }
-
-    const mobileCard = window.matchMedia("(max-width: 720px)").matches;
-    const previousBodyOverflow = document.body.style.overflow;
-    if (mobileCard) document.body.style.overflow = "hidden";
-
+    const prior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", closeOnEscape);
     return () => {
+      document.body.style.overflow = prior;
       window.removeEventListener("keydown", closeOnEscape);
-      if (mobileCard) document.body.style.overflow = previousBodyOverflow;
     };
   }, [onClose]);
 
-  const cardMarkup = (
-    <div
-      className="locker-hockey-card-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.currentTarget === event.target) onClose();
-      }}
-    >
-      <article
-        className="locker-hockey-card run-for-cup-card"
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${player.name} statistics card`}
-      >
-        <button className="locker-hockey-card-close" type="button" onClick={onClose} aria-label="Close player card">×</button>
-
-        <header className="run-card-topline">
+  const markup = (
+    <div className="player-card-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <article className="player-card-modal" role="dialog" aria-modal="true" aria-label={`${player.name} statistics card`}>
+        <button className="player-card-close" type="button" onClick={onClose} aria-label="Close player card">×</button>
+        <header>
           <span>CL{cardNumber}</span>
-          <b>CHAMPIONS LEAGUE · CUP CHASE</b>
-          <span>2026–27</span>
+          <strong>2026–27 CUP CHASE</strong>
+          <span>{player.team || "NHL"}</span>
         </header>
 
-        <div className="run-card-main">
-          <section className="run-card-photo-side" aria-label={`${player.name} portrait`}>
-            <div className="run-card-photo-ring">
-              <div className="run-card-photo-window">
-                <img
-                  src={player.headshot || FALLBACK_HEADSHOT}
-                  alt={`${player.name} headshot`}
-                  onError={handleHeadshotError}
-                />
-              </div>
-            </div>
-            <span className="run-card-photo-caption">RUN FOR THE CUP</span>
+        <div className="player-card-body">
+          <section className="player-card-photo">
+            <img src={player.headshot || FALLBACK_HEADSHOT} alt={`${player.name} headshot`} onError={handleHeadshotError} />
+            {player.teamLogo ? <img className="player-card-team-logo" src={player.teamLogo} alt="" /> : null}
           </section>
 
-          <section className="run-card-info-side">
-            <div className="run-card-player-heading">
-              <div>
-                <small>{player.teamAbbrev || player.team || "NHL"} · {rosterLabel}</small>
-                <strong>{player.name}</strong>
-              </div>
-              {player.teamLogo ? (
-                <img className="run-card-team-logo" src={player.teamLogo} alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
-              ) : null}
-            </div>
+          <section className="player-card-info">
+            <p>{player.rosterType === "G" ? "GOALTENDER" : player.rosterType === "D" ? "DEFENCE" : "FORWARD"}</p>
+            <h2>{player.name}</h2>
 
-            <div className="run-card-rank-strip" aria-label={`${player.name} fantasy rankings`}>
+            <div className="ranking-strip">
               {RANKING_SOURCE_ORDER.map((source) => (
-                <RankingTile
-                  key={source}
-                  source={source}
-                  rank={rankings[source]}
-                  sourceInfo={rankingData?.sources?.[source]}
-                  loading={rankingLoading}
-                />
+                <RankingTile key={source} source={source} rankings={rankings} sources={rankingData?.sources} loading={rankingLoading} />
               ))}
             </div>
 
-            <p className="run-card-copy run-card-synopsis">{synopsis}</p>
-
-            <div className="run-card-stat-table">
-              <div className="run-card-stat-heading">
-                <span>STAT</span><span>TOTAL</span><span>FPTS</span>
-              </div>
-              {rows.map(([label, raw, points]) => (
-                <div className="run-card-stat-row" key={label}>
-                  <b>{label}</b>
-                  <em>{raw}</em>
-                  <strong>{compactNumber(points)}</strong>
-                </div>
+            <div className="player-stat-table">
+              <div><span>STAT</span><span>TOTAL</span><span>FPTS</span></div>
+              {rows.map(([label, raw, fantasy]) => (
+                <div key={label}><strong>{label}</strong><span>{raw}</span><b>{compactNumber(fantasy)}</b></div>
               ))}
             </div>
 
-            <div className="run-card-total-row">
-              <span>TOTAL FANTASY POINTS</span>
-              <strong>{fantasyTotal(player)}</strong>
-            </div>
+            <div className="player-card-total"><span>Total Fantasy Points</span><strong>{points(player)}</strong></div>
           </section>
         </div>
 
-        <footer className="run-card-footer">
-          <span>{teamName.toUpperCase()}&apos;S LOCKER · ROSTER EDITION</span>
-          <b>{cardNumber}/2026</b>
-          <span>CHAMPIONS LEAGUE FANTASY HOCKEY</span>
-        </footer>
+        <footer>{teamName.toUpperCase()} LOCKER · CHAMPIONS LEAGUE</footer>
       </article>
     </div>
   );
 
-  const useMobilePortal = typeof window !== "undefined"
-    && window.matchMedia("(max-width: 720px)").matches;
-
-  return useMobilePortal ? createPortal(cardMarkup, document.body) : cardMarkup;
+  return typeof document !== "undefined" ? createPortal(markup, document.body) : null;
 }
 
 export default function LockerRoom({ team, viewerSlug = null }) {
+  const viewportRef = useRef(null);
+  const savedRosterRef = useRef([]);
   const teamSlug = team.slug;
   const teamName = team.name;
-  const isGeneratedTeam = Boolean(team.kind);
   const isBotTeam = team.kind === "bot";
   const isDreamTeam = team.kind === "dream";
-  const lockerBackground = LOCKER_BACKGROUNDS[teamSlug] || LOCKER_BACKGROUNDS.nick;
-  const isOwnLocker = !isGeneratedTeam && viewerSlug === teamSlug;
-  const viewportRef = useRef(null);
+  const lockerBackground = LOCKER_BACKGROUNDS[teamSlug] || LOCKER_BACKGROUNDS.default;
+
   const [players, setPlayers] = useState([]);
+  const [rosterReady, setRosterReady] = useState(false);
+  const [rosterConcealed, setRosterConcealed] = useState(false);
+  const [predictions, setPredictions] = useState(null);
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
-  const [rosterReady, setRosterReady] = useState(false);
-  const [rosterConcealed, setRosterConcealed] = useState(!isOwnLocker);
-  const [predictions, setPredictions] = useState(null);
-  const [predictionEditor, setPredictionEditor] = useState(null);
-  const [predictionPlayers, setPredictionPlayers] = useState([]);
-  const [nhlTeams, setNhlTeams] = useState(NHL_TEAMS_FALLBACK);
-  const [predictionPoolLoading, setPredictionPoolLoading] = useState(false);
-  const [predictionSaving, setPredictionSaving] = useState(false);
-  const [predictionStatus, setPredictionStatus] = useState("");
-  const predictionUpdatedAtRef = useRef(0);
-  const predictionSavingRef = useRef(false);
-  const predictionSaveQueueRef = useRef(Promise.resolve());
 
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return undefined;
-
-    function centreMobileLocker() {
-      if (!window.matchMedia("(max-width: 720px)").matches) return;
-      viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
-    }
-
-    const animationFrame = window.requestAnimationFrame(centreMobileLocker);
-    window.addEventListener("resize", centreMobileLocker);
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      window.removeEventListener("resize", centreMobileLocker);
+    const centre = () => {
+      if (window.matchMedia("(max-width: 760px)").matches) {
+        viewport.scrollLeft = Math.max(0, (viewport.scrollWidth - viewport.clientWidth) / 2);
+      }
     };
-  }, []);
+    const frame = requestAnimationFrame(centre);
+    return () => cancelAnimationFrame(frame);
+  }, [teamSlug]);
 
   useEffect(() => {
     let cancelled = false;
-    setSelection(null);
-    setPlayers([]);
-    setRosterReady(false);
-    setRosterConcealed(isGeneratedTeam ? false : !isOwnLocker);
 
     async function loadRoster() {
-      let roster = [];
+      savedRosterRef.current = [];
+      setPlayers([]);
+      setRosterReady(false);
+      setRosterConcealed(false);
+      setSelection(null);
 
       try {
-        const response = await fetch(`/api/rosters/${teamSlug}`, {
-          cache: "no-store",
-          signal: AbortSignal.timeout(10000)
-        });
+        const response = await fetch(`/api/rosters/${teamSlug}`, { cache: "no-store", signal: AbortSignal.timeout(20000) });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "The roster could not be loaded.");
+        if (!response.ok) throw new Error(data.error || "Roster unavailable.");
+        if (cancelled) return;
 
         if (data.concealed) {
-          if (!cancelled) {
-            setPlayers([]);
-            setRosterConcealed(true);
-            setRosterReady(true);
-          }
+          setRosterConcealed(true);
+          setRosterReady(true);
           return;
         }
 
-        roster = data.roster?.players || [];
-        if (!cancelled) setRosterConcealed(false);
+        const roster = Array.isArray(data.roster?.players) ? data.roster.players : [];
+        savedRosterRef.current = roster;
+        setPlayers(roster);
+        setRosterConcealed(false);
+        setRosterReady(true);
       } catch (error) {
         console.error("Locker roster unavailable:", error);
-      }
-
-      if (cancelled) return;
-      setPlayers(roster);
-      setRosterReady(true);
-      if (!roster.length) return;
-
-      try {
-        const response = await fetch("/api/players?mode=leaderboard", {
-          cache: "no-store",
-          signal: AbortSignal.timeout(15000)
-        });
-        const data = await response.json();
-        if (response.ok && Array.isArray(data.players)) {
-          const liveIndex = buildPlayerIdentityIndex(data.players);
-          const refreshed = roster.map((saved) => {
-            const live = resolvePlayerFromIndex(saved, liveIndex);
-            if (live) return { ...saved, ...live, capHit: Number(saved.capHit ?? live.capHit ?? 0) };
-            return {
-              ...saved,
-              gamesPlayed: 0,
-              goals: 0,
-              assists: 0,
-              hits: 0,
-              shots: 0,
-              saves: 0,
-              goalsAgainst: 0,
-              wins: 0,
-              losses: 0,
-              shutouts: 0,
-              fantasyPoints: 0
-            };
-          });
-          if (!cancelled) setPlayers(refreshed);
-        }
-      } catch {
-        // The private saved roster already contains its most recent stats and photos.
+        if (!cancelled) setRosterReady(true);
       }
     }
 
     loadRoster();
     return () => { cancelled = true; };
-  }, [teamSlug, isOwnLocker, isGeneratedTeam, team.name]);
+  }, [teamSlug]);
 
   useEffect(() => {
-    setPredictionEditor(null);
-    setPredictionStatus("");
-    if (isBotTeam) {
-      setPredictions(normalizedPredictions(BOT_PRESEASON_PREDICTIONS));
-      setPredictionStatus("Locked preseason predictions · made before puck drop");
-      return undefined;
-    }
-
-    if (isDreamTeam) {
-      setPredictions(null);
-      return undefined;
-    }
-
+    if (!rosterReady || rosterConcealed || savedRosterRef.current.length === 0) return undefined;
     let cancelled = false;
 
-    async function loadPredictions({ quiet = false } = {}) {
-      if (predictionSavingRef.current) return;
+    async function refreshLivePlayers() {
       try {
-        const response = await fetch(`/api/predictions/${teamSlug}?locker=${Date.now()}`, {
-          cache: "no-store",
-          signal: AbortSignal.timeout(10000)
-        });
+        const response = await fetch("/api/players?mode=leaderboard", { cache: "no-store", signal: AbortSignal.timeout(30000) });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Predictions could not be loaded.");
-        if (cancelled) return;
-
-        const next = normalizedPredictions(data.predictions);
-        const remoteTime = Date.parse(data.predictions?.updatedAt || 0) || 0;
-        if (!quiet || remoteTime > predictionUpdatedAtRef.current) {
-          setPredictions(next);
-          predictionUpdatedAtRef.current = remoteTime;
-          if (!quiet) setPredictionStatus(
-            isOwnLocker
-              ? (data.predictions ? "Predictions loaded. Click any choice to edit it." : "Click any prediction tile to make a choice.")
-              : (data.predictions ? `${teamName}'s predictions` : `${teamName} has not submitted predictions yet.`)
-          );
-        }
-      } catch (error) {
-        if (!cancelled && !quiet) setPredictionStatus(error.message || "Predictions could not be loaded.");
-        console.error("Locker predictions unavailable:", error);
-      }
+        if (!response.ok || !Array.isArray(data.players) || cancelled) return;
+        const index = buildPlayerIdentityIndex(data.players);
+        const refreshed = savedRosterRef.current.map((saved) => {
+          const live = resolvePlayerFromIndex(saved, index);
+          return live
+            ? { ...saved, ...live, capHit: Number(saved.capHit ?? live.capHit ?? 0) }
+            : { ...saved, fantasyPoints: 0, gamesPlayed: 0, goals: 0, assists: 0, hits: 0, shots: 0, saves: 0, goalsAgainst: 0, wins: 0, shutouts: 0 };
+        });
+        setPlayers(refreshed);
+      } catch {}
     }
 
-    loadPredictions();
+    refreshLivePlayers();
     const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") loadPredictions({ quiet: true });
-    }, 3000);
+      if (document.visibilityState === "visible") refreshLivePlayers();
+    }, 60_000);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [teamSlug, isOwnLocker, isBotTeam, isDreamTeam, teamName]);
+  }, [rosterReady, rosterConcealed]);
 
   useEffect(() => {
-    if (!isOwnLocker || isGeneratedTeam) {
-      setPredictionPlayers([]);
-      setNhlTeams(NHL_TEAMS_FALLBACK);
+    if (isDreamTeam) {
+      setPredictions(null);
+      return undefined;
+    }
+    if (isBotTeam) {
+      setPredictions(normalizePredictions(BOT_PRESEASON_PREDICTIONS));
       return undefined;
     }
 
     let cancelled = false;
-    setPredictionPoolLoading(true);
-
-    Promise.allSettled([
-      fetch("/api/players?mode=predictions", { cache: "no-store" }).then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Player choices could not be loaded.");
-        return data.players || [];
-      }),
-      fetch("/api/nhl-teams", { cache: "no-store" }).then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "NHL teams could not be loaded.");
-        return data.teams || NHL_TEAMS_FALLBACK;
-      })
-    ]).then(([playerResult, teamResult]) => {
-      if (cancelled) return;
-      if (playerResult.status === "fulfilled") setPredictionPlayers(playerResult.value);
-      else setPredictionStatus(playerResult.reason?.message || "Player choices could not be loaded.");
-      if (teamResult.status === "fulfilled" && teamResult.value.length) setNhlTeams(teamResult.value);
-      setPredictionPoolLoading(false);
-    });
-
-    return () => { cancelled = true; };
-  }, [isOwnLocker, isGeneratedTeam]);
-
-  function selectPrediction(value) {
-    if (!predictionEditor || !isOwnLocker) return;
-
-    const base = normalizedPredictions(predictions);
-    const next = predictionEditor.kind === "team"
-      ? { ...base, teamAwards: { ...base.teamAwards, [predictionEditor.key]: value } }
-      : { ...base, playerAwards: { ...base.playerAwards, [predictionEditor.key]: value } };
-
-    setPredictions(next);
-    setPredictionEditor(null);
-    setPredictionSaving(true);
-    predictionSavingRef.current = true;
-    setPredictionStatus("Saving prediction to Upstash…");
-
-    predictionSaveQueueRef.current = predictionSaveQueueRef.current.catch(() => undefined).then(async () => {
-      try {
-        const response = await fetch(`/api/predictions/${teamSlug}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(predictionPayload(next))
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "The prediction could not be saved.");
-
-        const saved = normalizedPredictions(data.predictions);
-        setPredictions(saved);
-        predictionUpdatedAtRef.current = Date.parse(data.predictions?.updatedAt || 0) || Date.now();
-        setPredictionStatus(`Saved automatically · ${new Date(data.predictions.updatedAt).toLocaleTimeString()}`);
-      } catch (error) {
-        setPredictionStatus(error.message || "Automatic save failed.");
-      } finally {
-        predictionSavingRef.current = false;
-        setPredictionSaving(false);
-      }
-    });
-  }
-
-  const rosterNameKey = useMemo(
-    () => players.map((player) => player.name).filter(Boolean).sort().join("|"),
-    [players]
-  );
-
-  useEffect(() => {
-    if (!rosterNameKey) return;
-    let cancelled = false;
-    setRankingLoading(true);
-
-    fetch(`/api/rankings?name=${encodeURIComponent(rosterNameKey)}`, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(45000)
-    })
+    fetch(`/api/predictions/${teamSlug}`, { cache: "no-store", signal: AbortSignal.timeout(20000) })
       .then(async (response) => {
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Rankings could not be loaded.");
+        if (!response.ok) throw new Error(data.error || "Predictions unavailable.");
+        if (!cancelled) setPredictions(normalizePredictions(data.predictions));
+      })
+      .catch(() => {
+        if (!cancelled) setPredictions(normalizePredictions(null));
+      });
+    return () => { cancelled = true; };
+  }, [teamSlug, isBotTeam, isDreamTeam]);
+
+  useEffect(() => {
+    if (!selection?.player?.name) return undefined;
+    let cancelled = false;
+    setRankingLoading(true);
+    setRankingData(null);
+    fetch(`/api/rankings?name=${encodeURIComponent(selection.player.name)}`, { cache: "no-store", signal: AbortSignal.timeout(45000) })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error("Ranking unavailable");
         if (!cancelled) setRankingData(data);
       })
-      .catch((error) => {
-        console.error("Ranking synopsis unavailable:", error);
-      })
+      .catch(() => {})
       .finally(() => {
         if (!cancelled) setRankingLoading(false);
       });
-
     return () => { cancelled = true; };
-  }, [rosterNameKey]);
+  }, [selection?.player?.name]);
 
   const groups = useMemo(() => ({
     F: players.filter((player) => player.rosterType === "F"),
@@ -869,131 +390,72 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     G: players.filter((player) => player.rosterType === "G")
   }), [players]);
 
-  const canSeeRoster = isOwnLocker || !rosterConcealed;
-
-  const privateTeamFantasyTotal = useMemo(
-    () => players.reduce((total, player) => total + Number(player?.fantasyPoints || 0), 0),
-    [players]
-  );
-
-  const { standings, loaded: standingsLoaded } = useLeagueStandings({
-    currentTeamSlug: teamSlug,
-    currentPlayers: players,
-    currentRosterReady: canSeeRoster && rosterReady
-  });
+  const privateTotal = useMemo(() => players.reduce((sum, player) => sum + Number(player.fantasyPoints || 0), 0), [players]);
+  const { standings, loaded: standingsLoaded } = useLeagueStandings();
   const standingIndex = standings.findIndex((entry) => entry.slug === teamSlug);
   const currentStanding = standingIndex >= 0 ? standings[standingIndex] : null;
   const higherStanding = standingIndex > 0 ? standings[standingIndex - 1] : null;
-  const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1
-    ? standings[standingIndex + 1]
-    : null;
-  const teamFantasyTotal = currentStanding
-    ? Number(currentStanding.fantasyPoints || 0)
-    : (canSeeRoster && rosterReady ? privateTeamFantasyTotal : 0);
+  const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1 ? standings[standingIndex + 1] : null;
+  const teamTotal = currentStanding ? Number(currentStanding.fantasyPoints || 0) : privateTotal;
 
   return (
-    <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
-      <div className={`nick-locker-stage locker-team-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
+    <div ref={viewportRef} className="locker-viewport" aria-label={`${teamName}'s locker room`}>
+      <section className={`locker-stage locker-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
         {!isDreamTeam ? (
           <>
-            <PredictionsPanel
-              side="left"
-              predictions={predictions}
-              editable={isOwnLocker && !PREDICTIONS_LOCKED}
-              onEdit={setPredictionEditor}
-            />
-            <PredictionsPanel
-              side="right"
-              predictions={predictions}
-              editable={isOwnLocker && !PREDICTIONS_LOCKED}
-              onEdit={setPredictionEditor}
-            />
-            {isBotTeam ? (
-              <div className="generated-roster-banner bot-roster-banner">
-                <strong>{teamName}</strong>
-                <span>{team.description}</span>
-              </div>
-            ) : null}
+            <PredictionsPanel side="left" predictions={predictions || EMPTY_PREDICTIONS} />
+            <PredictionsPanel side="right" predictions={predictions || EMPTY_PREDICTIONS} />
           </>
-        ) : (
-          <div className="generated-roster-banner">
+        ) : null}
+
+        {team.kind ? (
+          <div className="generated-team-label">
             <strong>{teamName}</strong>
             <span>{team.description}</span>
           </div>
-        )}
+        ) : null}
 
-        {canSeeRoster ? (
-          <div className="nick-locker-roster-panel">
-            <RosterGroup title="FORWARDS" players={groups.F} type="F" limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
-            <RosterGroup title="DEFENCE" players={groups.D} type="D" limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
-            <RosterGroup title="GOALIES" players={groups.G} type="G" limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+        {!rosterConcealed ? (
+          <div className="locker-roster-panel">
+            <RosterGroup title="FORWARDS" type="F" players={groups.F} limit={SLOT_LIMITS.F} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+            <RosterGroup title="DEFENCE" type="D" players={groups.D} limit={SLOT_LIMITS.D} onOpen={(player, goalie) => setSelection({ player, goalie })} />
+            <RosterGroup title="GOALIES" type="G" players={groups.G} limit={SLOT_LIMITS.G} onOpen={(player, goalie) => setSelection({ player, goalie })} />
           </div>
         ) : (
-          <div className="locker-roster-sealed" aria-label="Roster concealed until the NHL season begins">
-            <span aria-hidden="true">🔒</span>
+          <div className="roster-sealed">
             <strong>ROSTER SEALED</strong>
-            <small>PLAYER PICKS REVEAL ON OPENING NIGHT</small>
+            <span>{new Date(ROSTER_REVEAL_AT).toLocaleDateString("en-CA")}</span>
           </div>
         )}
 
         {standingsLoaded && higherStanding ? (
-          <a
-            className="locker-standing-link locker-standing-link-left"
-            href={`/team/${higherStanding.slug}/locker-room`}
-            aria-label={`Open ${higherStanding.name}'s ${ordinal(higherStanding.rank)} place locker room`}
-          >
-            <small>← {ordinal(higherStanding.rank).toUpperCase()} PLACE</small>
-            <strong>{higherStanding.name}</strong>
-            <span>{higherStanding.fantasyPoints.toFixed(1)} FPTS</span>
+          <a className="standing-neighbour left" href={`/team/${higherStanding.slug}/locker-room`}>
+            <small>← {ordinal(higherStanding.rank).toUpperCase()}</small><strong>{higherStanding.name}</strong><span>{higherStanding.fantasyPoints.toFixed(1)} FPTS</span>
           </a>
         ) : null}
 
-        <div className="nick-locker-team-total" aria-label={`Total team fantasy points ${teamFantasyTotal.toFixed(1)}${currentStanding ? `, ${ordinal(currentStanding.rank)} place` : ""}`}>
-          <span>{canSeeRoster ? "TOTAL TEAM FANTASY POINTS" : "ROSTER HIDDEN UNTIL OPENING NIGHT"}</span>
-          <strong>{teamFantasyTotal.toFixed(1)}</strong>
-          <em>{canSeeRoster
-            ? (standingsLoaded && currentStanding ? `${ordinal(currentStanding.rank).toUpperCase()} PLACE` : "RANKING…")
-            : new Date(ROSTER_REVEAL_AT).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" }).toUpperCase()}</em>
+        <div className="locker-total">
+          <span>Total Team Fantasy Points</span>
+          <strong>{teamTotal.toFixed(1)}</strong>
+          <small>{currentStanding ? `${ordinal(currentStanding.rank).toUpperCase()} PLACE` : rosterReady ? "LOCKED ROSTER" : "LOADING…"}</small>
         </div>
 
         {standingsLoaded && lowerStanding ? (
-          <a
-            className="locker-standing-link locker-standing-link-right"
-            href={`/team/${lowerStanding.slug}/locker-room`}
-            aria-label={`Open ${lowerStanding.name}'s ${ordinal(lowerStanding.rank)} place locker room`}
-          >
-            <small>{ordinal(lowerStanding.rank).toUpperCase()} PLACE →</small>
-            <strong>{lowerStanding.name}</strong>
-            <span>{lowerStanding.fantasyPoints.toFixed(1)} FPTS</span>
+          <a className="standing-neighbour right" href={`/team/${lowerStanding.slug}/locker-room`}>
+            <small>{ordinal(lowerStanding.rank).toUpperCase()} →</small><strong>{lowerStanding.name}</strong><span>{lowerStanding.fantasyPoints.toFixed(1)} FPTS</span>
           </a>
         ) : null}
+      </section>
 
-        {selection ? (
-          <HockeyCardOverlay
-            selection={selection}
-            onClose={() => setSelection(null)}
-            rankingData={rankingData}
-            rankingLoading={rankingLoading}
-            teamName={teamName}
-          />
-        ) : null}
-      </div>
-
-      {!isGeneratedTeam ? <PredictionEditorModal
-        editor={predictionEditor}
-        players={predictionPlayers}
-        teams={nhlTeams}
-        currentSelection={predictionEditor
-          ? predictionEditor.kind === "team"
-            ? predictions?.teamAwards?.[predictionEditor.key] || null
-            : predictions?.playerAwards?.[predictionEditor.key] || null
-          : null}
-        loading={predictionPoolLoading}
-        saving={predictionSaving}
-        status={predictionStatus}
-        onSelect={selectPrediction}
-        onClose={() => setPredictionEditor(null)}
-      /> : null}
+      {selection ? (
+        <HockeyCardOverlay
+          selection={selection}
+          onClose={() => setSelection(null)}
+          rankingData={rankingData}
+          rankingLoading={rankingLoading}
+          teamName={teamName}
+        />
+      ) : null}
     </div>
   );
 }

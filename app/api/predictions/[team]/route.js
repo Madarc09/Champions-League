@@ -4,7 +4,7 @@ import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import { getRedis } from "@/lib/redis";
 import { managerFromRequest } from "@/lib/auth";
 import { getPlayerPool } from "@/lib/nhl";
-import { buildPlayerIdentityIndex, resolvePlayerFromIndex } from "@/lib/player-identity";
+import { buildPlayerIdentityIndex, canonicalPlayerName, resolvePlayerFromIndex, samePlayerIdentity } from "@/lib/player-identity";
 
 const PLAYER_KEYS = ["artRoss", "hart", "rocket", "vezina", "calder", "norris"];
 const TEAM_KEYS = ["stanleyCup", "eastChamp", "westChamp", "presidentsTrophy"];
@@ -20,12 +20,12 @@ function predictionsKey(team) {
 
 function cleanPlayer(value) {
   if (!value) return null;
-  const playerId = Number(value.playerId);
+  const rawPlayerId = Number(value.playerId);
   const name = String(value.name || "").trim();
-  if (!Number.isFinite(playerId) || !name) return null;
+  if (!name) return null;
 
   return {
-    playerId,
+    playerId: Number.isFinite(rawPlayerId) ? rawPlayerId : null,
     name,
     team: String(value.team || "NHL").trim().toUpperCase(),
     rosterType: String(value.rosterType || "F").trim().toUpperCase(),
@@ -92,7 +92,26 @@ async function enrichPredictions(predictions) {
 
     for (const key of PLAYER_KEYS) {
       const saved = cleanPlayer(predictions.playerAwards?.[key]);
-      const live = saved ? resolvePlayerFromIndex(saved, index) : null;
+      let live = null;
+
+      if (saved) {
+        // Gavin McKenna was originally saved while he still had prospect-era
+        // data. Pin his official NHL identity, then use the same safe name/ID
+        // reconciliation for every other rookie prediction.
+        if (canonicalPlayerName(saved.name) === "gavin mckenna") {
+          live = index.byId?.get("8486067") || null;
+        }
+
+        if (!live) {
+          const idMatch = index.byId?.get(String(saved.playerId));
+          if (idMatch && samePlayerIdentity(saved, idMatch)) live = idMatch;
+        }
+
+        if (!live) {
+          live = resolvePlayerFromIndex({ ...saved, playerId: null }, index);
+        }
+      }
+
       repairedAwards[key] = mergePredictionPlayer(saved, live);
     }
 

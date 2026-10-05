@@ -3,7 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 
 export const metadata = {
   title: "Champions League Fantasy Hockey",
-  description: "Salary-cap fantasy hockey for league champions."
+  description: "2026–27 salary-cap fantasy hockey for league champions."
 };
 
 export default function RootLayout({ children }) {
@@ -13,9 +13,6 @@ export default function RootLayout({ children }) {
         <div className="site-shell">
           <SiteHeader />
           <main>{children}</main>
-          <footer className="site-footer">
-            Champions League · 2026–27 salary-cap season
-          </footer>
         </div>
       </body>
     </html>
