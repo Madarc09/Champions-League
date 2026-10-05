@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GOALIE_SCORING, ROSTER_REVEAL_AT, SCORING } from "@/data/league-config";
+import { GOALIE_SCORING, PREDICTIONS_LOCKED, ROSTER_REVEAL_AT, SCORING } from "@/data/league-config";
+import { BOT_PRESEASON_PREDICTIONS } from "@/data/generated-predictions";
 import { LOCKER_BACKGROUNDS } from "@/data/locker-config";
 import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import useLeagueStandings from "@/components/useLeagueStandings";
 import { ordinal } from "@/lib/standings";
+import { buildPlayerIdentityIndex, resolvePlayerFromIndex } from "@/lib/player-identity";
 
 const FALLBACK_HEADSHOT = "/player-silhouette.svg";
 const EMPTY_SLOT_SILHOUETTE = "/empty-slot-silhouette.svg";
@@ -233,10 +235,10 @@ function PredictionTile({ title, selection, kind, editable = false, onEdit }) {
             onError={kind === "player" ? handleHeadshotError : undefined}
           />
         ) : (
-          <span aria-hidden="true">?</span>
+          <span className="locker-prediction-missed" aria-hidden="true">×</span>
         )}
       </div>
-      <small title={name || "TBA"}>{name || "TBA"}</small>
+      <small title={name || "No pick"}>{name || "NO PICK"}</small>
     </Tag>
   );
 }
@@ -594,6 +596,8 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const teamSlug = team.slug;
   const teamName = team.name;
   const isGeneratedTeam = Boolean(team.kind);
+  const isBotTeam = team.kind === "bot";
+  const isDreamTeam = team.kind === "dream";
   const lockerBackground = LOCKER_BACKGROUNDS[teamSlug] || LOCKER_BACKGROUNDS.nick;
   const isOwnLocker = !isGeneratedTeam && viewerSlug === teamSlug;
   const viewportRef = useRef(null);
@@ -676,10 +680,10 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         });
         const data = await response.json();
         if (response.ok && Array.isArray(data.players)) {
-          const liveById = new Map(data.players.map((player) => [String(player.playerId), player]));
+          const liveIndex = buildPlayerIdentityIndex(data.players);
           const refreshed = roster.map((saved) => {
-            const live = liveById.get(String(saved.playerId));
-            if (live) return { ...saved, ...live };
+            const live = resolvePlayerFromIndex(saved, liveIndex);
+            if (live) return { ...saved, ...live, capHit: Number(saved.capHit ?? live.capHit ?? 0) };
             return {
               ...saved,
               gamesPlayed: 0,
@@ -709,7 +713,13 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   useEffect(() => {
     setPredictionEditor(null);
     setPredictionStatus("");
-    if (isGeneratedTeam) {
+    if (isBotTeam) {
+      setPredictions(normalizedPredictions(BOT_PRESEASON_PREDICTIONS));
+      setPredictionStatus("Locked preseason predictions · made before puck drop");
+      return undefined;
+    }
+
+    if (isDreamTeam) {
       setPredictions(null);
       return undefined;
     }
@@ -753,7 +763,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [teamSlug, isOwnLocker, isGeneratedTeam, teamName]);
+  }, [teamSlug, isOwnLocker, isBotTeam, isDreamTeam, teamName]);
 
   useEffect(() => {
     if (!isOwnLocker || isGeneratedTeam) {
@@ -884,20 +894,26 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
       <div className={`nick-locker-stage locker-team-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
-        {!isGeneratedTeam ? (
+        {!isDreamTeam ? (
           <>
             <PredictionsPanel
               side="left"
               predictions={predictions}
-              editable={isOwnLocker}
+              editable={isOwnLocker && !PREDICTIONS_LOCKED}
               onEdit={setPredictionEditor}
             />
             <PredictionsPanel
               side="right"
               predictions={predictions}
-              editable={isOwnLocker}
+              editable={isOwnLocker && !PREDICTIONS_LOCKED}
               onEdit={setPredictionEditor}
             />
+            {isBotTeam ? (
+              <div className="generated-roster-banner bot-roster-banner">
+                <strong>{teamName}</strong>
+                <span>{team.description}</span>
+              </div>
+            ) : null}
           </>
         ) : (
           <div className="generated-roster-banner">

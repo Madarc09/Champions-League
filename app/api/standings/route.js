@@ -9,6 +9,7 @@ import {
   rosterStorageKey
 } from "@/lib/standings";
 import { applyStaticProjection } from "@/lib/static-projections";
+import { buildPlayerIdentityIndex, canonicalPlayerName, resolvePlayerFromIndex } from "@/lib/player-identity";
 import { ensureSpecialRosters } from "@/lib/special-teams";
 
 export const dynamic = "force-dynamic";
@@ -16,10 +17,12 @@ export const maxDuration = 60;
 
 function overlapCount(roster, dreamRoster) {
   const dreamIds = new Set((dreamRoster?.players || []).map((player) => String(player.playerId)));
-  return (roster?.players || []).reduce(
-    (count, player) => count + (dreamIds.has(String(player.playerId)) ? 1 : 0),
-    0
-  );
+  const dreamNames = new Set((dreamRoster?.players || []).map((player) => canonicalPlayerName(player.name)).filter(Boolean));
+  return (roster?.players || []).reduce((count, player) => {
+    const idMatch = dreamIds.has(String(player.playerId));
+    const nameMatch = dreamNames.has(canonicalPlayerName(player.name));
+    return count + (idMatch || nameMatch ? 1 : 0);
+  }, 0);
 }
 
 export async function GET() {
@@ -59,6 +62,7 @@ export async function GET() {
 
   try {
     const pool = await getPlayerPool();
+    const liveIdentityIndex = buildPlayerIdentityIndex(pool.players || []);
     livePlayersById = new Map(
       (pool.players || []).map((player) => [String(player.playerId), player])
     );
@@ -68,6 +72,18 @@ export async function GET() {
         Number(player.fantasyPoints || 0)
       ])
     );
+
+    // Saved rookie picks may carry a temporary draft/prospect ID. Alias every
+    // stored roster ID to the live NHL record by verified identity so those
+    // players start scoring automatically once the NHL assigns the official ID.
+    const allStoredPlayers = Object.values(rosters)
+      .flatMap((roster) => Array.isArray(roster?.players) ? roster.players : []);
+    for (const storedPlayer of allStoredPlayers) {
+      const livePlayer = resolvePlayerFromIndex(storedPlayer, liveIdentityIndex);
+      if (!livePlayer) continue;
+      livePlayersById.set(String(storedPlayer.playerId), livePlayer);
+      liveFantasyPoints[String(storedPlayer.playerId)] = Number(livePlayer.fantasyPoints || 0);
+    }
 
     const rosterPlayers = [
       ...Object.values(rosters).flatMap((roster) => Array.isArray(roster?.players) ? roster.players : []),

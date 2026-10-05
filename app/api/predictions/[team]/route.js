@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { TEAMS } from "@/data/league-config";
+import { PREDICTIONS_LOCKED, PREDICTIONS_LOCKED_AT, TEAMS } from "@/data/league-config";
 import { NHL_TEAMS_FALLBACK } from "@/data/nhl-teams";
 import { getRedis } from "@/lib/redis";
 import { managerFromRequest } from "@/lib/auth";
@@ -80,6 +80,14 @@ export async function GET(request, context) {
 export async function POST(request, context) {
   const { team } = await context.params;
   if (!validLeagueTeam(team)) return NextResponse.json({ error: "Team not found." }, { status: 404 });
+
+  if (PREDICTIONS_LOCKED) {
+    return NextResponse.json({
+      error: "Preseason predictions are locked now that the 2026–27 season has begun.",
+      locked: true,
+      lockedAt: PREDICTIONS_LOCKED_AT
+    }, { status: 423 });
+  }
 
   const manager = await managerFromRequest(request);
   if (!manager) return NextResponse.json({ error: "Sign in before saving predictions." }, { status: 401 });

@@ -6,6 +6,8 @@ export const SALARY_CAP = 104_000_000;
 // The 2026–27 league is live. Human draft picks are frozen for the season.
 export const ROSTERS_LOCKED = true;
 export const ROSTER_LOCKED_AT = "2026-10-05T13:26:00-04:00";
+export const PREDICTIONS_LOCKED = true;
+export const PREDICTIONS_LOCKED_AT = "2026-09-29T17:00:00-04:00";
 
 // Rosters are public now that the league has launched.
 export const ROSTER_REVEAL_AT = "2026-10-05T13:26:00-04:00";
@@ -50,9 +52,9 @@ export const TEAMS = [
 
 export const BOT_TEAM = {
   slug: "chatgpt",
-  name: "ChatGPT",
+  name: "Skynet T-104",
   kind: "bot",
-  description: "A cap-legal roster selected once by the Champions League optimizer and locked for the season."
+  description: "An AI-built $104M cap roster selected once before launch and locked for the season."
 };
 
 export const DREAM_TEAM = {
