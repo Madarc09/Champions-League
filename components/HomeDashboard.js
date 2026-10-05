@@ -43,16 +43,16 @@ function DreamPlayerCard({ player, onOpen }) {
       </span>
       <span className="lineup-player-name">
         <strong>{shortName(player.name)}</strong>
-        <small><b>{formatPoints(player.fantasyPoints)}</b> FPTS</small>
+        <small><b>{formatPoints(player.fantasyPoints)}</b><span className="fpts-suffix"> FPTS</span></small>
       </span>
     </button>
   );
 }
 
-function LineupGroup({ label, players, onOpen, className = "" }) {
+function LineupGroup({ label = null, players, onOpen, className = "" }) {
   return (
     <section className={`lineup-group ${className}`.trim()}>
-      <h3>{label}</h3>
+      {label ? <h3>{label}</h3> : null}
       <div className="lineup-group-players">
         {players.map((player, index) => (
           <DreamPlayerCard
@@ -216,31 +216,33 @@ export default function HomeDashboard() {
             </header>
 
             <div className="dream-lineup-board">
+              <h3 className="dream-zone-title dream-zone-forwards">FORWARDS</h3>
               <div className="dream-offence-halves">
                 <div className="dream-offence-half dream-offence-left">
-                  <LineupGroup label="1ST LINE" players={lineup.forwardLines[0]} onOpen={openDreamPlayer} />
-                  <LineupGroup label="2ND LINE" players={lineup.forwardLines[1]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[0]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[1]} onOpen={openDreamPlayer} />
                 </div>
                 <div className="dream-offence-half dream-offence-right">
-                  <LineupGroup label="3RD LINE" players={lineup.forwardLines[2]} onOpen={openDreamPlayer} />
-                  <LineupGroup label="4TH LINE" players={lineup.forwardLines[3]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[2]} onOpen={openDreamPlayer} />
+                  <LineupGroup players={lineup.forwardLines[3]} onOpen={openDreamPlayer} />
                 </div>
               </div>
 
+              <h3 className="dream-zone-title dream-zone-defence">DEFENCE</h3>
               <div className="defence-pairs">
                 {lineup.defencePairs.map((pair, index) => (
                   <LineupGroup
                     key={`pair-${index + 1}`}
-                    label={`DEFENCE PAIR ${index + 1}`}
                     players={pair}
                     onOpen={openDreamPlayer}
                   />
                 ))}
               </div>
 
+              <h3 className="dream-zone-title dream-zone-goalies">GOALIES</h3>
               <div className="goalie-pair">
-                <LineupGroup label="STARTING GOALIE" players={[lineup.goalies[0]]} onOpen={openDreamPlayer} />
-                <LineupGroup label="BACKUP GOALIE" players={[lineup.goalies[1]]} onOpen={openDreamPlayer} />
+                <LineupGroup players={[lineup.goalies[0]]} onOpen={openDreamPlayer} />
+                <LineupGroup players={[lineup.goalies[1]]} onOpen={openDreamPlayer} />
               </div>
 
               {!loaded ? <p className="dream-board-message">Loading weekly Dream Team…</p> : null}
