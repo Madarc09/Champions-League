@@ -23,6 +23,8 @@ export default function SiteHeader() {
     return () => { cancelled = true; };
   }, [pathname]);
 
+  if (pathname === "/") return null;
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     setManager(null);
@@ -31,22 +33,14 @@ export default function SiteHeader() {
   }
 
   return (
-    <header className="scene-header">
-      <a className="scene-brand" href="/" aria-label="Champions League home">
-        <span className="scene-brand-mark" aria-hidden="true">CL</span>
-        <span className="scene-brand-copy">
-          <strong>Champions League</strong>
-          <small>2026–27 Fantasy Hockey</small>
-        </span>
-      </a>
-
-      <nav className="scene-links" aria-label="Primary navigation">
-        <a className={pathname === "/" ? "active" : ""} href="/">Home</a>
+    <header className="minimal-scene-header">
+      <nav aria-label="Primary navigation">
+        <a href="/">Home</a>
         {manager ? <a href={`/team/${manager.slug}/locker-room`}>My Locker</a> : null}
         {manager ? (
           <button type="button" onClick={logout}>Log out</button>
         ) : loaded ? (
-          <a className={pathname === "/login" ? "active" : ""} href="/login">Manager Login</a>
+          <a href="/login">Log in</a>
         ) : null}
       </nav>
     </header>
