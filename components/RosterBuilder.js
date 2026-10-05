@@ -1392,7 +1392,7 @@ export default function RosterBuilder({ team, salaryCap, rosterLimits, scoring, 
               <section className="panel champions-player-pool compact-player-pool">
           <div className="player-pool-heading">
             <div>
-              <p className="eyebrow">2025–26 actual statistics</p>
+              <p className="eyebrow">2026–27 actual statistics</p>
               <h2>Player Pool</h2>
             </div>
             <span>{filteredPlayers.length} players shown</span>

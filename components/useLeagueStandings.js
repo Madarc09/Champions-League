@@ -30,6 +30,7 @@ export default function useLeagueStandings({
 } = {}) {
   const [snapshot, setSnapshot] = useState({
     standings: [],
+    dreamTeam: null,
     loaded: false,
     persistence: "private"
   });
@@ -45,6 +46,7 @@ export default function useLeagueStandings({
 
       setSnapshot({
         standings: Array.isArray(data.standings) ? data.standings : [],
+        dreamTeam: data.dreamTeam || null,
         loaded: true,
         persistence: data.persistence || "private"
       });
@@ -66,7 +68,9 @@ export default function useLeagueStandings({
       if (document.visibilityState === "visible") refresh();
     }
 
-    const interval = window.setInterval(refreshWhileVisible, 3000);
+    // Rosters are frozen now. A one-minute refresh is more than enough for the
+    // live NHL totals and avoids hammering the standings/special-team optimizer.
+    const interval = window.setInterval(refreshWhileVisible, 60_000);
     window.addEventListener("champions-league:roster-updated", handleRosterUpdate);
     window.addEventListener("focus", handleFocus);
     return () => {
@@ -78,18 +82,12 @@ export default function useLeagueStandings({
 
   const standings = useMemo(() => {
     const base = snapshot.standings.map((entry, originalIndex) => ({ ...entry, originalIndex }));
-    if (currentTeamSlug && currentRosterReady) {
-      const current = base.find((entry) => entry.slug === currentTeamSlug);
-      if (current) {
-        current.fantasyPoints = totalFantasyPoints(currentPlayers);
-        current.projectedFantasyPoints = totalProjectedFantasyPoints(currentPlayers);
-      }
-    }
     return rankStandings(base).map(({ originalIndex: _originalIndex, ...entry }) => entry);
-  }, [snapshot.standings, currentTeamSlug, currentPlayers, currentRosterReady]);
+  }, [snapshot.standings]);
 
   return {
     standings,
+    dreamTeam: snapshot.dreamTeam,
     loaded: snapshot.loaded,
     persistence: snapshot.persistence,
     refresh

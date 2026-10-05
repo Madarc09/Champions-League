@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function LoginPage() {
   const manager = await currentManager();
-  if (manager) redirect(`/team/${manager.slug}`);
+  if (manager) redirect(`/team/${manager.slug}/locker-room`);
 
   return (
     <section className="login-page">

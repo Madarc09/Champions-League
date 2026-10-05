@@ -39,7 +39,7 @@ export default function LoginForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Login failed.");
 
-      const fallback = `/team/${data.manager.slug}`;
+      const fallback = `/team/${data.manager.slug}/locker-room`;
       const destination = safeNextPath(searchParams.get("next"), fallback);
       router.replace(destination);
       router.refresh();
@@ -53,9 +53,9 @@ export default function LoginForm() {
     <form className="login-card" onSubmit={submit}>
       <div className="login-logo" aria-hidden="true">CL</div>
       <p className="eyebrow">Manager access</p>
-      <h1>Enter the Draft Room</h1>
+      <h1>Manager Access</h1>
       <p className="login-intro">
-        Sign in with your manager name. The temporary starter password is your name written backwards.
+        Sign in with your manager name to view your locked 2026–27 roster and season predictions. The temporary starter password is your name written backwards.
       </p>
 
       <label className="login-field">

@@ -19,7 +19,7 @@ function formatPoints(value) {
 }
 
 export default function HomeDashboard() {
-  const { standings, loaded: standingsLoaded } = useLeagueStandings();
+  const { standings, dreamTeam, loaded: standingsLoaded } = useLeagueStandings();
   const scrollerRef = useRef(null);
   const [activePanel, setActivePanel] = useState("forwards");
   const [selection, setSelection] = useState(null);
@@ -120,12 +120,12 @@ export default function HomeDashboard() {
             <section className="home-live-board home-standings-board" aria-labelledby="home-standings-title">
               <header className="home-board-title">
                 <div>
-                  <span>2025–26 NHL results</span>
+                  <span>2026–27 live NHL results</span>
                   <h1 id="home-standings-title">Champions League Standings</h1>
                 </div>
                 <div className="home-standing-column-headings" aria-label="Standing point columns">
-                  <span><strong>FPTS</strong><small>2025–26</small></span>
-                  <span><strong>PROJECTED</strong><small>2026–27</small></span>
+                  <span><strong>FPTS</strong><small>2026–27</small></span>
+                  <span><strong>DREAM</strong><small>players / 20</small></span>
                 </div>
               </header>
 
@@ -135,20 +135,29 @@ export default function HomeDashboard() {
                     <a
                       className="home-standing-private home-standing-locker-link"
                       href={`/team/${team.slug}/locker-room`}
-                      aria-label={`Open ${team.name}'s locker room; ${formatPoints(team.fantasyPoints)} current fantasy points and ${formatPoints(team.projectedFantasyPoints)} projected fantasy points`}
+                      aria-label={`Open ${team.name}'s locker room; ${formatPoints(team.fantasyPoints)} current fantasy points and ${team.dreamTeamPlayers || 0} players on this week's Dream Team`}
                     >
                       <span className="home-standing-rank">{team.rank}</span>
                       <span className="home-standing-name">{team.name}</span>
                       <span className="home-standing-points home-standing-current-points">
                         {standingsLoaded ? formatPoints(team.fantasyPoints) : "—"}
                       </span>
-                      <span className="home-standing-points home-standing-projected-points">
-                        {standingsLoaded ? formatPoints(team.projectedFantasyPoints) : "—"}
+                      <span className="home-standing-points home-standing-projected-points home-standing-dream-count">
+                        {standingsLoaded ? `${team.dreamTeamPlayers || 0}/20` : "—"}
                       </span>
                     </a>
                   </li>
                 ))}
               </ol>
+
+              {dreamTeam ? (
+                <a className="home-dream-team-card" href="/team/dream-team/locker-room">
+                  <span className="home-dream-team-badge">WEEKLY BENCHMARK</span>
+                  <span className="home-dream-team-name">Dream Team</span>
+                  <strong>{formatPoints(dreamTeam.fantasyPoints)} FPTS</strong>
+                  <small>Week of {dreamTeam.weekKey || "current week"} · under the $104M cap</small>
+                </a>
+              ) : null}
             </section>
 
             <section className="home-live-board home-performers-board" aria-labelledby="home-performers-title">

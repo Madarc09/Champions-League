@@ -49,23 +49,17 @@ export default function SiteHeader() {
         <a className={pathname === "/" ? "active" : ""} href="/">Home</a>
 
         {ownTeamRoute ? (
-          <>
-            <a className={pathname === `/team/${teamSlug}` ? "active" : ""} href={`/team/${teamSlug}`}>
-              Draft Room
-            </a>
-            <a
-              className={pathname === `/team/${teamSlug}/locker-room` ? "active" : ""}
-              href={`/team/${teamSlug}/locker-room`}
-            >
-              Locker Room
-            </a>
-          </>
+          <a
+            className={pathname === `/team/${teamSlug}/locker-room` ? "active" : ""}
+            href={`/team/${teamSlug}/locker-room`}
+          >
+            Locked Roster
+          </a>
         ) : null}
 
         {manager ? (
           <>
-            {!ownTeamRoute ? <a href={`/team/${manager.slug}`}>My Draft Room</a> : null}
-            {!ownTeamRoute ? <a href={`/team/${manager.slug}/locker-room`}>My Locker</a> : null}
+            {!ownTeamRoute ? <a href={`/team/${manager.slug}/locker-room`}>My Locked Roster</a> : null}
             <span className="manager-session" title={`Signed in as ${manager.name}`}>{manager.name}</span>
             <button className="header-auth-button" type="button" onClick={logout}>Log out</button>
           </>

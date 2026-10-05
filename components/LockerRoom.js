@@ -185,11 +185,11 @@ function createPlayerSynopsis(player, goalie, rankings) {
   }
 
   if (Number(player?.gamesPlayed || 0) === 0 && Number(player?.fantasyPoints || 0) === 0) {
-    parts.push(`He has no 2025–26 NHL fantasy production yet, so his preseason rankings are the more useful guide.`);
+    parts.push(`He has no 2026–27 NHL fantasy production yet, so his preseason rankings are the more useful guide.`);
   } else {
     const rankText = championRank ? `No. ${championRank}` : "outside the current ranked pool";
     const driver = leading ? `, led by ${leading[0].toLowerCase()} worth ${compactNumber(leading[2])} FPTS` : "";
-    parts.push(`Under Champions League scoring, his ${total} FPTS ranked ${rankText} based on 2025–26 results${driver}.`);
+    parts.push(`Under Champions League scoring, his ${total} FPTS ranked ${rankText} based on 2026–27 results${driver}.`);
   }
 
   return parts.join(" ");
@@ -200,7 +200,7 @@ function RankingTile({ source, rank, sourceInfo, loading }) {
     <>
       <span>{sourceDisplayName(source)}</span>
       <strong>{loading ? "…" : rank ? `#${rank}` : "NR"}</strong>
-      <small>{sourceInfo?.season || (source === "champions" ? "2025–26" : "2026–27")}</small>
+      <small>{sourceInfo?.season || (source === "champions" ? "2026–27" : "2026–27")}</small>
     </>
   );
 
@@ -513,7 +513,7 @@ export function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoad
         <header className="run-card-topline">
           <span>CL{cardNumber}</span>
           <b>CHAMPIONS LEAGUE · CUP CHASE</b>
-          <span>2025–26</span>
+          <span>2026–27</span>
         </header>
 
         <div className="run-card-main">
@@ -593,8 +593,9 @@ export function HockeyCardOverlay({ selection, onClose, rankingData, rankingLoad
 export default function LockerRoom({ team, viewerSlug = null }) {
   const teamSlug = team.slug;
   const teamName = team.name;
+  const isGeneratedTeam = Boolean(team.kind);
   const lockerBackground = LOCKER_BACKGROUNDS[teamSlug] || LOCKER_BACKGROUNDS.nick;
-  const isOwnLocker = viewerSlug === teamSlug;
+  const isOwnLocker = !isGeneratedTeam && viewerSlug === teamSlug;
   const viewportRef = useRef(null);
   const [players, setPlayers] = useState([]);
   const [selection, setSelection] = useState(null);
@@ -635,7 +636,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     setSelection(null);
     setPlayers([]);
     setRosterReady(false);
-    setRosterConcealed(!isOwnLocker);
+    setRosterConcealed(isGeneratedTeam ? false : !isOwnLocker);
 
     async function loadRoster() {
       let roster = [];
@@ -676,10 +677,24 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         const data = await response.json();
         if (response.ok && Array.isArray(data.players)) {
           const liveById = new Map(data.players.map((player) => [String(player.playerId), player]));
-          const refreshed = roster.map((saved) => ({
-            ...saved,
-            ...(liveById.get(String(saved.playerId)) || {})
-          }));
+          const refreshed = roster.map((saved) => {
+            const live = liveById.get(String(saved.playerId));
+            if (live) return { ...saved, ...live };
+            return {
+              ...saved,
+              gamesPlayed: 0,
+              goals: 0,
+              assists: 0,
+              hits: 0,
+              shots: 0,
+              saves: 0,
+              goalsAgainst: 0,
+              wins: 0,
+              losses: 0,
+              shutouts: 0,
+              fantasyPoints: 0
+            };
+          });
           if (!cancelled) setPlayers(refreshed);
         }
       } catch {
@@ -689,11 +704,15 @@ export default function LockerRoom({ team, viewerSlug = null }) {
 
     loadRoster();
     return () => { cancelled = true; };
-  }, [teamSlug, isOwnLocker, team.name]);
+  }, [teamSlug, isOwnLocker, isGeneratedTeam, team.name]);
 
   useEffect(() => {
     setPredictionEditor(null);
     setPredictionStatus("");
+    if (isGeneratedTeam) {
+      setPredictions(null);
+      return undefined;
+    }
 
     let cancelled = false;
 
@@ -734,10 +753,10 @@ export default function LockerRoom({ team, viewerSlug = null }) {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [teamSlug, isOwnLocker, teamName]);
+  }, [teamSlug, isOwnLocker, isGeneratedTeam, teamName]);
 
   useEffect(() => {
-    if (!isOwnLocker) {
+    if (!isOwnLocker || isGeneratedTeam) {
       setPredictionPlayers([]);
       setNhlTeams(NHL_TEAMS_FALLBACK);
       return undefined;
@@ -766,7 +785,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
     });
 
     return () => { cancelled = true; };
-  }, [isOwnLocker]);
+  }, [isOwnLocker, isGeneratedTeam]);
 
   function selectPrediction(value) {
     if (!predictionEditor || !isOwnLocker) return;
@@ -858,27 +877,34 @@ export default function LockerRoom({ team, viewerSlug = null }) {
   const lowerStanding = standingIndex >= 0 && standingIndex < standings.length - 1
     ? standings[standingIndex + 1]
     : null;
-  const teamFantasyTotal = canSeeRoster && rosterReady
-    ? privateTeamFantasyTotal
-    : Number(currentStanding?.fantasyPoints || 0);
+  const teamFantasyTotal = currentStanding
+    ? Number(currentStanding.fantasyPoints || 0)
+    : (canSeeRoster && rosterReady ? privateTeamFantasyTotal : 0);
 
   return (
     <div ref={viewportRef} className="nick-locker-viewport" aria-label={`${teamName}'s locker room`}>
       <div className={`nick-locker-stage locker-team-${teamSlug}`} style={{ backgroundImage: `url("${lockerBackground}")` }}>
-        <>
-          <PredictionsPanel
-            side="left"
-            predictions={predictions}
-            editable={isOwnLocker}
-            onEdit={setPredictionEditor}
-          />
-          <PredictionsPanel
-            side="right"
-            predictions={predictions}
-            editable={isOwnLocker}
-            onEdit={setPredictionEditor}
-          />
-        </>
+        {!isGeneratedTeam ? (
+          <>
+            <PredictionsPanel
+              side="left"
+              predictions={predictions}
+              editable={isOwnLocker}
+              onEdit={setPredictionEditor}
+            />
+            <PredictionsPanel
+              side="right"
+              predictions={predictions}
+              editable={isOwnLocker}
+              onEdit={setPredictionEditor}
+            />
+          </>
+        ) : (
+          <div className="generated-roster-banner">
+            <strong>{teamName}</strong>
+            <span>{team.description}</span>
+          </div>
+        )}
 
         {canSeeRoster ? (
           <div className="nick-locker-roster-panel">
@@ -937,7 +963,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         ) : null}
       </div>
 
-      <PredictionEditorModal
+      {!isGeneratedTeam ? <PredictionEditorModal
         editor={predictionEditor}
         players={predictionPlayers}
         teams={nhlTeams}
@@ -951,7 +977,7 @@ export default function LockerRoom({ team, viewerSlug = null }) {
         status={predictionStatus}
         onSelect={selectPrediction}
         onClose={() => setPredictionEditor(null)}
-      />
+      /> : null}
     </div>
   );
 }

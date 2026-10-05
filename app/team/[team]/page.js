@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import RosterBuilder from "@/components/RosterBuilder";
 import {
   GOALIE_SCORING,
+  ROSTERS_LOCKED,
   ROSTER_LIMITS,
   SALARY_CAP,
   SCORING,
@@ -17,8 +18,9 @@ export default async function TeamPage({ params }) {
   if (!team) notFound();
 
   const manager = await currentManager();
-  if (!manager) redirect(`/login?next=/team/${slug}`);
-  if (manager.slug !== slug) redirect(`/team/${manager.slug}`);
+  if (!manager) redirect(`/login?next=/team/${slug}/locker-room`);
+  if (manager.slug !== slug) redirect(`/team/${manager.slug}/locker-room`);
+  if (ROSTERS_LOCKED) redirect(`/team/${slug}/locker-room`);
 
   return (
     <RosterBuilder

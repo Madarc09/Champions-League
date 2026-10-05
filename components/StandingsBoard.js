@@ -12,8 +12,8 @@ export default function StandingsBoard() {
           <tr>
             <th>Rank</th>
             <th>Team</th>
-            <th>Fantasy Points <small>2025–26</small></th>
-            <th>Projected FPTS <small>2026–27</small></th>
+            <th>Fantasy Points <small>2026–27</small></th>
+            <th>Dream Team <small>players / 20</small></th>
           </tr>
         </thead>
         <tbody>
@@ -21,11 +21,11 @@ export default function StandingsBoard() {
             <tr key={team.slug}>
               <td><span className="rank-badge">{team.rank}</span></td>
               <td>
-                <a className="team-link" href={`/team/${team.slug}`}>
+                <a className="team-link" href={`/team/${team.slug}/locker-room`}>
                   <span className="team-avatar">{team.name.slice(0, 1)}</span>
                   <span>
                     <strong>{team.name}</strong>
-                    <small>Private manager area →</small>
+                    <small>Locked roster →</small>
                   </span>
                 </a>
               </td>
@@ -34,8 +34,8 @@ export default function StandingsBoard() {
                 <small>FPTS</small>
               </td>
               <td className="standings-fantasy-points standings-projected-points">
-                <strong>{loaded ? Number(team.projectedFantasyPoints || 0).toFixed(1) : "—"}</strong>
-                <small>PROJ</small>
+                <strong>{loaded ? `${team.dreamTeamPlayers || 0}/20` : "—"}</strong>
+                <small>DREAM</small>
               </td>
             </tr>
           ))}

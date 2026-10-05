@@ -8223,3 +8223,107 @@ body:has(.champions-draft-page) .header-auth-button {
   .salary-admin-actions .search-box { grid-column: auto; }
   .salary-admin-table { min-width: 650px; }
 }
+
+/* 2026–27 live launch: standings + weekly Dream Team benchmark. */
+.home-standings-list {
+  height: 72%;
+  grid-template-rows: repeat(9, 1fr);
+}
+
+.home-standing-dream-count {
+  color: #76d7ff;
+}
+
+.home-dream-team-card {
+  height: 14%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 2px 12px;
+  padding: 8px 2.3%;
+  border-top: 1px solid rgba(85, 173, 255, 0.42);
+  color: #f7fbff;
+  background: linear-gradient(90deg, rgba(44, 112, 168, .2), rgba(4, 12, 20, .55));
+  text-decoration: none;
+}
+
+.home-dream-team-card:hover,
+.home-dream-team-card:focus-visible {
+  background: linear-gradient(90deg, rgba(44, 112, 168, .34), rgba(4, 12, 20, .68));
+  outline: 0;
+}
+
+.home-dream-team-badge {
+  grid-column: 1;
+  color: #76d7ff;
+  font-size: clamp(.45rem, .58vw, .62rem);
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.home-dream-team-name {
+  grid-column: 1;
+  overflow: hidden;
+  font-size: clamp(.78rem, 1vw, 1.05rem);
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-dream-team-card > strong {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  color: #76d7ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(.72rem, .95vw, 1rem);
+  text-align: right;
+}
+
+.home-dream-team-card > small {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .home-dream-team-card {
+    padding-inline: 6px;
+    gap: 2px 6px;
+  }
+  .home-dream-team-badge { font-size: .4rem; }
+  .home-dream-team-name { font-size: .65rem; }
+  .home-dream-team-card > strong { font-size: .6rem; }
+}
+
+.generated-roster-banner {
+  position: absolute;
+  z-index: 6;
+  top: 2.2%;
+  left: 50%;
+  width: min(620px, 58%);
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border: 1px solid rgba(118, 215, 255, .42);
+  border-radius: 10px;
+  background: rgba(2, 10, 18, .8);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+  text-align: center;
+}
+.generated-roster-banner strong,
+.generated-roster-banner span { display: block; }
+.generated-roster-banner strong {
+  color: #76d7ff;
+  font-size: clamp(.72rem, 1vw, 1rem);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.generated-roster-banner span {
+  margin-top: 2px;
+  color: #d7e8f7;
+  font-size: clamp(.46rem, .62vw, .66rem);
+  line-height: 1.25;
+}
+@media (max-width: 720px) {
+  .generated-roster-banner { width: 70%; padding: 5px 8px; }
+  .generated-roster-banner span { display: none; }
+}
