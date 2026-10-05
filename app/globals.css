@@ -75,14 +75,15 @@ main { min-height: 100vh; }
 .arena-nav {
   position: absolute;
   top: 6.5%;
-  right: 12.2%;
+  right: 11.4%;
   z-index: 20;
   display: flex;
   gap: clamp(8px, .8vw, 14px);
 }
-.arena-nav button {
+.arena-nav button,
+.arena-nav a {
   position: relative;
-  min-width: clamp(72px, 7vw, 112px);
+  min-width: clamp(72px, 6.8vw, 108px);
   padding: clamp(6px, .55vw, 9px) clamp(9px, .8vw, 14px);
   border: 1px solid #7f6941;
   border-radius: 2px;
@@ -102,7 +103,8 @@ main { min-height: 100vh; }
   text-shadow: 0 1px 3px #000;
   cursor: pointer;
 }
-.arena-nav button::before {
+.arena-nav button::before,
+.arena-nav a::before {
   content: "";
   position: absolute;
   inset: -4px;
@@ -110,8 +112,15 @@ main { min-height: 100vh; }
   border: 1px solid rgba(191,153,83,.28);
   background: rgba(3,5,7,.46);
 }
-.arena-nav button:hover { color: #fff6db; border-color: #c8a75f; }
+.arena-nav button:hover,
+.arena-nav a:hover { color: #fff6db; border-color: #c8a75f; }
 .arena-nav button:disabled { opacity: .58; cursor: default; }
+
+.arena-nav a {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
 
 /* The two boards deliberately fill almost all of the blank screen in the
    original arena art. This matches the reference rather than floating cards. */
@@ -1668,40 +1677,111 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .challenge-player-list article > button { padding:6px 2px; font-size:7px; }
 }
 
-/* V8.1 HOME HEADER POLISH --------------------------------------------------
-   Carousel team names use a smaller title than the Dream Team label so long
-   manager/team names stay inside the scoreboard header without shrinking the
-   live FPTS or cap metrics. */
-.arena-roster-viewer.is-team-view .roster-viewer-title h2 {
-  font-size: clamp(18px, 1.45vw, 25px);
-  letter-spacing: .025em;
-}
-.arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
-  font-size: clamp(28px, 2.35vw, 40px);
-}
-.roster-viewer-title > div {
-  gap: 0;
-}
-.dream-board-metrics {
-  align-items: center;
-}
-.dream-score-metric {
+
+/* V8.2 SCOREBOARD HEADER ---------------------------------------------------
+   One balanced scoreboard strip: fantasy points left, selected roster centered,
+   cap right. Dream Team deliberately uses the same title size as every manager. */
+.dream-title-layout {
   display: grid;
-  justify-items: end;
-  gap: 1px;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr) minmax(0, .9fr);
+  align-items: center;
+  justify-content: stretch;
+  gap: clamp(8px, .8vw, 14px);
+  padding-inline: 3.1%;
 }
-.dream-score-metric > span {
-  white-space: nowrap;
+.dream-title-layout .roster-viewer-title {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  justify-self: center;
 }
-.dream-challenge-link {
-  margin-top: 0;
-  font-size: clamp(6px, .48vw, 8px);
+.dream-title-layout .roster-viewer-title > div {
+  min-width: 0;
+  display: grid;
+  place-items: center;
+}
+.dream-title-layout .roster-viewer-title h2,
+.arena-roster-viewer.is-team-view .roster-viewer-title h2,
+.arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: #f6e7bd;
+  font-family: Copperplate, "Copperplate Gothic Light", "Palatino Linotype", Georgia, serif;
+  font-size: clamp(17px, 1.38vw, 24px);
+  font-weight: 800;
   line-height: 1;
+  letter-spacing: .075em;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
   white-space: nowrap;
+  text-shadow: 0 2px 5px #000, 0 0 12px rgba(207,170,91,.10);
+}
+.dream-title-metric {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  font-family: Copperplate, "Copperplate Gothic Light", "Palatino Linotype", Georgia, serif;
+  text-transform: uppercase;
+}
+.dream-title-metric b {
+  color: #f1cf72;
+  font-size: clamp(11px, .92vw, 15px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .045em;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px #000;
+}
+.dream-title-metric span {
+  color: #aebbc3;
+  font-size: clamp(5px, .40vw, 7px);
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+.dream-title-fpts { justify-items: start; text-align: left; }
+.dream-title-cap { justify-items: end; text-align: right; }
+.dream-title-cap em {
+  color: #c2ccd2;
+  font-size: .76em;
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* Player names read as one centered lineup, rather than left-justified labels. */
+.lineup-player-name {
+  grid-template-columns: minmax(0,1fr) auto;
+}
+.lineup-player-name strong {
+  text-align: center;
+}
+.goalie-pair .lineup-player-name {
+  align-items: center;
+  text-align: center;
+}
+.goalie-pair .lineup-player-name strong,
+.goalie-pair .lineup-player-name small {
+  text-align: center;
 }
 
 @media (max-width:720px) {
-  .arena-roster-viewer.is-team-view .roster-viewer-title h2 { font-size: 23px; }
-  .arena-roster-viewer.is-dream-view .roster-viewer-title h2 { font-size: 31px; }
-  .dream-challenge-link { font-size: 8px; }
+  .dream-title-layout {
+    grid-template-columns: minmax(145px,.92fr) minmax(250px,1.3fr) minmax(145px,.92fr);
+    gap: 8px;
+    padding-inline: 2.6%;
+  }
+  .dream-title-layout .roster-viewer-title h2,
+  .arena-roster-viewer.is-team-view .roster-viewer-title h2,
+  .arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
+    font-size: 23px;
+  }
+  .dream-title-metric b { font-size: 13px; }
+  .dream-title-metric span { font-size: 7px; }
+  .arena-nav { gap: 8px; }
+  .arena-nav button,
+  .arena-nav a { min-width: 92px; font-size: 9px; }
 }

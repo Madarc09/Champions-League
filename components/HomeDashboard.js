@@ -217,6 +217,7 @@ export default function HomeDashboard() {
     <div className="home-scene-shell">
       <section className="home-scene home-scene-v2" aria-label="Champions League live dashboard">
         <nav className="arena-nav" aria-label="Manager navigation">
+          <a href="/dream-team-challenge">CHALLENGE THE AI</a>
           <button type="button" onClick={handleLoginAction} disabled={!authLoaded}>
             {manager ? "LOG OUT" : "LOG IN"}
           </button>
@@ -263,7 +264,12 @@ export default function HomeDashboard() {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <header className="arena-board-title dream-title-row">
+            <header className="arena-board-title dream-title-row dream-title-layout">
+              <div className="dream-title-metric dream-title-fpts">
+                <b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b>
+                <span>FANTASY POINTS</span>
+              </div>
+
               <div className="roster-viewer-title">
                 <button className="roster-view-arrow previous" type="button" onClick={() => changeRosterView(-1)} aria-label="Previous roster">‹</button>
                 <div>
@@ -271,12 +277,10 @@ export default function HomeDashboard() {
                 </div>
                 <button className="roster-view-arrow next" type="button" onClick={() => changeRosterView(1)} aria-label="Next roster">›</button>
               </div>
-              <div className="dream-board-metrics">
-                <span className="dream-score-metric">
-                  <span><b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b> FPTS</span>
-                  {activeView?.slug === "dream-team" ? <a className="dream-challenge-link" href="/dream-team-challenge">Challenge the AI →</a> : null}
-                </span>
-                <span><b>{activeView ? formatSalary(activeView.totalCap) : "—"}</b> / $104M</span>
+
+              <div className="dream-title-metric dream-title-cap">
+                <b>{activeView ? formatSalary(activeView.totalCap) : "—"} <em>/ $104M</em></b>
+                <span>SALARY CAP</span>
               </div>
             </header>
 
