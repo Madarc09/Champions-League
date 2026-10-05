@@ -217,7 +217,7 @@ export default function HomeDashboard() {
     <div className="home-scene-shell">
       <section className="home-scene home-scene-v2" aria-label="Champions League live dashboard">
         <nav className="arena-nav" aria-label="Manager navigation">
-          <a href="/dream-team-challenge">CHALLENGE THE AI</a>
+          <a href="/mini-games">MINI GAMES</a>
           <button type="button" onClick={handleLoginAction} disabled={!authLoaded}>
             {manager ? "LOG OUT" : "LOG IN"}
           </button>
@@ -235,6 +235,7 @@ export default function HomeDashboard() {
               <span>#</span>
               <span>TEAM</span>
               <span>FPTS</span>
+              <span>TODAY</span>
               <span>DREAM</span>
             </div>
 
@@ -245,6 +246,7 @@ export default function HomeDashboard() {
                     <b>{team.rank}</b>
                     <strong>{team.name}</strong>
                     <span>{loaded ? formatPoints(team.fantasyPoints) : "—"}</span>
+                    <span>{loaded ? formatPoints(team.todayPoints) : "—"}</span>
                     <span>{loaded ? `${team.dreamTeamPlayers || 0}/20` : "—"}</span>
                   </a>
                 </li>

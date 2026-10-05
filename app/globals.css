@@ -1861,3 +1861,76 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .dream-title-fpts b { font-size: 19px; }
   .dream-title-cap b { font-size: 10.5px; }
 }
+
+/* V8.4 END-OF-DAY CLEANUP --------------------------------------------------
+   Add league-day scoring to standings and park the growing challenge section
+   behind a simple Mini Games coming-soon page. */
+.arena-standing-head,
+.arena-standing-list a {
+  grid-template-columns: 8% minmax(0,1fr) 17% 17% 16%;
+  gap: 1.15%;
+}
+.arena-standing-head span:nth-last-child(-n+3) { text-align: center; }
+
+.mini-games-coming-soon {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(50,76,94,.28), transparent 42%),
+    linear-gradient(180deg,#071019,#020407 75%);
+}
+.mini-games-coming-soon section {
+  width: min(560px, 100%);
+  padding: 54px 34px;
+  border: 1px solid rgba(222,184,106,.32);
+  border-radius: 12px;
+  background: rgba(4,9,14,.74);
+  box-shadow: inset 0 0 40px rgba(0,0,0,.32), 0 28px 80px rgba(0,0,0,.42);
+  text-align: center;
+}
+.mini-games-coming-soon section > span {
+  color: #c6a96c;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.mini-games-coming-soon h1 {
+  margin: 10px 0 20px;
+  color: #f2e5c7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(38px, 8vw, 72px);
+  line-height: .95;
+}
+.mini-games-coming-soon strong {
+  display: block;
+  color: #f0ca78;
+  font-size: clamp(20px, 4vw, 30px);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.mini-games-coming-soon p { margin: 12px 0 28px; color: #aeb9c5; }
+.mini-games-coming-soon a {
+  display: inline-block;
+  padding: 10px 15px;
+  border: 1px solid rgba(225,185,102,.34);
+  border-radius: 6px;
+  color: #f0dfba;
+  background: rgba(255,255,255,.035);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+@media (max-width:720px) {
+  .arena-standing-head,
+  .arena-standing-list a {
+    grid-template-columns: 8% minmax(0,1fr) 17% 17% 16%;
+    gap: 1.1%;
+  }
+  .arena-standing-head { font-size: 9px; }
+  .arena-standing-list span { font-size: 12px; }
+}

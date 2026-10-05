@@ -36,7 +36,7 @@ export default function SiteHeader() {
     <header className="minimal-scene-header">
       <nav aria-label="Primary navigation">
         <a href="/">Home</a>
-        <a href="/dream-team-challenge">Dream Challenge</a>
+        <a href="/mini-games">Mini Games</a>
         {manager ? <a href={`/team/${manager.slug}/locker-room`}>My Locker</a> : null}
         {manager ? (
           <button type="button" onClick={logout}>Log out</button>

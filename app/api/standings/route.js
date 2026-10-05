@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { DREAM_TEAM, STANDINGS_TEAMS } from "@/data/league-config";
-import { getPlayerPool } from "@/lib/nhl";
+import { getLeagueDayFantasySnapshot, getPlayerPool } from "@/lib/nhl";
 import { getRedis } from "@/lib/redis";
 import {
   buildLeagueStandings,
@@ -24,6 +24,14 @@ function overlapCount(roster, dreamRoster) {
     const nameMatch = dreamNames.has(canonicalPlayerName(player.name));
     return count + (idMatch || nameMatch ? 1 : 0);
   }, 0);
+}
+
+function rosterTodayTotal(roster, pointsById = {}) {
+  const total = (roster?.players || []).reduce((sum, player) => {
+    const points = Number(pointsById[String(player?.playerId || "")] || 0);
+    return sum + (Number.isFinite(points) ? points : 0);
+  }, 0);
+  return Math.round(total * 10) / 10;
 }
 
 export async function GET() {
@@ -60,11 +68,21 @@ export async function GET() {
 
   let liveFantasyPoints = {};
   let liveProjectedPoints = {};
+  let dailyFantasyPoints = {};
   let livePlayersById = new Map();
   let statsUpdatedAt = null;
+  let leagueDayKey = null;
 
   try {
-    const pool = await getPlayerPool();
+    const [pool, dailySnapshot] = await Promise.all([
+      getPlayerPool(),
+      getLeagueDayFantasySnapshot().catch((error) => {
+        console.error("Today fantasy snapshot unavailable:", error);
+        return null;
+      })
+    ]);
+    dailyFantasyPoints = dailySnapshot?.pointsById || {};
+    leagueDayKey = dailySnapshot?.dateKey || null;
 
     // The AI still creates the opening roster every week, but the public Dream
     // Team slot is owned by the highest-scoring challenge entry until somebody
@@ -99,6 +117,9 @@ export async function GET() {
       if (!livePlayer) continue;
       livePlayersById.set(String(storedPlayer.playerId), livePlayer);
       liveFantasyPoints[String(storedPlayer.playerId)] = Number(livePlayer.fantasyPoints || 0);
+      dailyFantasyPoints[String(storedPlayer.playerId)] = Number(
+        dailyFantasyPoints[String(livePlayer.playerId)] || 0
+      );
     }
 
     const rosterPlayers = [
@@ -122,6 +143,7 @@ export async function GET() {
       // Keep the original league-side Dream Team overlap stat tied to the AI's
       // weekly optimized roster. A mini-game winner may occupy the public Dream
       // Team display, but cannot alter this established league metric.
+      todayPoints: rosterTodayTotal(rosters[team.slug], dailyFantasyPoints),
       dreamTeamPlayers: overlapCount(rosters[team.slug], aiDreamRoster || dreamRoster)
     }));
 
@@ -184,7 +206,8 @@ export async function GET() {
     dreamTeam,
     teamRosters,
     persistence: redis ? "private" : "unavailable",
-    statsUpdatedAt
+    statsUpdatedAt,
+    leagueDay: { dateKey: leagueDayKey, resetsAtEastern: "10:00" }
   }, {
     headers: { "Cache-Control": "no-store" }
   });
