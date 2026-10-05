@@ -1785,3 +1785,79 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .arena-nav button,
   .arena-nav a { min-width: 92px; font-size: 9px; }
 }
+
+/* V8.3 MOBILE DREAM HEADER -------------------------------------------------
+   The previous phone layout used minimum column widths wider than the actual
+   Dream Team board. Use proportional columns instead so all three scoreboard
+   zones remain inside the board and the selected roster stays on centre ice. */
+@media (max-width:720px) {
+  .dream-title-layout {
+    grid-template-columns: minmax(0, 29%) minmax(0, 42%) minmax(0, 29%);
+    gap: 0;
+    padding-inline: 2.2%;
+  }
+
+  .dream-title-layout .roster-viewer-title {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: 26px minmax(0, 1fr) 26px;
+    gap: 3px;
+    justify-self: stretch;
+  }
+
+  .dream-title-layout .roster-viewer-title h2,
+  .arena-roster-viewer.is-team-view .roster-viewer-title h2,
+  .arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
+    font-size: 14px;
+    letter-spacing: .035em;
+    line-height: 1;
+  }
+
+  .dream-title-layout .roster-view-arrow {
+    width: 26px;
+    height: 26px;
+    font-size: 21px;
+  }
+
+  .dream-title-metric {
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .dream-title-fpts b {
+    font-size: 18px;
+    letter-spacing: .015em;
+  }
+
+  .dream-title-fpts span {
+    font-size: 6px;
+    letter-spacing: .08em;
+  }
+
+  .dream-title-cap b {
+    max-width: 100%;
+    font-size: 11px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .dream-title-cap b em {
+    font-size: .82em;
+    letter-spacing: 0;
+  }
+
+  .dream-title-cap span {
+    font-size: 6px;
+    letter-spacing: .07em;
+  }
+}
+
+@media (max-width:430px) {
+  .dream-title-layout .roster-viewer-title h2,
+  .arena-roster-viewer.is-team-view .roster-viewer-title h2,
+  .arena-roster-viewer.is-dream-view .roster-viewer-title h2 {
+    font-size: 13px;
+  }
+  .dream-title-fpts b { font-size: 19px; }
+  .dream-title-cap b { font-size: 10.5px; }
+}
