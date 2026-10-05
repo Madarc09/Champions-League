@@ -918,3 +918,104 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .player-card-info { padding: 24px 18px 20px; }
   .ranking-strip { grid-template-columns: repeat(5, minmax(52px,1fr)); overflow-x: auto; }
 }
+
+/* V5 READABILITY PASS -------------------------------------------------------
+   The lineup geometry is intentionally unchanged. This pass only enlarges
+   live text and removes the decorative standings mark column. */
+.arena-standing-head,
+.arena-standing-list a {
+  grid-template-columns: 8% minmax(0,1fr) 22% 18%;
+  gap: 1.8%;
+}
+.arena-standing-head {
+  padding-inline: 4.6%;
+  font-size: clamp(8px, .68vw, 11px);
+  line-height: 1;
+}
+.arena-standing-head span:first-child { text-align: center; }
+.arena-standing-head span:nth-last-child(-n+2) { text-align: center; }
+.arena-standing-list a { padding-inline: 1.6%; }
+.arena-standing-list b {
+  font-size: clamp(12px, 1.02vw, 16px);
+}
+.arena-standing-list strong {
+  font-size: clamp(11px, .98vw, 15px);
+  line-height: 1;
+}
+.arena-standing-list span {
+  font-size: clamp(10px, .88vw, 14px);
+  line-height: 1;
+}
+.arena-scoring {
+  font-size: clamp(7px, .58vw, 10px);
+  gap: 3px 12px;
+}
+.arena-scoring b { font-size: 1.08em; }
+
+/* Dream Team: larger line labels and readable player totals without changing
+   card dimensions. The footer becomes a compact two-row score plate. */
+.lineup-group h3 {
+  font-size: clamp(7px, .56vw, 10px);
+  padding: clamp(2px,.18vw,3px) clamp(8px,.6vw,12px);
+}
+.lineup-player-photo > em {
+  font-size: clamp(7px, .52vw, 9px);
+}
+.lineup-player-name {
+  grid-template-columns: 1fr;
+  gap: 1px;
+  padding: 3px 4px 4px;
+}
+.lineup-player-name strong {
+  font-size: clamp(7px, .60vw, 10px);
+  line-height: 1.05;
+  text-align: center;
+}
+.lineup-player-name small {
+  display: block;
+  color: #f1cf73;
+  font-size: clamp(7px, .56vw, 9px);
+  font-weight: 850;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+}
+.lineup-player-name small b {
+  color: #ffd86f;
+  font-size: 1.16em;
+  font-weight: 950;
+}
+.goalie-pair .lineup-player-name {
+  align-items: center;
+  padding: 5px 7px;
+  text-align: center;
+}
+.goalie-pair .lineup-player-name strong {
+  font-size: clamp(9px, .72vw, 12px);
+  text-align: center;
+}
+.goalie-pair .lineup-player-name small {
+  font-size: clamp(8px, .64vw, 11px);
+}
+.dream-board-metrics {
+  font-size: clamp(7px, .58vw, 10px);
+}
+.dream-board-metrics b { font-size: 1.18em; }
+
+/* On phones the 1080px arena is horizontally scrollable. vw-based clamps
+   otherwise fall back to their tiny minimums, so give the board explicit,
+   still-safe mobile sizes. */
+@media (max-width:720px) {
+  .arena-standing-head { font-size: 10px; }
+  .arena-standing-list b { font-size: 15px; }
+  .arena-standing-list strong { font-size: 14px; }
+  .arena-standing-list span { font-size: 13px; }
+  .arena-scoring { font-size: 9px; }
+  .lineup-group h3 { font-size: 9px; }
+  .lineup-player-photo > em { font-size: 8px; }
+  .lineup-player-name strong { font-size: 9px; }
+  .lineup-player-name small { font-size: 9px; }
+  .goalie-pair .lineup-player-name strong { font-size: 11px; }
+  .goalie-pair .lineup-player-name small { font-size: 10px; }
+  .dream-board-metrics { font-size: 9px; }
+}
