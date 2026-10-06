@@ -67,3 +67,11 @@ The live site includes `/dream-team-challenge`, a weekly mini-game that is compl
 - Mini Games includes the preserved Dream Team Challenge and a new NHL Pick 'Em game.
 - Pick 'Em uses the actual Eastern calendar date, allows picks/changes until scheduled puck drop, then locks the game and records W/L from final NHL scores.
 - Pick 'Em data lives under its own Redis namespace and never writes to league rosters or standings.
+
+## V8.8 scoring validation
+
+- NHL Pick 'Em days are visually separated into individual Monday-Sunday day boards.
+- Season NHL stat reports now refresh every 60 seconds instead of using the old six-hour report cache.
+- TODAY continues to use live NHL Game Center boxscores plus the NHL daily stats reports.
+- Standings FPTS overlays only the live daily points that are ahead of the official daily report, so live production appears in season totals without double-counting after NHL cumulative stats catch up.
+- `/api/standings` exposes the number of live-overlay players/points and the season refresh interval under `leagueDay.dailyStats` for diagnostics.

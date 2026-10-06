@@ -69,6 +69,7 @@ export async function GET() {
   let liveFantasyPoints = {};
   let liveProjectedPoints = {};
   let dailyFantasyPoints = {};
+  let officialDailyFantasyPoints = {};
   let livePlayersById = new Map();
   let statsUpdatedAt = null;
   let leagueDayKey = null;
@@ -79,6 +80,8 @@ export async function GET() {
   let dailyStatsPlayerCount = 0;
   let dailyStatsActiveGameCount = null;
   let dailyStatsLoadedBoxscoreCount = 0;
+  let liveSeasonOverlayPlayerCount = 0;
+  let liveSeasonOverlayPoints = 0;
 
   try {
     const [pool, dailySnapshot, scheduleSnapshot] = await Promise.all([
@@ -93,6 +96,7 @@ export async function GET() {
       })
     ]);
     dailyFantasyPoints = dailySnapshot?.pointsById || {};
+    officialDailyFantasyPoints = dailySnapshot?.officialPointsById || {};
     dailyStatsSource = dailySnapshot?.source || null;
     dailyStatsUpdatedAt = dailySnapshot?.updatedAt || null;
     dailyStatsPlayerCount = Number(dailySnapshot?.playerCount || 0);
@@ -119,10 +123,22 @@ export async function GET() {
       (pool.players || []).map((player) => [String(player.playerId), player])
     );
     liveFantasyPoints = Object.fromEntries(
-      (pool.players || []).map((player) => [
-        String(player.playerId),
-        Number(player.fantasyPoints || 0)
-      ])
+      (pool.players || []).map((player) => {
+        const key = String(player.playerId);
+        const seasonPoints = Number(player.fantasyPoints || 0);
+        const liveToday = Number(dailyFantasyPoints[key] || 0);
+        const officialToday = Number(officialDailyFantasyPoints[key] || 0);
+        // The NHL season report and official daily report share the same stats
+        // service. Replace only the portion where Game Center is ahead of that
+        // official feed. This makes FPTS move during live games without adding
+        // today's production twice after the cumulative report catches up.
+        const liveDelta = Math.max(0, liveToday - officialToday);
+        if (liveDelta > 0) {
+          liveSeasonOverlayPlayerCount += 1;
+          liveSeasonOverlayPoints += liveDelta;
+        }
+        return [key, Math.round((seasonPoints + liveDelta) * 100) / 100];
+      })
     );
 
     // Saved rookie picks may carry a temporary draft/prospect ID. Alias every
@@ -134,9 +150,14 @@ export async function GET() {
       const livePlayer = resolvePlayerFromIndex(storedPlayer, liveIdentityIndex);
       if (!livePlayer) continue;
       livePlayersById.set(String(storedPlayer.playerId), livePlayer);
-      liveFantasyPoints[String(storedPlayer.playerId)] = Number(livePlayer.fantasyPoints || 0);
+      liveFantasyPoints[String(storedPlayer.playerId)] = Number(
+        liveFantasyPoints[String(livePlayer.playerId)] ?? livePlayer.fantasyPoints ?? 0
+      );
       dailyFantasyPoints[String(storedPlayer.playerId)] = Number(
         dailyFantasyPoints[String(livePlayer.playerId)] || 0
+      );
+      officialDailyFantasyPoints[String(storedPlayer.playerId)] = Number(
+        officialDailyFantasyPoints[String(livePlayer.playerId)] || 0
       );
     }
 
@@ -251,7 +272,10 @@ export async function GET() {
         updatedAt: dailyStatsUpdatedAt,
         playerCount: dailyStatsPlayerCount,
         activeGameCount: dailyStatsActiveGameCount,
-        loadedBoxscoreCount: dailyStatsLoadedBoxscoreCount
+        loadedBoxscoreCount: dailyStatsLoadedBoxscoreCount,
+        liveSeasonOverlayPlayerCount,
+        liveSeasonOverlayPoints: Math.round(liveSeasonOverlayPoints * 100) / 100,
+        seasonStatsRefreshSeconds: 60
       }
     }
   }, {
