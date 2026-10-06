@@ -1934,3 +1934,53 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .arena-standing-head { font-size: 9px; }
   .arena-standing-list span { font-size: 12px; }
 }
+
+/* V8.5 PLAYING-TODAY ROSTER FILTER ----------------------------------------
+   One global carousel mode: when active, every roster view keeps only players
+   whose NHL team is scheduled on the current 10 AM Eastern league day. */
+.roster-viewer-title > div {
+  align-content: center;
+  gap: clamp(2px, .22vw, 4px);
+}
+.roster-mode-toggle {
+  justify-self: center;
+  min-width: 0;
+  padding: 3px 10px;
+  border: 1px solid rgba(226,197,125,.34);
+  border-radius: 999px;
+  color: #d6c38f;
+  background: rgba(4,11,16,.62);
+  font-family: Copperplate, "Copperplate Gothic Light", "Palatino Linotype", Georgia, serif;
+  font-size: clamp(6px, .46vw, 8px);
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: .105em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.roster-mode-toggle:hover,
+.roster-mode-toggle:focus-visible,
+.roster-mode-toggle.is-active {
+  color: #fff0bd;
+  border-color: rgba(240,201,111,.7);
+  background: rgba(99,73,26,.42);
+}
+.roster-mode-toggle:disabled {
+  opacity: .42;
+  cursor: default;
+}
+
+@media (max-width:720px) {
+  .dream-title-layout .roster-viewer-title > div { gap: 2px; }
+  .roster-mode-toggle {
+    max-width: 100%;
+    padding: 2px 6px;
+    font-size: 6px;
+    letter-spacing: .055em;
+    white-space: nowrap;
+  }
+}
+.arena-roster-viewer.is-playing-today .lineup-player-empty {
+  visibility: hidden;
+}

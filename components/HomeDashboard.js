@@ -71,13 +71,14 @@ function fillSlots(players, count) {
 
 export default function HomeDashboard() {
   const router = useRouter();
-  const { standings, dreamTeam, teamRosters, loaded } = useLeagueStandings();
+  const { standings, dreamTeam, teamRosters, leagueDay, loaded } = useLeagueStandings();
   const [selection, setSelection] = useState(null);
   const [rankingData, setRankingData] = useState(null);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [manager, setManager] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
   const [rosterViewIndex, setRosterViewIndex] = useState(0);
+  const [playingTodayOnly, setPlayingTodayOnly] = useState(false);
   const touchStartRef = useRef(null);
   const suppressClickRef = useRef(false);
 
@@ -99,7 +100,11 @@ export default function HomeDashboard() {
   }, [dreamPlayers, dreamTeam, teamRosters]);
 
   const activeView = rosterViews[rosterViewIndex] || rosterViews[0];
-  const activePlayers = Array.isArray(activeView?.players) ? activeView.players : [];
+  const allActivePlayers = Array.isArray(activeView?.players) ? activeView.players : [];
+  const scheduleAvailable = leagueDay?.scheduleAvailable !== false;
+  const activePlayers = playingTodayOnly && scheduleAvailable
+    ? allActivePlayers.filter((player) => player.playingToday === true)
+    : allActivePlayers;
 
   useEffect(() => {
     if (rosterViewIndex < rosterViews.length) return;
@@ -261,7 +266,7 @@ export default function HomeDashboard() {
           </section>
 
           <section
-            className={`arena-board arena-dream arena-roster-viewer ${activeView?.slug === "dream-team" ? "is-dream-view" : "is-team-view"}`}
+            className={`arena-board arena-dream arena-roster-viewer ${activeView?.slug === "dream-team" ? "is-dream-view" : "is-team-view"}${playingTodayOnly ? " is-playing-today" : ""}`}
             aria-labelledby="arena-dream-title"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
@@ -276,6 +281,15 @@ export default function HomeDashboard() {
                 <button className="roster-view-arrow previous" type="button" onClick={() => changeRosterView(-1)} aria-label="Previous roster">‹</button>
                 <div>
                   <h2 id="arena-dream-title">{activeView?.name || "Dream Team"}</h2>
+                  <button
+                    className={`roster-mode-toggle${playingTodayOnly ? " is-active" : ""}`}
+                    type="button"
+                    onClick={() => setPlayingTodayOnly((current) => !current)}
+                    disabled={!loaded || !scheduleAvailable}
+                    title={scheduleAvailable ? undefined : "Today's NHL schedule is temporarily unavailable."}
+                  >
+                    {playingTodayOnly ? "FULL SEASON" : "PLAYING TODAY"}
+                  </button>
                 </div>
                 <button className="roster-view-arrow next" type="button" onClick={() => changeRosterView(1)} aria-label="Next roster">›</button>
               </div>
@@ -317,7 +331,11 @@ export default function HomeDashboard() {
               </div>
 
               {!loaded ? <p className="dream-board-message">Loading live rosters…</p> : null}
-              {loaded && activePlayers.length === 0 ? <p className="dream-board-message">Roster unavailable.</p> : null}
+              {loaded && activePlayers.length === 0 ? (
+                <p className="dream-board-message">
+                  {playingTodayOnly ? "No players on this roster play today." : "Roster unavailable."}
+                </p>
+              ) : null}
             </div>
           </section>
         </div>

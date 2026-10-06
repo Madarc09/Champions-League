@@ -32,6 +32,7 @@ export default function useLeagueStandings({
     standings: [],
     dreamTeam: null,
     teamRosters: [],
+    leagueDay: null,
     loaded: false,
     persistence: "private"
   });
@@ -49,6 +50,7 @@ export default function useLeagueStandings({
         standings: Array.isArray(data.standings) ? data.standings : [],
         dreamTeam: data.dreamTeam || null,
         teamRosters: Array.isArray(data.teamRosters) ? data.teamRosters : [],
+        leagueDay: data.leagueDay || null,
         loaded: true,
         persistence: data.persistence || "private"
       });
@@ -91,6 +93,7 @@ export default function useLeagueStandings({
     standings,
     dreamTeam: snapshot.dreamTeam,
     teamRosters: snapshot.teamRosters,
+    leagueDay: snapshot.leagueDay,
     loaded: snapshot.loaded,
     persistence: snapshot.persistence,
     refresh

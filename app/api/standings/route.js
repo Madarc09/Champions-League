@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { DREAM_TEAM, STANDINGS_TEAMS } from "@/data/league-config";
-import { getLeagueDayFantasySnapshot, getPlayerPool } from "@/lib/nhl";
+import { getLeagueDayFantasySnapshot, getLeagueDayScheduleSnapshot, getPlayerPool } from "@/lib/nhl";
 import { getRedis } from "@/lib/redis";
 import {
   buildLeagueStandings,
@@ -72,17 +72,25 @@ export async function GET() {
   let livePlayersById = new Map();
   let statsUpdatedAt = null;
   let leagueDayKey = null;
+  let playingTeamAbbrevs = new Set();
+  let scheduleAvailable = false;
 
   try {
-    const [pool, dailySnapshot] = await Promise.all([
+    const [pool, dailySnapshot, scheduleSnapshot] = await Promise.all([
       getPlayerPool(),
       getLeagueDayFantasySnapshot().catch((error) => {
         console.error("Today fantasy snapshot unavailable:", error);
         return null;
+      }),
+      getLeagueDayScheduleSnapshot().catch((error) => {
+        console.error("Today schedule snapshot unavailable:", error);
+        return null;
       })
     ]);
     dailyFantasyPoints = dailySnapshot?.pointsById || {};
-    leagueDayKey = dailySnapshot?.dateKey || null;
+    leagueDayKey = dailySnapshot?.dateKey || scheduleSnapshot?.dateKey || null;
+    scheduleAvailable = Boolean(scheduleSnapshot);
+    playingTeamAbbrevs = new Set((scheduleSnapshot?.teamAbbrevs || []).map((team) => String(team).toUpperCase()));
 
     // The AI still creates the opening roster every week, but the public Dream
     // Team slot is owned by the highest-scoring challenge entry until somebody
@@ -155,7 +163,10 @@ export async function GET() {
         ...storedPlayer,
         ...(livePlayer || {}),
         capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
-        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0)
+        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0),
+        playingToday: scheduleAvailable
+          ? playingTeamAbbrevs.has(String(livePlayer?.team || storedPlayer.team || "").toUpperCase())
+          : null
       };
     })
     .sort((left, right) => (
@@ -187,7 +198,10 @@ export async function GET() {
         ...storedPlayer,
         ...(livePlayer || {}),
         capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
-        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0)
+        fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0),
+        playingToday: scheduleAvailable
+          ? playingTeamAbbrevs.has(String(livePlayer?.team || storedPlayer.team || "").toUpperCase())
+          : null
       };
     });
 
@@ -207,7 +221,12 @@ export async function GET() {
     teamRosters,
     persistence: redis ? "private" : "unavailable",
     statsUpdatedAt,
-    leagueDay: { dateKey: leagueDayKey, resetsAtEastern: "10:00" }
+    leagueDay: {
+      dateKey: leagueDayKey,
+      resetsAtEastern: "10:00",
+      scheduleAvailable,
+      playingTeamAbbrevs: [...playingTeamAbbrevs]
+    }
   }, {
     headers: { "Cache-Control": "no-store" }
   });
