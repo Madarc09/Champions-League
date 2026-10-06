@@ -2148,3 +2148,219 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .pickem-day-bar b { font-size: 13px; }
   .pickem-day-bar span { font-size: 9px; }
 }
+
+/* V8.9 — Pick 'Em live scores, collapsible days, team records and matchup lab. */
+.pickem-day-toggle {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pickem-day-toggle:hover { background: linear-gradient(90deg, rgba(145,107,38,.26), rgba(255,255,255,.04)); }
+.pickem-day-toggle-right { display:flex; align-items:center; gap:12px; }
+.pickem-day-toggle-right > b {
+  width: 24px;
+  height: 24px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(226,193,110,.28);
+  border-radius:50%;
+  color:#efd27d;
+  font-size:18px;
+  line-height:1;
+}
+.pickem-day-section.is-collapsed .pickem-day-bar { border-bottom:0; }
+
+.pickem-game.is-live {
+  border-color: rgba(103, 207, 137, .46);
+  box-shadow: inset 0 0 0 1px rgba(103,207,137,.06);
+}
+.pickem-game.is-live .pickem-game-status > span { color:#8ff0aa; }
+.pickem-team-copy { min-width:0; display:grid; gap:2px; align-content:center; }
+.pickem-team-copy > strong { font-size:15px; letter-spacing:.06em; }
+.pickem-team-copy > small {
+  color:#8fa2ab;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+.pickem-pick-label { color:#a1b0b6; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.pickem-team > em {
+  font-size:28px;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.pickem-game footer { align-items:center; }
+.pickem-game-pick-copy { min-width:0; display:grid; gap:2px; }
+.pickem-matchup-info-button {
+  flex:0 0 auto;
+  min-height:30px;
+  padding:6px 10px;
+  border:1px solid rgba(218,184,100,.28);
+  border-radius:6px;
+  color:#ecd28d;
+  background:rgba(109,80,24,.12);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.075em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.pickem-matchup-info-button:hover { border-color:rgba(229,194,105,.6); background:rgba(122,91,30,.2); }
+
+.pickem-modal-backdrop {
+  position:fixed;
+  inset:0;
+  z-index:1200;
+  display:grid;
+  place-items:center;
+  padding:22px;
+  background:rgba(0,4,7,.78);
+  backdrop-filter:blur(5px);
+}
+.pickem-matchup-modal {
+  width:min(920px,100%);
+  max-height:calc(100vh - 44px);
+  overflow:auto;
+  border:1px solid rgba(218,184,100,.32);
+  border-radius:14px;
+  color:#edf3f6;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(43,75,93,.26),transparent 34%),
+    linear-gradient(180deg,#0a151c,#03080c 74%);
+  box-shadow:0 28px 90px rgba(0,0,0,.52);
+}
+.pickem-matchup-modal-header {
+  position:sticky;
+  top:0;
+  z-index:2;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:17px 19px;
+  border-bottom:1px solid rgba(219,186,105,.2);
+  background:rgba(7,16,22,.96);
+}
+.pickem-matchup-modal-header > div { display:grid; gap:2px; }
+.pickem-matchup-modal-header span { color:#d2af64; font-size:8px; font-weight:950; letter-spacing:.16em; }
+.pickem-matchup-modal-header h3 { margin:0; font-family:Georgia,"Times New Roman",serif; font-size:30px; line-height:1; }
+.pickem-matchup-modal-header p { margin:2px 0 0; color:#8ea2ac; font-size:9px; }
+.pickem-matchup-modal-header > button {
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:50%;
+  color:#d9e2e7;
+  background:rgba(255,255,255,.04);
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+.pickem-matchup-loading { min-height:180px; display:grid; place-items:center; padding:30px; color:#a9bac2; font-size:11px; text-align:center; }
+.pickem-matchup-loading.is-error { color:#ffafb3; }
+.pickem-matchup-team-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:14px 14px 0; }
+.pickem-matchup-team-card {
+  min-width:0;
+  padding:14px;
+  border:1px solid rgba(144,167,179,.17);
+  border-radius:10px;
+  background:rgba(8,18,24,.72);
+}
+.pickem-matchup-team-card > header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.pickem-matchup-team-card > header img { width:52px; height:52px; object-fit:contain; }
+.pickem-matchup-team-card > header > div { display:grid; }
+.pickem-matchup-team-card > header span { color:#93a7b0; font-size:9px; font-weight:900; letter-spacing:.1em; }
+.pickem-matchup-team-card > header strong { color:#f0d37f; font-size:26px; line-height:1; font-variant-numeric:tabular-nums; }
+.pickem-matchup-team-card > p { margin:0; color:#91a4ad; font-size:10px; }
+.pickem-matchup-stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+.pickem-matchup-stat-grid > div {
+  min-width:0;
+  display:grid;
+  gap:2px;
+  padding:8px;
+  border:1px solid rgba(255,255,255,.055);
+  border-radius:6px;
+  background:rgba(255,255,255,.025);
+}
+.pickem-matchup-stat-grid span { color:#7f959f; font-size:7px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.pickem-matchup-stat-grid b { overflow:hidden; color:#e6edf0; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.pickem-personal-team-record {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+  padding:9px 10px;
+  border-left:3px solid #d3ad58;
+  background:rgba(120,87,26,.11);
+}
+.pickem-personal-team-record span { color:#a79975; font-size:7px; font-weight:950; letter-spacing:.07em; }
+.pickem-personal-team-record strong { color:#f0d37f; font-size:12px; text-align:right; }
+.pickem-h2h-summary {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  margin:10px 14px;
+  padding:12px;
+  border:1px solid rgba(218,184,100,.16);
+  border-radius:9px;
+  background:rgba(101,76,28,.08);
+}
+.pickem-h2h-summary > div { display:grid; justify-items:center; gap:2px; text-align:center; }
+.pickem-h2h-summary span { color:#9aaab1; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.pickem-h2h-summary strong { color:#f0d27c; font-size:20px; }
+.pickem-h2h-summary small { color:#81959e; font-size:8px; }
+.pickem-h2h-summary > b { color:#637985; font-size:9px; text-align:center; }
+.pickem-h2h-list { margin:0 14px 14px; overflow:hidden; border:1px solid rgba(142,163,174,.13); border-radius:9px; }
+.pickem-h2h-list > header { display:flex; justify-content:space-between; gap:10px; padding:9px 11px; border-bottom:1px solid rgba(255,255,255,.06); background:rgba(255,255,255,.025); }
+.pickem-h2h-list > header strong { font-size:10px; }
+.pickem-h2h-list > header span { color:#7d929b; font-size:8px; }
+.pickem-h2h-list > p { margin:0; padding:18px; color:#80949d; font-size:9px; text-align:center; }
+.pickem-h2h-row {
+  display:grid;
+  grid-template-columns:90px minmax(48px,1fr) 58px minmax(48px,1fr) 36px;
+  align-items:center;
+  gap:8px;
+  padding:8px 11px;
+  border-top:1px solid rgba(255,255,255,.045);
+  font-size:9px;
+}
+.pickem-h2h-row:first-of-type { border-top:0; }
+.pickem-h2h-row > span { color:#81959e; }
+.pickem-h2h-row > b { color:#aebdc3; }
+.pickem-h2h-row > b:nth-of-type(2) { text-align:right; }
+.pickem-h2h-row > b.is-winner { color:#8fe6a5; }
+.pickem-h2h-row > strong { color:#f0d27c; font-size:13px; text-align:center; font-variant-numeric:tabular-nums; }
+.pickem-h2h-row > small { color:#7e939c; text-align:right; }
+
+@media (max-width:720px) {
+  .pickem-day-toggle-right { gap:7px; }
+  .pickem-day-toggle-right > b { width:22px; height:22px; font-size:16px; }
+  .pickem-team { grid-template-columns:40px minmax(0,1fr) auto; }
+  .pickem-team-copy > strong { font-size:14px; }
+  .pickem-team-copy > small { font-size:7px; }
+  .pickem-team > em { font-size:25px; }
+  .pickem-game footer { align-items:stretch; flex-direction:column; }
+  .pickem-matchup-info-button { width:100%; min-height:34px; }
+  .pickem-modal-backdrop { padding:8px; }
+  .pickem-matchup-modal { max-height:calc(100vh - 16px); border-radius:10px; }
+  .pickem-matchup-modal-header { padding:13px; }
+  .pickem-matchup-modal-header h3 { font-size:24px; }
+  .pickem-matchup-team-grid { grid-template-columns:1fr; padding:9px 9px 0; }
+  .pickem-matchup-team-card { padding:11px; }
+  .pickem-matchup-stat-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; }
+  .pickem-matchup-stat-grid > div { padding:6px; }
+  .pickem-matchup-stat-grid b { font-size:10px; }
+  .pickem-personal-team-record { align-items:flex-start; flex-direction:column; gap:3px; }
+  .pickem-personal-team-record strong { text-align:left; }
+  .pickem-h2h-summary { margin:8px 9px; padding:9px; grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr); }
+  .pickem-h2h-summary strong { font-size:16px; }
+  .pickem-h2h-summary small { font-size:7px; }
+  .pickem-h2h-list { margin:0 9px 9px; }
+  .pickem-h2h-row { grid-template-columns:70px minmax(35px,1fr) 45px minmax(35px,1fr) 28px; gap:5px; padding:7px 8px; font-size:8px; }
+  .pickem-h2h-row > strong { font-size:11px; }
+}
