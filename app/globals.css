@@ -2364,3 +2364,375 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
   .pickem-h2h-row { grid-template-columns:70px minmax(35px,1fr) 45px minmax(35px,1fr) 28px; gap:5px; padding:7px 8px; font-size:8px; }
   .pickem-h2h-row > strong { font-size:11px; }
 }
+
+/* ========================================================================== */
+/* Pick 'Em Clubhouse — season-long optional mini game                         */
+/* ========================================================================== */
+.club-mini-games-page {
+  position: relative;
+  min-height: 100%;
+  padding: 74px 0 64px;
+  background:
+    linear-gradient(180deg, rgba(8,4,2,.26), rgba(8,4,2,.76) 38%, #0a0603 100%),
+    #0a0603;
+}
+.club-mini-game-switcher {
+  width: min(1240px, calc(100% - 28px));
+  margin: 0 auto 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.club-mini-game-switcher > * {
+  min-width: 220px;
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid rgba(195,151,82,.32);
+  border-radius: 4px;
+  color: #dcc79e;
+  background: linear-gradient(180deg, rgba(47,28,15,.88), rgba(16,9,5,.94));
+  box-shadow: inset 0 0 0 1px rgba(255,239,195,.035);
+}
+.club-mini-game-switcher > *.is-current {
+  border-color: rgba(226,186,104,.72);
+  color: #f5ddb0;
+}
+.club-mini-game-switcher span { color:#9e845c; font-size:7px; font-weight:900; letter-spacing:.13em; }
+.club-mini-game-switcher strong { font-family: Georgia,"Times New Roman",serif; font-size:14px; }
+
+.club-pickem-shell {
+  width: min(1240px, calc(100% - 28px));
+  margin: 0 auto;
+  color: #f3ead8;
+}
+.club-pickem-stage {
+  position: relative;
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid rgba(210,166,91,.26);
+  border-radius: 8px;
+  background-image:
+    linear-gradient(180deg, rgba(8,4,2,.15), rgba(8,4,2,.22)),
+    url('/pickem-clubhouse.webp');
+  background-position: center top;
+  background-size: cover;
+  box-shadow: 0 22px 64px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,220,152,.025);
+}
+.club-pickem-stage::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(circle at 50% 34%, transparent 0 38%, rgba(5,2,1,.22) 74%, rgba(5,2,1,.52) 100%);
+}
+.club-pickem-title-block {
+  position: relative;
+  z-index: 2;
+  width: min(700px, 70%);
+  margin: 26px auto 0;
+  padding: 18px 26px 16px;
+  text-align: center;
+  text-shadow: 0 2px 10px #000;
+}
+.club-pickem-title-block > span { color:#d7b56f; font-size:9px; font-weight:950; letter-spacing:.22em; }
+.club-pickem-title-block h1 {
+  margin: 2px 0 3px;
+  color:#f3d99e;
+  font-family: Georgia,"Times New Roman",serif;
+  font-size: clamp(42px,6vw,78px);
+  line-height:.88;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.club-pickem-title-block p { margin:8px auto 0; max-width:580px; color:#d0bea0; font: italic 12px/1.5 Georgia,"Times New Roman",serif; }
+
+.club-pickem-leaderboard {
+  position: relative;
+  z-index: 2;
+  width: min(880px, calc(100% - 260px));
+  margin: 20px 40px 0;
+  overflow: hidden;
+  border: 2px solid #7b542d;
+  outline: 1px solid rgba(226,184,103,.42);
+  border-radius: 5px;
+  background:
+    linear-gradient(180deg, rgba(63,39,22,.96), rgba(24,13,7,.985)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 1px, transparent 1px 30px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.48), inset 0 0 26px rgba(0,0,0,.36);
+}
+.club-pickem-leaderboard::before,
+.club-pickem-leaderboard::after {
+  content:"";
+  position:absolute;
+  top:8px; bottom:8px;
+  width:3px;
+  border-radius:2px;
+  background: linear-gradient(#d3a85f,#5c3819,#d3a85f);
+  opacity:.65;
+}
+.club-pickem-leaderboard::before { left:7px; }
+.club-pickem-leaderboard::after { right:7px; }
+.club-pickem-leaderboard > header {
+  min-height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:13px 22px 12px 26px;
+  border-bottom:1px solid rgba(221,182,108,.3);
+  background: linear-gradient(180deg, rgba(87,52,27,.72), rgba(32,18,10,.36));
+}
+.club-pickem-leaderboard > header > div:first-child { display:grid; gap:1px; }
+.club-pickem-leaderboard > header span { color:#bda06c; font-size:8px; font-weight:900; letter-spacing:.14em; }
+.club-pickem-leaderboard > header h2 { margin:0; color:#f0d9a7; font-family:Georgia,"Times New Roman",serif; font-size:28px; line-height:1; }
+.club-pickem-scoring-key { display:flex; align-items:center; gap:9px; color:#b49b72; white-space:nowrap; }
+.club-pickem-scoring-key span { color:#cfb88e !important; font-size:9px !important; }
+.club-pickem-scoring-key b { color:#f0cc77; font-size:13px; }
+.club-pickem-scoring-key i { color:#6c5434; font-style:normal; }
+.club-pickem-table-head,
+.club-pickem-standing-row {
+  display:grid;
+  grid-template-columns: 38px minmax(120px,1.8fr) 46px 42px 42px 48px 52px 112px 60px;
+  align-items:center;
+  column-gap:6px;
+}
+.club-pickem-table-head {
+  min-height:31px;
+  padding:0 20px 0 22px;
+  color:#ad9368;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  border-bottom:1px solid rgba(215,176,103,.2);
+  background:rgba(0,0,0,.22);
+}
+.club-pickem-table-body { min-height:114px; }
+.club-pickem-standing-row {
+  min-height:48px;
+  padding:0 20px 0 22px;
+  border-bottom:1px solid rgba(218,183,117,.12);
+  color:#e9dfcb;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.club-pickem-standing-row:last-child { border-bottom:0; }
+.club-pickem-standing-row.is-you { background:linear-gradient(90deg,rgba(190,135,52,.14),rgba(190,135,52,.025)); }
+.club-pickem-rank { color:#f0cd7b; font-size:18px; text-align:center; }
+.club-pickem-manager { min-width:0; display:flex; align-items:center; gap:7px; }
+.club-pickem-manager strong { overflow:hidden; font-size:17px; text-overflow:ellipsis; white-space:nowrap; }
+.club-pickem-manager small { padding:2px 5px; border:1px solid rgba(221,178,95,.28); color:#d1ad65; font:900 6px sans-serif; letter-spacing:.1em; }
+.club-pickem-standing-row > span { text-align:center; }
+.club-pickem-points { color:#ffd77f; font-size:19px; text-align:center; }
+.club-pickem-form { display:flex; justify-content:center; gap:3px; }
+.club-pickem-form b { width:17px; height:17px; display:grid; place-items:center; border-radius:50%; font:900 7px sans-serif; }
+.club-pickem-form .form-w { color:#d6f1d7; background:#365c3a; }
+.club-pickem-form .form-l { color:#f0c8c8; background:#693838; }
+.club-pickem-form .form-otl { color:#f2deb0; background:#6a5730; }
+.club-pickem-no-form { color:#705d43; text-align:center; }
+.club-pickem-standings-empty { min-height:112px; display:grid; place-items:center; padding:24px; color:#ad9671; font:italic 13px Georgia,"Times New Roman",serif; text-align:center; }
+.club-pickem-leaderboard > footer { display:flex; justify-content:space-between; gap:16px; padding:8px 22px 10px; border-top:1px solid rgba(215,176,103,.18); color:#8f7857; font-size:7px; font-weight:800; letter-spacing:.04em; }
+
+.club-pickem-personal-ledger {
+  position:absolute;
+  z-index:2;
+  right:28px;
+  top:228px;
+  width:190px;
+  min-height:240px;
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  gap:8px;
+  padding:18px 15px;
+  border:1px solid rgba(206,159,82,.44);
+  border-radius:6px;
+  color:#ead8b7;
+  background:linear-gradient(180deg,rgba(28,15,8,.92),rgba(8,4,2,.95));
+  box-shadow:0 12px 28px rgba(0,0,0,.46),inset 0 0 0 2px rgba(255,230,171,.025);
+  text-align:center;
+}
+.club-pickem-personal-ledger > span { color:#b69867; font:900 8px sans-serif; letter-spacing:.13em; text-transform:uppercase; }
+.club-pickem-personal-ledger > strong { color:#f0d59a; font-family:Georgia,"Times New Roman",serif; font-size:34px; line-height:1; }
+.club-pickem-personal-ledger > div { width:96px; height:96px; display:grid; place-items:center; align-content:center; border:1px solid #7a572d; border-radius:50%; background:radial-gradient(circle,#4d351b,#150b05 70%); }
+.club-pickem-personal-ledger > div b { color:#ffd377; font-size:34px; line-height:.9; }
+.club-pickem-personal-ledger > div small { color:#a98752; font-size:8px; font-weight:900; letter-spacing:.13em; }
+.club-pickem-personal-ledger p { margin:0; color:#917958; font-size:8px; }
+
+.club-pickem-week-heading {
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:22px;
+  margin-top:18px;
+  padding:20px 22px 17px;
+  border:1px solid rgba(179,137,72,.27);
+  border-bottom-color:rgba(222,179,98,.4);
+  border-radius:7px 7px 0 0;
+  background:
+    linear-gradient(90deg,rgba(64,39,22,.9),rgba(24,13,7,.96)),
+    #24140b;
+  box-shadow:inset 0 0 0 1px rgba(255,238,196,.025);
+}
+.club-pickem-week-heading > div:first-child { display:grid; gap:2px; }
+.club-pickem-week-heading span { color:#aa8e60; font-size:8px; font-weight:950; letter-spacing:.15em; }
+.club-pickem-week-heading h2 { margin:0; color:#eed69f; font-family:Georgia,"Times New Roman",serif; font-size:28px; }
+.club-pickem-week-heading p { margin:2px 0 0; max-width:720px; color:#a78f6c; font:italic 10px/1.4 Georgia,"Times New Roman",serif; }
+.club-pickem-week-record { display:grid; justify-items:end; gap:1px; }
+.club-pickem-week-record strong { color:#f0d17f; font-family:Georgia,"Times New Roman",serif; font-size:24px; }
+.club-pickem-week-record small { color:#947b58; font-size:8px; }
+
+.club-pickem-calendar {
+  overflow:hidden;
+  border:1px solid rgba(177,133,67,.28);
+  border-top:0;
+  border-radius:0 0 7px 7px;
+  background:
+    linear-gradient(rgba(13,7,4,.88),rgba(13,7,4,.94)),
+    url('/pickem-clubhouse.webp') center 76% / cover;
+}
+.club-pickem-day { border-top:1px solid rgba(212,168,91,.17); }
+.club-pickem-day:first-child { border-top:0; }
+.club-pickem-day.is-today { box-shadow:inset 4px 0 0 #c99a4c; }
+.club-pickem-day-toggle {
+  width:100%;
+  min-height:56px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:9px 18px 9px 21px;
+  border:0;
+  color:#ecd8b1;
+  background:
+    linear-gradient(90deg,rgba(70,43,24,.96),rgba(28,16,9,.96)),
+    #25150c;
+  cursor:pointer;
+  text-align:left;
+}
+.club-pickem-day-toggle:hover { background:linear-gradient(90deg,rgba(83,51,27,.98),rgba(33,18,10,.98)); }
+.club-pickem-day-toggle > div { display:grid; gap:2px; }
+.club-pickem-day-toggle > div > span { font-family:Georgia,"Times New Roman",serif; font-size:17px; font-weight:700; letter-spacing:.02em; }
+.club-pickem-day-toggle small { color:#937a57; font-size:8px; font-weight:800; letter-spacing:.05em; }
+.club-pickem-day-toggle > b { min-width:58px; padding:5px 9px; border:1px solid rgba(205,159,79,.38); border-radius:3px; color:#c9a568; font-size:7px; font-weight:950; letter-spacing:.13em; text-align:center; }
+.club-pickem-games { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:13px; background:rgba(8,4,2,.56); }
+.club-pickem-game {
+  overflow:hidden;
+  border:1px solid rgba(177,137,78,.25);
+  border-radius:5px;
+  background:linear-gradient(160deg,rgba(35,22,13,.96),rgba(12,7,4,.98));
+  box-shadow:inset 0 0 18px rgba(0,0,0,.28);
+}
+.club-pickem-game.is-live { border-color:rgba(115,185,114,.48); }
+.club-pickem-game-status { min-height:30px; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:5px 10px; border-bottom:1px solid rgba(211,170,99,.14); color:#9f875f; font-size:8px; font-weight:900; letter-spacing:.09em; }
+.club-pickem-game.is-live .club-pickem-game-status > span { color:#9be0a8; }
+.club-pickem-game-status b { padding:3px 7px; border-radius:999px; font-size:7px; }
+.club-pickem-game-status .result-w { color:#bdeac3; background:rgba(51,107,59,.34); }
+.club-pickem-game-status .result-l { color:#e4b0a8; background:rgba(112,48,39,.33); }
+.club-pickem-game-status .result-otl { color:#f0daa7; background:rgba(123,95,42,.33); }
+.club-pickem-matchup { display:grid; grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr); align-items:center; gap:5px; padding:10px; }
+.club-pickem-at { color:#705b3f; font-family:Georgia,"Times New Roman",serif; font-size:13px; font-weight:900; text-align:center; }
+.club-pickem-team {
+  min-width:0;
+  min-height:76px;
+  display:grid;
+  grid-template-columns:50px minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:7px 9px;
+  border:1px solid rgba(163,126,71,.2);
+  border-radius:4px;
+  color:#eadfc9;
+  background:linear-gradient(180deg,rgba(33,20,12,.88),rgba(12,7,4,.9));
+  cursor:pointer;
+}
+.club-pickem-team:hover:not(:disabled),.club-pickem-team.is-picked { border-color:#c89a4f; background:linear-gradient(180deg,rgba(73,49,23,.8),rgba(26,15,7,.94)); }
+.club-pickem-team:disabled { cursor:default; }
+.club-pickem-team.is-picked { box-shadow:inset 3px 0 0 #d2a451; }
+.club-pickem-team.is-winner { border-color:rgba(111,190,120,.5); }
+.club-pickem-team.is-loser:not(.is-picked) { opacity:.6; }
+.club-pickem-team-logo { width:46px; height:54px; display:grid; place-items:center; }
+.club-pickem-team-logo img { max-width:100%; max-height:100%; object-fit:contain; }
+.club-pickem-team-copy { min-width:0; display:grid; gap:2px; }
+.club-pickem-team-copy strong { font-family:Georgia,"Times New Roman",serif; font-size:18px; }
+.club-pickem-team-copy small { color:#8e7653; font-size:8px; font-weight:800; }
+.club-pickem-team > em { min-width:26px; color:#f4cf76; font-size:24px; font-style:normal; font-weight:950; text-align:center; }
+.club-pickem-pick-label { color:#a68a5d; font-size:7px; font-weight:950; letter-spacing:.08em; }
+.club-pickem-game-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-top:1px solid rgba(210,171,101,.12); color:#8d7757; font-size:8px; }
+.club-pickem-game-footer > div { display:grid; gap:2px; }
+.club-pickem-game-footer b { color:#e4c071; }
+.club-pickem-game-footer small { color:#6f5b42; }
+.club-pickem-game-footer > button { min-height:30px; padding:5px 9px; border:1px solid rgba(196,150,77,.3); border-radius:3px; color:#d4b474; background:rgba(57,36,19,.38); font-size:7px; font-weight:950; letter-spacing:.09em; text-transform:uppercase; cursor:pointer; }
+.club-pickem-day-empty,.club-pickem-empty { min-height:88px; display:grid; place-items:center; padding:22px; color:#967e5a; font:italic 11px Georgia,"Times New Roman",serif; background:rgba(8,4,2,.7); }
+.club-pickem-status { margin:10px 0 0; padding:10px 12px; border:1px solid rgba(192,147,76,.21); border-radius:4px; color:#d7b873; background:rgba(26,15,8,.8); font-size:9px; font-weight:800; text-align:center; }
+
+.club-gate { min-height:calc(100vh - 80px); background:linear-gradient(rgba(7,3,1,.62),rgba(7,3,1,.82)),url('/pickem-clubhouse.webp') center/cover; }
+.club-gate > section { border-color:rgba(209,164,84,.42); background:linear-gradient(180deg,rgba(44,26,14,.94),rgba(13,7,4,.97)); }
+
+@media (max-width: 980px) {
+  .club-pickem-stage { min-height:690px; }
+  .club-pickem-leaderboard { width:calc(100% - 28px); margin:18px 14px 0; }
+  .club-pickem-personal-ledger { position:relative; top:auto; right:auto; width:calc(100% - 28px); min-height:auto; grid-template-columns:1fr auto auto auto; justify-items:start; margin:12px 14px 0; padding:11px 15px; text-align:left; }
+  .club-pickem-personal-ledger > strong { font-size:25px; }
+  .club-pickem-personal-ledger > div { width:auto; height:auto; display:flex; align-items:baseline; gap:5px; border:0; border-radius:0; background:none; }
+  .club-pickem-personal-ledger > div b { font-size:25px; }
+  .club-pickem-title-block { width:90%; }
+  .club-pickem-table-head,.club-pickem-standing-row { grid-template-columns:32px minmax(105px,1.6fr) 38px 34px 34px 42px 44px 96px 50px; }
+  .club-pickem-games { grid-template-columns:1fr; }
+}
+
+@media (max-width: 720px) {
+  .club-mini-games-page { padding:62px 0 32px; }
+  .club-mini-game-switcher { width:calc(100% - 14px); margin-bottom:8px; gap:5px; }
+  .club-mini-game-switcher > * { min-width:0; flex:1; padding:8px 9px; }
+  .club-mini-game-switcher span { font-size:6px; }
+  .club-mini-game-switcher strong { font-size:11px; }
+  .club-pickem-shell { width:calc(100% - 12px); }
+  .club-pickem-stage { min-height:0; padding-bottom:10px; background-position:center top; }
+  .club-pickem-title-block { width:100%; margin-top:12px; padding:10px 10px 8px; }
+  .club-pickem-title-block > span { font-size:6px; }
+  .club-pickem-title-block h1 { font-size:39px; }
+  .club-pickem-title-block p { max-width:340px; font-size:9px; }
+  .club-pickem-leaderboard { width:calc(100% - 12px); margin:9px 6px 0; overflow-x:auto; }
+  .club-pickem-leaderboard > header { min-width:640px; padding:10px 15px; }
+  .club-pickem-leaderboard > header h2 { font-size:22px; }
+  .club-pickem-table-head,.club-pickem-standing-row { min-width:640px; grid-template-columns:30px minmax(100px,1.5fr) 36px 34px 34px 40px 42px 90px 48px; padding-left:15px; padding-right:15px; }
+  .club-pickem-standing-row { min-height:43px; font-size:11px; }
+  .club-pickem-manager strong { font-size:14px; }
+  .club-pickem-points { font-size:16px; }
+  .club-pickem-leaderboard > footer { min-width:640px; padding-inline:15px; }
+  .club-pickem-personal-ledger { width:calc(100% - 12px); grid-template-columns:1fr auto; gap:5px 12px; margin:8px 6px 0; }
+  .club-pickem-personal-ledger > div { justify-self:end; }
+  .club-pickem-personal-ledger p { grid-column:1/-1; }
+  .club-pickem-week-heading { align-items:flex-start; margin-top:10px; padding:12px 11px; }
+  .club-pickem-week-heading h2 { font-size:19px; }
+  .club-pickem-week-heading p { font-size:8px; }
+  .club-pickem-week-record strong { font-size:18px; }
+  .club-pickem-week-record small { font-size:6px; text-align:right; }
+  .club-pickem-day-toggle { min-height:50px; padding:8px 10px; }
+  .club-pickem-day-toggle > div > span { font-size:14px; }
+  .club-pickem-day-toggle small { font-size:7px; }
+  .club-pickem-games { padding:7px; gap:7px; }
+  .club-pickem-matchup { grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr); padding:7px; }
+  .club-pickem-team { min-height:68px; grid-template-columns:38px minmax(0,1fr) auto; gap:5px; padding:5px 6px; }
+  .club-pickem-team-logo { width:36px; height:44px; }
+  .club-pickem-team-copy strong { font-size:15px; }
+  .club-pickem-team-copy small { font-size:7px; }
+  .club-pickem-team > em { font-size:20px; }
+  .club-pickem-game-footer { align-items:stretch; flex-direction:column; }
+  .club-pickem-game-footer > button { width:100%; min-height:34px; }
+}
+.club-pickem-title-block {
+  border:1px solid rgba(205,160,84,.18);
+  border-radius:5px;
+  background:linear-gradient(180deg,rgba(21,11,6,.82),rgba(15,8,4,.72));
+  box-shadow:inset 0 0 22px rgba(0,0,0,.28);
+}
+@media (min-width: 981px) {
+  .club-pickem-stage { min-height: 520px; }
+}
+@media (max-width: 980px) {
+  .club-pickem-stage { min-height: 0; padding-bottom: 12px; }
+}

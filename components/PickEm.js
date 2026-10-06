@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 function gameTime(value) {
   if (!value) return "Time TBA";
@@ -32,12 +32,12 @@ function weekLabel(start, end) {
   const endDate = parseDateKey(end);
   if (!startDate || !endDate) return "Current NHL week";
   const startText = startDate.toLocaleDateString("en-CA", { month: "short", day: "numeric" });
-  const endText = endDate.toLocaleDateString("en-CA", { month: "short", day: "numeric" });
+  const endText = endDate.toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" });
   return `${startText} – ${endText}`;
 }
 
 function gameStatusLabel(game) {
-  if (game.final) return "FINAL";
+  if (game.final) return game.periodType && game.periodType !== "REG" ? `FINAL · ${game.periodType}` : "FINAL";
   const live = game.gameState === "LIVE" || game.gameState === "CRIT" || (game.started && !game.final);
   if (live) {
     if (game.inIntermission) return game.periodNumber ? `LIVE · INT after P${game.periodNumber}` : "LIVE · INTERMISSION";
@@ -57,20 +57,20 @@ function TeamButton({ team, game, selected, saving, onPick }) {
   return (
     <button
       type="button"
-      className={`pickem-team${selected ? " is-picked" : ""}${winner ? " is-winner" : ""}${loser ? " is-loser" : ""}`}
+      className={`club-pickem-team${selected ? " is-picked" : ""}${winner ? " is-winner" : ""}${loser ? " is-loser" : ""}`}
       disabled={game.locked || saving}
       onClick={() => onPick(game.gameId, team.abbrev)}
       aria-pressed={selected}
       title={team.name || team.abbrev}
     >
-      <span className="pickem-team-logo">
+      <span className="club-pickem-team-logo">
         {team.logo ? <img src={team.logo} alt="" /> : <b>{team.abbrev}</b>}
       </span>
-      <span className="pickem-team-copy">
+      <span className="club-pickem-team-copy">
         <strong>{team.abbrev}</strong>
         <small>{team.record || "Record —"}</small>
       </span>
-      {showScore ? <em>{team.score ?? "—"}</em> : <small className="pickem-pick-label">{selected ? "YOUR PICK" : "PICK"}</small>}
+      {showScore ? <em>{team.score ?? "—"}</em> : <span className="club-pickem-pick-label">{selected ? "YOUR PICK" : "PICK"}</span>}
     </button>
   );
 }
@@ -78,25 +78,25 @@ function TeamButton({ team, game, selected, saving, onPick }) {
 function PickEmGame({ game, savingGame, onPick, onMatchupInfo }) {
   const saving = savingGame === String(game.gameId);
   const live = game.gameState === "LIVE" || game.gameState === "CRIT" || (game.started && !game.final);
+  const resultLabel = game.result === "W" ? "WIN" : game.result === "OTL" ? "OT LOSS · +1" : game.result === "L" ? "LOSS" : null;
+
   return (
-    <article className={`pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}${live ? " is-live" : ""}`}>
-      <div className="pickem-game-status">
+    <article className={`club-pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}${live ? " is-live" : ""}`}>
+      <div className="club-pickem-game-status">
         <span>{gameStatusLabel(game)}</span>
-        {game.result ? <b className={game.result === "W" ? "is-win" : "is-loss"}>{game.result === "W" ? "WIN" : "LOSS"}</b> : null}
+        {resultLabel ? <b className={`result-${String(game.result).toLowerCase()}`}>{resultLabel}</b> : null}
       </div>
-      <div className="pickem-matchup">
+      <div className="club-pickem-matchup">
         <TeamButton team={game.away} game={game} selected={game.pick === game.away.abbrev} saving={saving} onPick={onPick} />
-        <span className="pickem-at">@</span>
+        <span className="club-pickem-at">@</span>
         <TeamButton team={game.home} game={game} selected={game.pick === game.home.abbrev} saving={saving} onPick={onPick} />
       </div>
-      <footer>
-        <div className="pickem-game-pick-copy">
+      <footer className="club-pickem-game-footer">
+        <div>
           {game.pick ? <span>Your pick: <b>{game.pick}</b></span> : <span>{game.locked ? "No pick submitted" : "Choose a winner"}</span>}
-          <span>{game.locked ? "Pick locked" : "Saved instantly · editable until puck drop"}</span>
+          <small>{game.locked ? "Pick locked at puck drop" : "Saved instantly · editable until puck drop"}</small>
         </div>
-        <button type="button" className="pickem-matchup-info-button" onClick={() => onMatchupInfo(game)}>
-          Matchup Info
-        </button>
+        <button type="button" onClick={() => onMatchupInfo(game)}>Matchup Info</button>
       </footer>
     </article>
   );
@@ -104,11 +104,11 @@ function PickEmGame({ game, savingGame, onPick, onMatchupInfo }) {
 
 function recordText(personal) {
   if (!personal?.picks) return "No picks yet";
-  const settled = Number(personal.wins || 0) + Number(personal.losses || 0);
+  const settled = Number(personal.wins || 0) + Number(personal.losses || 0) + Number(personal.otLosses || 0);
   if (!settled) return `${personal.pending || personal.picks} pending`;
-  const percentage = personal.accuracy == null ? "" : ` · ${personal.accuracy}%`;
+  const percentage = personal.accuracy == null ? "" : ` · ${personal.accuracy}% correct`;
   const pending = personal.pending ? ` · ${personal.pending} pending` : "";
-  return `${personal.wins}-${personal.losses}${percentage}${pending}`;
+  return `${personal.wins}-${personal.losses}-${personal.otLosses || 0}${percentage}${pending}`;
 }
 
 function TeamMatchupCard({ abbrev, data, personal, side }) {
@@ -127,10 +127,7 @@ function TeamMatchupCard({ abbrev, data, personal, side }) {
     <section className="pickem-matchup-team-card">
       <header>
         {data.logo ? <img src={data.logo} alt="" /> : null}
-        <div>
-          <span>{abbrev}</span>
-          <strong>{data.record}</strong>
-        </div>
+        <div><span>{abbrev}</span><strong>{data.record}</strong></div>
       </header>
       <div className="pickem-matchup-stat-grid">
         <div><span>Last 10</span><b>{data.l10Record}</b></div>
@@ -151,9 +148,7 @@ function TeamMatchupCard({ abbrev, data, personal, side }) {
 function MatchupInfoModal({ game, info, loading, error, onClose }) {
   useEffect(() => {
     if (!game) return undefined;
-    function onKeyDown(event) {
-      if (event.key === "Escape") onClose();
-    }
+    function onKeyDown(event) { if (event.key === "Escape") onClose(); }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [game, onClose]);
@@ -185,21 +180,11 @@ function MatchupInfoModal({ game, info, loading, error, onClose }) {
               <TeamMatchupCard abbrev={away} data={info.teams?.[away]} personal={info.personalRecords?.[away]} side="away" />
               <TeamMatchupCard abbrev={home} data={info.teams?.[home]} personal={info.personalRecords?.[home]} side="home" />
             </div>
-
             <section className="pickem-h2h-summary">
-              <div>
-                <span>LAST {h2h?.count || 0} HEAD-TO-HEAD</span>
-                <strong>{away} {awayH2h?.wins || 0}-{awayH2h?.losses || 0}</strong>
-                <small>{awayH2h ? `${awayH2h.avgGoalsFor} GF/G · ${awayH2h.avgGoalsAgainst} GA/G` : "No history available"}</small>
-              </div>
+              <div><span>LAST {h2h?.count || 0} HEAD-TO-HEAD</span><strong>{away} {awayH2h?.wins || 0}-{awayH2h?.losses || 0}</strong><small>{awayH2h ? `${awayH2h.avgGoalsFor} GF/G · ${awayH2h.avgGoalsAgainst} GA/G` : "No history available"}</small></div>
               <b>VS</b>
-              <div>
-                <span>LAST {h2h?.count || 0} HEAD-TO-HEAD</span>
-                <strong>{home} {homeH2h?.wins || 0}-{homeH2h?.losses || 0}</strong>
-                <small>{homeH2h ? `${homeH2h.avgGoalsFor} GF/G · ${homeH2h.avgGoalsAgainst} GA/G` : "No history available"}</small>
-              </div>
+              <div><span>LAST {h2h?.count || 0} HEAD-TO-HEAD</span><strong>{home} {homeH2h?.wins || 0}-{homeH2h?.losses || 0}</strong><small>{homeH2h ? `${homeH2h.avgGoalsFor} GF/G · ${homeH2h.avgGoalsAgainst} GA/G` : "No history available"}</small></div>
             </section>
-
             <section className="pickem-h2h-list">
               <header><strong>Recent meetings</strong><span>Most recent first</span></header>
               {(h2h?.games || []).length ? (h2h.games || []).map((meeting) => (
@@ -219,12 +204,55 @@ function MatchupInfoModal({ game, info, loading, error, onClose }) {
   );
 }
 
+function FormDots({ form = [] }) {
+  if (!form.length) return <span className="club-pickem-no-form">—</span>;
+  return <span className="club-pickem-form" aria-label={`Recent form ${form.join(", ")}`}>{form.map((result, index) => <b key={`${result}-${index}`} className={`form-${result.toLowerCase()}`}>{result === "OTL" ? "O" : result}</b>)}</span>;
+}
+
+function PickEmLeaderboard({ rows = [], currentManager }) {
+  return (
+    <section className="club-pickem-leaderboard" aria-label="NHL Pick Em standings">
+      <header>
+        <div>
+          <span>THE LONG TABLE</span>
+          <h2>Pick ’Em Standings</h2>
+        </div>
+        <div className="club-pickem-scoring-key">
+          <span>W <b>2</b></span><i>·</i><span>L <b>0</b></span><i>·</i><span>OTL <b>1</b></span>
+        </div>
+      </header>
+      <div className="club-pickem-table-head">
+        <span>#</span><span>Manager</span><span>GP</span><span>W</span><span>L</span><span>OTL</span><span>PTS</span><span>Form</span><span>Win%</span>
+      </div>
+      <div className="club-pickem-table-body">
+        {rows.length ? rows.map((row) => (
+          <div className={`club-pickem-standing-row${row.managerSlug === currentManager?.slug ? " is-you" : ""}`} key={row.managerSlug}>
+            <strong className="club-pickem-rank">{row.rank}</strong>
+            <div className="club-pickem-manager"><strong>{row.managerName}</strong>{row.managerSlug === currentManager?.slug ? <small>YOU</small> : null}</div>
+            <span>{row.settled}</span><span>{row.wins}</span><span>{row.losses}</span><span>{row.otLosses}</span>
+            <strong className="club-pickem-points">{row.points}</strong>
+            <FormDots form={row.form} />
+            <span>{row.accuracy == null ? "—" : `${row.accuracy}%`}</span>
+          </div>
+        )) : (
+          <div className="club-pickem-standings-empty">The chairs are empty. The first saved pick opens the ledger.</div>
+        )}
+      </div>
+      <footer>
+        <span>Opt-in only · managers appear after making their first pick</span>
+        <span>OTL = your selected team loses in overtime or a shootout</span>
+      </footer>
+    </section>
+  );
+}
+
 export default function PickEm() {
   const [snapshot, setSnapshot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [savingGame, setSavingGame] = useState(null);
   const [status, setStatus] = useState("");
   const [collapsedDays, setCollapsedDays] = useState(() => new Set());
+  const initializedWeekRef = useRef(null);
   const [matchupGame, setMatchupGame] = useState(null);
   const [matchupInfo, setMatchupInfo] = useState(null);
   const [matchupLoading, setMatchupLoading] = useState(false);
@@ -237,6 +265,10 @@ export default function PickEm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Pick 'Em could not be loaded.");
       setSnapshot(data);
+      if (initializedWeekRef.current !== data.weekStart) {
+        initializedWeekRef.current = data.weekStart;
+        setCollapsedDays(new Set((data.days || []).map((day) => day.dateKey)));
+      }
       if (!quiet) setStatus("");
     } catch (error) {
       setStatus(error.message || "Pick 'Em could not be loaded.");
@@ -303,64 +335,67 @@ export default function PickEm() {
   const games = useMemo(() => days.flatMap((day) => day.games || []), [days]);
   const pickedCount = useMemo(() => games.filter((game) => game.pick).length, [games]);
   const openCount = useMemo(() => games.filter((game) => !game.locked).length, [games]);
-  const record = snapshot?.record || { wins: 0, losses: 0, pending: 0, picks: 0 };
-  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, pending: 0, picks: 0 };
+  const record = snapshot?.record || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
+  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
+  const leaderboard = Array.isArray(snapshot?.leaderboard) ? snapshot.leaderboard : [];
 
   return (
-    <section className="pickem-shell" aria-labelledby="pickem-title">
-      <header className="pickem-header">
-        <div>
-          <span>FULL WEEK PICK BOARD</span>
-          <h2 id="pickem-title">NHL Pick ’Em</h2>
-          <p>Pick every game for the entire week now. Each matchup stays editable until its own scheduled puck drop.</p>
-        </div>
-        <div className="pickem-record" aria-label={`${record.wins} wins and ${record.losses} losses`}>
-          <span>ALL-TIME RECORD</span>
-          <strong>{record.wins}-{record.losses}</strong>
-          <small>{record.pending} pending</small>
-        </div>
-      </header>
+    <section className="club-pickem-shell" aria-labelledby="pickem-title">
+      <div className="club-pickem-stage">
+        <header className="club-pickem-title-block">
+          <span>CHAMPIONS LEAGUE · MINI GAMES</span>
+          <h1 id="pickem-title">NHL Pick ’Em</h1>
+          <p>Read the room. Trust your hockey sense. Build a season-long record one game at a time.</p>
+        </header>
 
-      <div className="pickem-week-bar">
+        <PickEmLeaderboard rows={leaderboard} currentManager={snapshot?.manager} />
+
+        <aside className="club-pickem-personal-ledger" aria-label="Your Pick Em record">
+          <span>{snapshot?.manager?.name || "Manager"}’s Ledger</span>
+          <strong>{record.wins}-{record.losses}-{record.otLosses}</strong>
+          <div><b>{record.points}</b><small>PTS</small></div>
+          <p>{record.pending} pending · {record.picks} total picks</p>
+        </aside>
+      </div>
+
+      <div className="club-pickem-week-heading">
         <div>
-          <b>{weekLabel(snapshot?.weekStart, snapshot?.weekEnd)}</b>
-          <span>{games.length} games · {pickedCount}/{games.length} picks saved</span>
+          <span>THE WEEKLY CARD</span>
+          <h2>{weekLabel(snapshot?.weekStart, snapshot?.weekEnd)}</h2>
+          <p>Every Monday the next seven-day card opens. Every day begins closed — open only what you want to study.</p>
         </div>
-        <div>
-          <b>{weekRecord.wins}-{weekRecord.losses}</b>
-          <span>{openCount} game{openCount === 1 ? "" : "s"} still open</span>
+        <div className="club-pickem-week-record">
+          <span>THIS WEEK</span>
+          <strong>{weekRecord.wins}-{weekRecord.losses}-{weekRecord.otLosses}</strong>
+          <small>{weekRecord.points} PTS · {pickedCount}/{games.length} picked · {openCount} open</small>
         </div>
       </div>
 
-      {loading ? <div className="pickem-empty">Loading this week’s NHL schedule…</div> : null}
-      {!loading && !games.length ? <div className="pickem-empty">No NHL games are scheduled this week.</div> : null}
+      {loading ? <div className="club-pickem-empty">Opening the weekly ledger…</div> : null}
+      {!loading && !games.length ? <div className="club-pickem-empty">No NHL games are scheduled this week.</div> : null}
 
-      {!loading ? days.map((day) => {
+      {!loading ? <div className="club-pickem-calendar">{days.map((day) => {
         const collapsed = collapsedDays.has(day.dateKey);
+        const picks = (day.games || []).filter((game) => game.pick).length;
         return (
-          <section className={`pickem-day-section${day.dateKey === snapshot?.todayKey ? " is-today" : ""}${collapsed ? " is-collapsed" : ""}`} key={day.dateKey}>
-            <button type="button" className="pickem-day-bar pickem-day-toggle" onClick={() => toggleDay(day.dateKey)} aria-expanded={!collapsed}>
+          <section className={`club-pickem-day${day.dateKey === snapshot?.todayKey ? " is-today" : ""}${collapsed ? " is-collapsed" : ""}`} key={day.dateKey}>
+            <button type="button" className="club-pickem-day-toggle" onClick={() => toggleDay(day.dateKey)} aria-expanded={!collapsed}>
               <div>
-                <b>{dateLabel(day.dateKey)}{day.dateKey === snapshot?.todayKey ? " · TODAY" : ""}</b>
-                <span>{day.games?.length || 0} game{day.games?.length === 1 ? "" : "s"}</span>
+                <span>{day.dateKey === snapshot?.todayKey ? "TODAY · " : ""}{dateLabel(day.dateKey)}</span>
+                <small>{day.games?.length || 0} games · {picks}/{day.games?.length || 0} picked</small>
               </div>
-              <span className="pickem-day-toggle-right">
-                <span>{(day.games || []).filter((game) => game.pick).length}/{day.games?.length || 0} picked</span>
-                <b aria-hidden="true">{collapsed ? "+" : "−"}</b>
-              </span>
+              <b>{collapsed ? "OPEN" : "CLOSE"}</b>
             </button>
             {!collapsed ? ((day.games || []).length ? (
-              <div className="pickem-games">
-                {day.games.map((game) => (
-                  <PickEmGame key={game.gameId} game={game} savingGame={savingGame} onPick={makePick} onMatchupInfo={openMatchupInfo} />
-                ))}
+              <div className="club-pickem-games">
+                {day.games.map((game) => <PickEmGame key={game.gameId} game={game} savingGame={savingGame} onPick={makePick} onMatchupInfo={openMatchupInfo} />)}
               </div>
-            ) : <div className="pickem-day-empty">No games scheduled.</div>) : null}
+            ) : <div className="club-pickem-day-empty">No games scheduled.</div>) : null}
           </section>
         );
-      }) : null}
+      })}</div> : null}
 
-      {status ? <p className="pickem-status" role="status">{status}</p> : null}
+      {status ? <p className="club-pickem-status" role="status">{status}</p> : null}
 
       <MatchupInfoModal
         game={matchupGame}

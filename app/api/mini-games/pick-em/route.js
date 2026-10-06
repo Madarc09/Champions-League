@@ -5,19 +5,18 @@ import { getPickEmSnapshot, savePickEmPick } from "@/lib/pick-em";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-async function requireNick(request) {
+async function requireManager(request) {
   const manager = await managerFromRequest(request);
-  if (!manager) return { error: NextResponse.json({ error: "Sign in as Nick to use Mini Games." }, { status: 401 }) };
-  if (manager.slug !== "nick") return { error: NextResponse.json({ error: "Mini Games are in Nick-only testing for now." }, { status: 403 }) };
+  if (!manager) return { error: NextResponse.json({ error: "Sign in as a pool manager to use NHL Pick 'Em." }, { status: 401 }) };
   return { manager };
 }
 
 export async function GET(request) {
-  const auth = await requireNick(request);
+  const auth = await requireManager(request);
   if (auth.error) return auth.error;
 
   try {
-    const snapshot = await getPickEmSnapshot();
+    const snapshot = await getPickEmSnapshot(auth.manager);
     return NextResponse.json({ ...snapshot, manager: auth.manager }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Pick 'Em load failed:", error);
@@ -26,7 +25,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const auth = await requireNick(request);
+  const auth = await requireManager(request);
   if (auth.error) return auth.error;
 
   let body;
@@ -37,7 +36,7 @@ export async function POST(request) {
   }
 
   try {
-    const snapshot = await savePickEmPick({ gameId: body.gameId, teamAbbrev: body.teamAbbrev });
+    const snapshot = await savePickEmPick(auth.manager, { gameId: body.gameId, teamAbbrev: body.teamAbbrev });
     return NextResponse.json({ ...snapshot, manager: auth.manager }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const status = error.code === "LOCKED" ? 423 : 400;

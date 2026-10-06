@@ -5,15 +5,14 @@ import { getPickEmMatchupInfo } from "@/lib/pick-em";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-async function requireNick(request) {
+async function requireManager(request) {
   const manager = await managerFromRequest(request);
-  if (!manager) return { error: NextResponse.json({ error: "Sign in as Nick to use Mini Games." }, { status: 401 }) };
-  if (manager.slug !== "nick") return { error: NextResponse.json({ error: "Mini Games are in Nick-only testing for now." }, { status: 403 }) };
+  if (!manager) return { error: NextResponse.json({ error: "Sign in as a pool manager to use NHL Pick 'Em." }, { status: 401 }) };
   return { manager };
 }
 
 export async function GET(request) {
-  const auth = await requireNick(request);
+  const auth = await requireManager(request);
   if (auth.error) return auth.error;
 
   const { searchParams } = new URL(request.url);
@@ -21,7 +20,7 @@ export async function GET(request) {
   if (!gameId) return NextResponse.json({ error: "Choose a matchup first." }, { status: 400 });
 
   try {
-    const info = await getPickEmMatchupInfo(gameId);
+    const info = await getPickEmMatchupInfo(auth.manager, gameId);
     return NextResponse.json({ ...info, manager: auth.manager }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Pick 'Em matchup info failed:", error);

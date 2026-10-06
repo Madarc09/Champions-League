@@ -75,3 +75,13 @@ The live site includes `/dream-team-challenge`, a weekly mini-game that is compl
 - TODAY continues to use live NHL Game Center boxscores plus the NHL daily stats reports.
 - Standings FPTS overlays only the live daily points that are ahead of the official daily report, so live production appears in season totals without double-counting after NHL cumulative stats catch up.
 - `/api/standings` exposes the number of live-overlay players/points and the season refresh interval under `leagueDay.dailyStats` for diagnostics.
+
+## V9 Pick 'Em Clubhouse
+
+- NHL Pick 'Em is opt-in: a manager appears in the standings only after saving at least one pick.
+- All existing pool manager logins can access Mini Games.
+- Pick 'Em scoring: Win = 2 points, Regulation Loss = 0, OT/Shootout Loss = 1.
+- Standings are season-long and ranked by Pick 'Em points.
+- The Monday-Sunday card automatically advances each Monday; all day drawers begin collapsed.
+- Nick's existing Pick 'Em Redis keys remain compatible; other managers use matching isolated namespaces.
+- The page uses `public/pickem-clubhouse.webp` as a permanent visual background while all meaningful standings/schedule text remains live HTML.
