@@ -26,3 +26,12 @@ No fake navigation, standings, dates, or scores are baked into the new page desi
 - On phones, Pick 'Em standings use a compact six-column ledger: Rank, Manager, W, L, OTL, PTS.
 - Desktop standings remain unchanged with GP, recent form and win percentage.
 - Dynamic leaderboard values remain live; Nick currently displays 0-0-0 and 0 PTS while no picks are settled.
+
+## V14 — Skynet Pick 'Em
+- Skynet T-104 is now a real Pick 'Em participant using the same W=2 / OTL=1 / L=0 standings rules.
+- Tuesday, October 6, 2026 is bootstrapped automatically on the first Pick 'Em load after deployment (only for games that have not started).
+- Future daily Skynet picks are generated at midnight America/Toronto via `/api/cron/pick-em-skynet`.
+- Two UTC cron windows cover EDT/EST; the handler only runs when Toronto local hour is midnight.
+- If a cron is missed, Pick 'Em page/API load safely fills only still-unstarted games for the current day.
+- Skynet chooses from current NHL record/points rate, recent form, goal differential, home/road performance and a small home-ice factor.
+- Pick and settled-result events for all managers are mirrored into a private Redis audit list (`champions-league:mini-games:pick-em:v1:private-history`). No public API exposes that history.
