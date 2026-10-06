@@ -2736,3 +2736,382 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
 @media (max-width: 980px) {
   .club-pickem-stage { min-height: 0; padding-bottom: 12px; }
 }
+
+/* ================================================================
+   PICK 'EM V10 — LONG TABLE REBUILD
+   The room is photographic; the interface is cool graphite glass.
+   No baked artwork is relied on for readable text/data.
+   ================================================================ */
+.club-pickem-shell {
+  position: relative;
+  isolation: isolate;
+  width: min(1320px, calc(100% - 20px));
+  margin: 0 auto;
+  padding: 22px 24px 34px;
+  overflow: hidden;
+  border: 1px solid rgba(164, 180, 189, .22);
+  border-radius: 12px;
+  color: #edf2f3;
+  background: #05090d;
+  box-shadow: 0 26px 74px rgba(0,0,0,.58);
+}
+.club-pickem-shell::before {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  inset: -18px;
+  background: url('/pickem-viking-table.webp') center top / cover no-repeat;
+  filter: blur(8px) brightness(.48) saturate(.58) contrast(1.05);
+  transform: scale(1.035);
+}
+.club-pickem-shell::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(2,7,11,.72) 0%, rgba(3,8,12,.42) 24%, rgba(3,7,10,.18) 54%, rgba(2,5,8,.38) 100%),
+    radial-gradient(circle at 50% 38%, rgba(168,190,199,.09), transparent 48%),
+    linear-gradient(90deg, rgba(0,0,0,.44), transparent 18% 82%, rgba(0,0,0,.44));
+}
+
+.club-pickem-stage {
+  position: relative;
+  min-height: 0 !important;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none !important;
+  box-shadow: none;
+}
+.club-pickem-stage::after { display:none; }
+
+.club-pickem-title-block {
+  width: min(720px, 88%);
+  margin: 0 auto;
+  padding: 12px 20px 18px;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center;
+  text-shadow: 0 3px 18px rgba(0,0,0,.85);
+}
+.club-pickem-title-block > span {
+  color: #aebdc5;
+  font: 900 9px/1.2 Arial,sans-serif;
+  letter-spacing: .24em;
+}
+.club-pickem-title-block h1 {
+  margin: 3px 0 4px;
+  color: #f2f5f5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(46px, 6vw, 82px);
+  line-height: .9;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.club-pickem-title-block p {
+  margin: 8px auto 0;
+  max-width: 620px;
+  color: #b9c5ca;
+  font: italic 12px/1.5 Georgia, "Times New Roman", serif;
+}
+
+.club-pickem-leaderboard {
+  position: relative;
+  z-index: 2;
+  width: min(1040px, calc(100% - 190px));
+  margin: 6px 0 0 0;
+  overflow: hidden;
+  border: 1px solid rgba(180, 198, 206, .34);
+  outline: 1px solid rgba(255,255,255,.025);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(6,13,18,.78), rgba(4,9,13,.68));
+  -webkit-backdrop-filter: blur(11px) saturate(.8);
+  backdrop-filter: blur(11px) saturate(.8);
+  box-shadow: 0 18px 44px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.045);
+}
+.club-pickem-leaderboard::before,
+.club-pickem-leaderboard::after { display:none; }
+.club-pickem-leaderboard > header {
+  min-height: 68px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(185,201,208,.16);
+  background: linear-gradient(180deg, rgba(16,27,34,.52), rgba(7,13,18,.18));
+}
+.club-pickem-leaderboard > header span { color:#9fb0b8; font-size:8px; }
+.club-pickem-leaderboard > header h2 {
+  color:#f0f3f3;
+  font-size:30px;
+  letter-spacing:.02em;
+}
+.club-pickem-scoring-key { gap: 12px; color:#9baab0; }
+.club-pickem-scoring-key span { color:#aebcc2 !important; font-size:9px !important; }
+.club-pickem-scoring-key b { color:#e4bd70; font-size:14px; }
+.club-pickem-scoring-key i { color:#53646c; }
+
+.club-pickem-table-head,
+.club-pickem-standing-row {
+  grid-template-columns: 40px minmax(130px,1.8fr) 48px 44px 44px 50px 56px 116px 64px;
+}
+.club-pickem-table-head {
+  min-height: 34px;
+  padding:0 18px;
+  color:#91a3ab;
+  border-bottom:1px solid rgba(173,191,200,.14);
+  background:rgba(1,6,9,.30);
+}
+.club-pickem-standing-row {
+  min-height:52px;
+  padding:0 18px;
+  border-bottom:1px solid rgba(169,187,196,.10);
+  color:#ecf0f1;
+  font-size:14px;
+}
+.club-pickem-standing-row.is-you {
+  background:linear-gradient(90deg,rgba(206,164,88,.13),rgba(91,111,119,.035));
+  box-shadow: inset 3px 0 0 rgba(224,185,107,.74);
+}
+.club-pickem-rank { color:#e3be76; font-size:20px; }
+.club-pickem-manager strong { font-size:18px; }
+.club-pickem-manager small {
+  border-color:rgba(197,169,111,.30);
+  color:#d5b77d;
+  background:rgba(197,169,111,.06);
+}
+.club-pickem-points { color:#f0c976; font-size:20px; }
+.club-pickem-form .form-w { color:#d8f3df; background:#244e38; }
+.club-pickem-form .form-l { color:#f1d3d1; background:#623334; }
+.club-pickem-form .form-otl { color:#f3e1ba; background:#5b4a2c; }
+.club-pickem-no-form { color:#66777f; }
+.club-pickem-standings-empty { color:#9aabb2; }
+.club-pickem-leaderboard > footer {
+  padding:9px 18px 11px;
+  border-top:1px solid rgba(173,191,200,.12);
+  color:#81939b;
+  font-size:8px;
+}
+
+.club-pickem-personal-ledger {
+  top: 188px;
+  right: 0;
+  width: 168px;
+  min-height: 214px;
+  gap: 7px;
+  padding: 15px 12px;
+  border:1px solid rgba(174,193,202,.28);
+  border-radius:10px;
+  color:#dce4e7;
+  background:linear-gradient(180deg,rgba(6,13,18,.80),rgba(3,8,12,.72));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow:0 16px 36px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.club-pickem-personal-ledger > span { color:#9bacb3; }
+.club-pickem-personal-ledger > strong { color:#f0f3f3; font-size:32px; }
+.club-pickem-personal-ledger > div {
+  width:88px;
+  height:88px;
+  border-color:rgba(207,172,102,.44);
+  background:radial-gradient(circle,rgba(47,54,57,.92),rgba(5,10,13,.9) 72%);
+}
+.club-pickem-personal-ledger > div b { color:#e5bd70; font-size:32px; }
+.club-pickem-personal-ledger > div small { color:#9da8ab; }
+.club-pickem-personal-ledger p { color:#81929a; }
+
+.club-pickem-week-heading {
+  position: relative;
+  z-index: 2;
+  margin-top: 22px;
+  padding: 15px 18px 13px;
+  border:1px solid rgba(178,196,204,.26);
+  border-radius:10px 10px 0 0;
+  background:linear-gradient(180deg,rgba(7,14,19,.74),rgba(3,8,12,.64));
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.club-pickem-week-heading span { color:#90a2aa; }
+.club-pickem-week-heading h2 { color:#edf1f2; font-size:29px; }
+.club-pickem-week-heading p { color:#95a6ad; font-size:10px; }
+.club-pickem-week-record strong { color:#edc578; }
+.club-pickem-week-record small { color:#84979f; }
+
+.club-pickem-calendar {
+  position: relative;
+  z-index: 2;
+  border:1px solid rgba(178,196,204,.26);
+  border-top:0;
+  border-radius:0 0 10px 10px;
+  background:rgba(3,8,12,.47) !important;
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+  box-shadow: 0 18px 40px rgba(0,0,0,.26);
+}
+.club-pickem-day { border-top:1px solid rgba(177,195,203,.12); }
+.club-pickem-day.is-today { box-shadow:inset 4px 0 0 #d3aa5e; }
+.club-pickem-day-toggle {
+  min-height:58px;
+  padding:10px 16px 10px 19px;
+  color:#e5eaec;
+  background:linear-gradient(90deg,rgba(10,18,23,.76),rgba(5,11,15,.58));
+}
+.club-pickem-day-toggle:hover { background:linear-gradient(90deg,rgba(18,29,35,.84),rgba(8,15,20,.72)); }
+.club-pickem-day-toggle > div > span { color:#eef2f2; font-size:18px; }
+.club-pickem-day-toggle small { color:#8ca0a8; font-size:8px; }
+.club-pickem-day-toggle > b {
+  min-width:62px;
+  border-color:rgba(173,193,201,.24);
+  color:#b9c6cb;
+  background:rgba(255,255,255,.025);
+}
+.club-pickem-games {
+  gap:10px;
+  padding:12px;
+  background:rgba(0,4,7,.28);
+}
+.club-pickem-game {
+  border:1px solid rgba(171,191,199,.18);
+  border-radius:8px;
+  background:linear-gradient(160deg,rgba(7,15,20,.88),rgba(3,8,12,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.club-pickem-game.is-live { border-color:rgba(92,190,121,.52); }
+.club-pickem-game-status {
+  border-bottom-color:rgba(172,191,199,.11);
+  color:#91a3ab;
+  font-size:8px;
+}
+.club-pickem-game.is-live .club-pickem-game-status > span { color:#8fe1a8; }
+.club-pickem-matchup { gap:6px; }
+.club-pickem-at { color:#667981; }
+.club-pickem-team {
+  border-color:rgba(167,187,195,.16);
+  color:#e8edef;
+  background:linear-gradient(180deg,rgba(13,23,29,.72),rgba(4,10,14,.76));
+}
+.club-pickem-team:hover:not(:disabled),
+.club-pickem-team.is-picked {
+  border-color:rgba(226,185,102,.58);
+  background:linear-gradient(180deg,rgba(36,42,41,.82),rgba(10,16,19,.88));
+}
+.club-pickem-team.is-picked { box-shadow:inset 3px 0 0 #d7ad61; }
+.club-pickem-team-copy strong { color:#f0f3f3; }
+.club-pickem-team-copy small { color:#84969d; }
+.club-pickem-team > em { color:#f0c575; }
+.club-pickem-pick-label { color:#91a2a9; }
+.club-pickem-game-footer {
+  border-top-color:rgba(169,190,198,.10);
+  color:#899aa1;
+}
+.club-pickem-game-footer b { color:#e5bc70; }
+.club-pickem-game-footer small { color:#6f828a; }
+.club-pickem-game-footer > button {
+  border-color:rgba(173,193,202,.22);
+  color:#c6d0d4;
+  background:rgba(255,255,255,.025);
+}
+.club-pickem-game-footer > button:hover { border-color:rgba(220,181,102,.50); color:#edc77b; }
+.club-pickem-day-empty,.club-pickem-empty {
+  color:#90a2aa;
+  background:rgba(2,7,10,.50);
+}
+.club-pickem-status {
+  border-color:rgba(174,194,202,.20);
+  color:#c7d2d6;
+  background:rgba(4,11,15,.82);
+}
+
+/* Matchup info now matches the long-table room rather than the old brown skin. */
+.pickem-matchup-modal {
+  border-color:rgba(177,197,205,.30) !important;
+  background:linear-gradient(180deg,rgba(7,15,20,.98),rgba(2,7,10,.99)) !important;
+  color:#e8edef !important;
+}
+.pickem-matchup-modal-header { border-bottom-color:rgba(176,195,203,.13) !important; }
+.pickem-matchup-modal-header span { color:#d3ad67 !important; }
+.pickem-matchup-modal-header p { color:#8fa2aa !important; }
+.pickem-matchup-team-card { border-color:rgba(175,195,204,.18) !important; background:rgba(255,255,255,.025) !important; }
+.pickem-personal-team-record { border-top-color:rgba(177,195,203,.12) !important; }
+.pickem-h2h-summary { border-color:rgba(179,198,206,.16) !important; background:rgba(255,255,255,.022) !important; }
+.pickem-h2h-list { border-color:rgba(176,195,203,.14) !important; }
+
+@media (max-width: 980px) {
+  .club-pickem-shell { padding:14px 14px 24px; }
+  .club-pickem-leaderboard { width:100%; margin:8px 0 0; }
+  .club-pickem-personal-ledger {
+    position:relative;
+    top:auto;
+    right:auto;
+    width:100%;
+    min-height:auto;
+    grid-template-columns:1fr auto auto auto;
+    justify-items:start;
+    margin:10px 0 0;
+    padding:10px 14px;
+    text-align:left;
+  }
+  .club-pickem-personal-ledger > div { width:auto; height:auto; border:0; background:none; display:flex; align-items:baseline; gap:5px; }
+  .club-pickem-personal-ledger > div b { font-size:24px; }
+  .club-pickem-games { grid-template-columns:1fr; }
+}
+
+@media (max-width: 720px) {
+  .club-pickem-shell {
+    width:calc(100% - 8px);
+    padding:8px 6px 18px;
+    border-radius:8px;
+  }
+  .club-pickem-shell::before { filter:blur(6px) brightness(.40) saturate(.55); }
+  .club-pickem-title-block { width:100%; padding:10px 8px 12px; }
+  .club-pickem-title-block h1 { font-size:38px; }
+  .club-pickem-title-block p { font-size:9px; }
+  .club-pickem-leaderboard { overflow-x:auto; }
+  .club-pickem-leaderboard > header { min-width:660px; padding:10px 14px; }
+  .club-pickem-leaderboard > header h2 { font-size:23px; }
+  .club-pickem-table-head,.club-pickem-standing-row {
+    min-width:660px;
+    grid-template-columns:32px minmax(110px,1.6fr) 38px 34px 34px 42px 46px 92px 50px;
+    padding-left:14px;
+    padding-right:14px;
+  }
+  .club-pickem-standing-row { min-height:46px; font-size:11px; }
+  .club-pickem-manager strong { font-size:14px; }
+  .club-pickem-leaderboard > footer { min-width:660px; }
+  .club-pickem-personal-ledger { grid-template-columns:1fr auto; }
+  .club-pickem-personal-ledger p { grid-column:1/-1; }
+  .club-pickem-week-heading { margin-top:10px; padding:11px 10px; }
+  .club-pickem-week-heading h2 { font-size:19px; }
+  .club-pickem-day-toggle { min-height:52px; padding:8px 9px; }
+  .club-pickem-day-toggle > div > span { font-size:15px; }
+  .club-pickem-games { padding:6px; gap:7px; }
+}
+
+/* V10 surrounding Pick 'Em navigation uses the same steel/glass language. */
+.club-mini-games-page {
+  padding-top: 72px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(53,76,87,.16), transparent 38%),
+    linear-gradient(180deg,#050a0e,#020507 78%) !important;
+}
+.club-mini-game-switcher { width:min(1320px,calc(100% - 20px)); margin-bottom:10px; }
+.club-mini-game-switcher > * {
+  min-width:210px;
+  padding:9px 13px;
+  border-color:rgba(174,194,203,.20);
+  border-radius:7px;
+  color:#c8d2d6;
+  background:rgba(7,14,19,.78);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.club-mini-game-switcher > *.is-current { border-color:rgba(220,181,102,.54); color:#f0c979; }
+.club-mini-game-switcher span { color:#83969e; }
+.club-mini-game-switcher strong { color:inherit; }
+.club-gate { background:linear-gradient(rgba(2,6,9,.68),rgba(2,6,9,.86)),url('/pickem-viking-table.webp') center/cover !important; }
+.club-gate > section { border-color:rgba(178,198,206,.28) !important; background:rgba(5,12,16,.90) !important; }
+/* Final transparency tuning: the tabletop should visibly live underneath the standings. */
+.club-pickem-leaderboard { background:linear-gradient(180deg,rgba(5,12,17,.67),rgba(3,8,12,.58)); -webkit-backdrop-filter:blur(8px) saturate(.78); backdrop-filter:blur(8px) saturate(.78); }
+.club-pickem-personal-ledger { background:linear-gradient(180deg,rgba(5,12,17,.70),rgba(3,8,12,.62)); }
+.club-pickem-week-heading { background:linear-gradient(180deg,rgba(6,13,18,.65),rgba(3,8,12,.55)); }
+.club-pickem-calendar { background:rgba(3,8,12,.38) !important; }

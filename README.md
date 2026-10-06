@@ -85,3 +85,7 @@ The live site includes `/dream-team-challenge`, a weekly mini-game that is compl
 - The Monday-Sunday card automatically advances each Monday; all day drawers begin collapsed.
 - Nick's existing Pick 'Em Redis keys remain compatible; other managers use matching isolated namespaces.
 - The page uses `public/pickem-clubhouse.webp` as a permanent visual background while all meaningful standings/schedule text remains live HTML.
+
+## V10 Pick ’Em Long Table rebuild
+
+The Pick ’Em page was visually rebuilt around a restrained Viking long-table clubhouse. The permanent background is `public/pickem-viking-table.webp`; all standings, records, dates, schedules and controls remain live HTML/API content. The new surface uses cool graphite glass with steel borders and limited whiskey-gold accents rather than the prior brown card treatment. The Pick ’Em scoring/auth/data model is unchanged.
