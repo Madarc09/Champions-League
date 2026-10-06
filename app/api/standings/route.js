@@ -164,6 +164,11 @@ export async function GET() {
         ...(livePlayer || {}),
         capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
         fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0),
+        todayPoints: Number(
+          dailyFantasyPoints[String(storedPlayer.playerId)]
+          ?? dailyFantasyPoints[String(livePlayer?.playerId || "")]
+          ?? 0
+        ),
         playingToday: scheduleAvailable
           ? playingTeamAbbrevs.has(String(livePlayer?.team || storedPlayer.team || "").toUpperCase())
           : null
@@ -199,6 +204,11 @@ export async function GET() {
         ...(livePlayer || {}),
         capHit: Number(storedPlayer.capHit || livePlayer?.capHit || 0),
         fantasyPoints: Number(liveFantasyPoints[String(storedPlayer.playerId)] || 0),
+        todayPoints: Number(
+          dailyFantasyPoints[String(storedPlayer.playerId)]
+          ?? dailyFantasyPoints[String(livePlayer?.playerId || "")]
+          ?? 0
+        ),
         playingToday: scheduleAvailable
           ? playingTeamAbbrevs.has(String(livePlayer?.team || storedPlayer.team || "").toUpperCase())
           : null

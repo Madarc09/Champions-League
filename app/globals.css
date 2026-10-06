@@ -1984,3 +1984,102 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
 .arena-roster-viewer.is-playing-today .lineup-player-empty {
   visibility: hidden;
 }
+
+/* V8.6 MINI GAMES: DAILY NHL PICK 'EM ------------------------------------- */
+.mini-games-page,
+.mini-games-gate {
+  min-height: 100vh;
+  padding: 92px clamp(14px,3vw,34px) 54px;
+  color:#eef3f6;
+  background:
+    radial-gradient(circle at 52% 0%,rgba(45,79,101,.28),transparent 35%),
+    linear-gradient(180deg,#071019,#020507 72%);
+}
+.mini-games-page { display:grid; gap:18px; }
+.mini-games-hero {
+  width:min(1180px,100%); margin:0 auto; display:flex; align-items:flex-end;
+  justify-content:space-between; gap:20px; padding-bottom:15px;
+  border-bottom:1px solid rgba(217,183,109,.22);
+}
+.mini-games-hero > div { display:grid; gap:5px; }
+.mini-games-hero span,
+.mini-game-launch-card > span,
+.pickem-header > div:first-child > span {
+  color:#d0ad65; font-size:9px; font-weight:950; letter-spacing:.16em; text-transform:uppercase;
+}
+.mini-games-hero h1 { margin:0; font-family:Georgia,"Times New Roman",serif; font-size:clamp(36px,5vw,64px); line-height:.92; }
+.mini-games-hero p { margin:3px 0 0; max-width:680px; color:#9eb0ba; font-size:12px; }
+.mini-games-hero > a { color:#e8cf96; font-size:10px; font-weight:900; letter-spacing:.09em; }
+.mini-game-launchers { width:min(1180px,100%); margin:0 auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.mini-game-launch-card {
+  min-width:0; display:grid; gap:5px; padding:15px 17px; border:1px solid rgba(153,176,190,.18);
+  border-radius:10px; color:inherit; background:linear-gradient(145deg,rgba(15,28,37,.9),rgba(3,8,12,.92));
+}
+.mini-game-launch-card:hover { border-color:rgba(220,183,100,.48); }
+.mini-game-launch-card.is-current { border-color:rgba(220,183,100,.38); background:linear-gradient(145deg,rgba(55,45,24,.34),rgba(4,10,14,.94)); }
+.mini-game-launch-card strong { color:#f1e6cc; font-family:Georgia,"Times New Roman",serif; font-size:20px; }
+.mini-game-launch-card p { margin:0; color:#91a5af; font-size:10px; line-height:1.45; }
+.mini-game-launch-card b { margin-top:5px; color:#e8c66f; font-size:8px; letter-spacing:.1em; }
+
+.pickem-shell { width:min(1180px,100%); margin:0 auto; overflow:hidden; border:1px solid rgba(158,181,194,.19); border-radius:13px; background:rgba(3,9,13,.82); }
+.pickem-header { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 20px; background:linear-gradient(90deg,rgba(24,47,61,.78),rgba(7,15,20,.94)); }
+.pickem-header h2 { margin:2px 0 3px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(25px,3vw,38px); }
+.pickem-header p { margin:0; max-width:660px; color:#a2b1b8; font-size:10px; }
+.pickem-record { min-width:142px; display:grid; justify-items:end; }
+.pickem-record span { color:#93a6af; font-size:8px; font-weight:900; letter-spacing:.1em; }
+.pickem-record strong { color:#f0cd76; font-size:30px; line-height:1; font-variant-numeric:tabular-nums; }
+.pickem-record small { color:#7f959f; font-size:8px; }
+.pickem-day-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 20px; border-top:1px solid rgba(255,255,255,.04); border-bottom:1px solid rgba(255,255,255,.07); background:rgba(255,255,255,.025); }
+.pickem-day-bar > div { display:grid; }
+.pickem-day-bar b { font-size:11px; }
+.pickem-day-bar span { color:#8ea2ac; font-size:8px; font-weight:800; }
+.pickem-games { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:12px; }
+.pickem-game { overflow:hidden; border:1px solid rgba(132,158,172,.16); border-radius:9px; background:linear-gradient(160deg,rgba(16,29,37,.72),rgba(3,7,10,.88)); }
+.pickem-game.is-final { border-color:rgba(209,177,99,.22); }
+.pickem-game-status { min-height:26px; display:flex; align-items:center; justify-content:space-between; padding:5px 9px; border-bottom:1px solid rgba(255,255,255,.05); color:#8fa3ad; font-size:8px; font-weight:900; letter-spacing:.09em; }
+.pickem-game-status b { padding:2px 6px; border-radius:999px; font-size:7px; }
+.pickem-game-status b.is-win { color:#8ff0aa; background:rgba(44,134,74,.17); }
+.pickem-game-status b.is-loss { color:#ff9b9f; background:rgba(146,50,56,.18); }
+.pickem-matchup { display:grid; grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr); align-items:center; gap:4px; padding:9px; }
+.pickem-at { color:#667d88; font-size:10px; font-weight:950; text-align:center; }
+.pickem-team { min-width:0; min-height:72px; display:grid; grid-template-columns:48px minmax(0,1fr) auto; align-items:center; gap:8px; padding:6px 9px; border:1px solid rgba(142,164,177,.15); border-radius:7px; color:#eaf0f3; background:rgba(2,7,10,.68); cursor:pointer; }
+.pickem-team:hover:not(:disabled), .pickem-team.is-picked { border-color:#d2ad59; background:rgba(113,86,30,.16); }
+.pickem-team:disabled { cursor:default; }
+.pickem-team.is-picked { box-shadow:inset 3px 0 0 #d5b15f; }
+.pickem-team.is-winner { border-color:rgba(100,209,132,.45); }
+.pickem-team.is-loser:not(.is-picked) { opacity:.58; }
+.pickem-team-logo { width:44px; height:50px; display:grid; place-items:center; }
+.pickem-team-logo img { max-width:100%; max-height:100%; object-fit:contain; }
+.pickem-team > strong { font-size:15px; letter-spacing:.06em; }
+.pickem-team > small { color:#a1b0b6; font-size:7px; font-weight:900; letter-spacing:.08em; }
+.pickem-team > em { min-width:22px; color:#f0cd76; font-size:20px; font-style:normal; font-weight:950; text-align:center; }
+.pickem-game footer { display:flex; justify-content:space-between; gap:8px; padding:7px 10px; border-top:1px solid rgba(255,255,255,.05); color:#81969f; font-size:8px; }
+.pickem-game footer b { color:#e8c66f; }
+.pickem-status { margin:0; padding:10px 15px 14px; color:#e6c773; font-size:9px; font-weight:850; text-align:center; }
+.pickem-empty { min-height:130px; display:grid; place-items:center; padding:24px; color:#8ca0aa; font-size:11px; }
+
+.mini-games-gate { display:grid; place-items:center; }
+.mini-games-gate > section { width:min(540px,100%); display:grid; justify-items:center; gap:10px; padding:42px 30px; border:1px solid rgba(218,180,98,.3); border-radius:12px; background:rgba(3,9,13,.82); text-align:center; }
+.mini-games-gate span { color:#caa85f; font-size:9px; font-weight:950; letter-spacing:.16em; }
+.mini-games-gate h1 { margin:0; font-family:Georgia,"Times New Roman",serif; font-size:48px; }
+.mini-games-gate strong { color:#e9ca79; font-size:16px; }
+.mini-games-gate p { margin:0; color:#96a8b1; font-size:11px; }
+.mini-games-gate section > div { display:flex; gap:8px; margin-top:8px; }
+.mini-games-gate a { padding:9px 12px; border:1px solid rgba(211,177,99,.28); border-radius:6px; color:#ead8ae; font-size:9px; font-weight:900; }
+
+@media (max-width:720px) {
+  .mini-games-page,.mini-games-gate { padding:70px 9px 34px; }
+  .mini-games-hero { align-items:flex-start; }
+  .mini-games-hero p { font-size:9px; }
+  .mini-game-launchers { grid-template-columns:1fr; }
+  .mini-game-launch-card { padding:12px; }
+  .pickem-header { align-items:flex-start; padding:14px 12px; }
+  .pickem-header p { font-size:8px; }
+  .pickem-record { min-width:92px; }
+  .pickem-record strong { font-size:24px; }
+  .pickem-day-bar { padding:8px 10px; }
+  .pickem-games { grid-template-columns:1fr; padding:8px; }
+  .pickem-team { min-height:64px; grid-template-columns:42px minmax(0,1fr) auto; padding:5px 7px; }
+  .pickem-team-logo { width:38px; height:44px; }
+  .pickem-team > strong { font-size:14px; }
+}

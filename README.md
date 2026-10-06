@@ -59,3 +59,11 @@ The live site includes `/dream-team-challenge`, a weekly mini-game that is compl
 - The public Dream Team roster display shows the current challenge crown holder.
 - The established league `Dream Team players` overlap statistic remains based on the AI weekly roster, so the mini-game cannot alter that league-side metric.
 - `dreamWeekKey()` still controls the Monday 4 AM Toronto rollover. The next request after rollover generates the new weekly AI roster if the cron has not already done so.
+
+## V8.6 — Daily roster points + NHL Pick 'Em
+
+- Homepage `PLAYING TODAY` mode now shows each visible player's league-day fantasy points (10 AM Eastern reset) instead of season FPTS, and the roster header total switches to today's points as well.
+- Mini Games is now available to Nick's existing manager login for testing.
+- Mini Games includes the preserved Dream Team Challenge and a new NHL Pick 'Em game.
+- Pick 'Em uses the actual Eastern calendar date, allows picks/changes until scheduled puck drop, then locks the game and records W/L from final NHL scores.
+- Pick 'Em data lives under its own Redis namespace and never writes to league rosters or standings.

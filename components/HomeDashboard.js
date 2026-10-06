@@ -24,16 +24,18 @@ function shortName(name) {
   return parts.at(-1);
 }
 
-function RosterPlayerCard({ player, onOpen }) {
+function RosterPlayerCard({ player, onOpen, pointsMode = "season" }) {
   if (!player) {
     return <span className="lineup-player lineup-player-empty" aria-hidden="true" />;
   }
+
+  const displayedPoints = pointsMode === "today" ? player.todayPoints : player.fantasyPoints;
 
   return (
     <button
       className="lineup-player"
       type="button"
-      title={`${player.name} · ${formatPoints(player.fantasyPoints)} FPTS`}
+      title={`${player.name} · ${formatPoints(displayedPoints)} ${pointsMode === "today" ? "today" : "FPTS"}`}
       onClick={() => onOpen(player)}
     >
       <span className="lineup-player-photo">
@@ -43,13 +45,13 @@ function RosterPlayerCard({ player, onOpen }) {
       </span>
       <span className="lineup-player-name">
         <strong>{shortName(player.name)}</strong>
-        <small><b>{formatPoints(player.fantasyPoints)}</b><span className="fpts-suffix"> FPTS</span></small>
+        <small><b>{formatPoints(displayedPoints)}</b><span className="fpts-suffix"> FPTS</span></small>
       </span>
     </button>
   );
 }
 
-function LineupGroup({ players, onOpen, className = "" }) {
+function LineupGroup({ players, onOpen, className = "", pointsMode = "season" }) {
   return (
     <section className={`lineup-group ${className}`.trim()}>
       <div className="lineup-group-players">
@@ -58,6 +60,7 @@ function LineupGroup({ players, onOpen, className = "" }) {
             key={player ? `${player.playerId}-${index}` : `empty-${index}`}
             player={player}
             onOpen={onOpen}
+            pointsMode={pointsMode}
           />
         ))}
       </div>
@@ -106,16 +109,24 @@ export default function HomeDashboard() {
     ? allActivePlayers.filter((player) => player.playingToday === true)
     : allActivePlayers;
 
+
+  const activeViewPoints = useMemo(() => {
+    if (!activeView) return 0;
+    if (!playingTodayOnly) return Number(activeView.fantasyPoints || 0);
+    return Math.round(activePlayers.reduce((sum, player) => sum + Number(player.todayPoints || 0), 0) * 10) / 10;
+  }, [activeView, activePlayers, playingTodayOnly]);
+
   useEffect(() => {
     if (rosterViewIndex < rosterViews.length) return;
     setRosterViewIndex(0);
   }, [rosterViewIndex, rosterViews.length]);
 
   const lineup = useMemo(() => {
-    const byFantasyPoints = (left, right) => Number(right?.fantasyPoints || 0) - Number(left?.fantasyPoints || 0);
-    const forwards = fillSlots(activePlayers.filter((player) => player.rosterType === "F").sort(byFantasyPoints), 12);
-    const defence = fillSlots(activePlayers.filter((player) => player.rosterType === "D").sort(byFantasyPoints), 6);
-    const goalies = fillSlots(activePlayers.filter((player) => player.rosterType === "G").sort(byFantasyPoints), 2);
+    const pointsKey = playingTodayOnly ? "todayPoints" : "fantasyPoints";
+    const byDisplayedPoints = (left, right) => Number(right?.[pointsKey] || 0) - Number(left?.[pointsKey] || 0);
+    const forwards = fillSlots(activePlayers.filter((player) => player.rosterType === "F").sort(byDisplayedPoints), 12);
+    const defence = fillSlots(activePlayers.filter((player) => player.rosterType === "D").sort(byDisplayedPoints), 6);
+    const goalies = fillSlots(activePlayers.filter((player) => player.rosterType === "G").sort(byDisplayedPoints), 2);
 
     return {
       forwardLines: [
@@ -131,7 +142,7 @@ export default function HomeDashboard() {
       ],
       goalies
     };
-  }, [activePlayers]);
+  }, [activePlayers, playingTodayOnly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -273,8 +284,8 @@ export default function HomeDashboard() {
           >
             <header className="arena-board-title dream-title-row dream-title-layout">
               <div className="dream-title-metric dream-title-fpts">
-                <b>{loaded && activeView ? formatPoints(activeView.fantasyPoints) : "—"}</b>
-                <span>FANTASY POINTS</span>
+                <b>{loaded && activeView ? formatPoints(activeViewPoints) : "—"}</b>
+                <span>{playingTodayOnly ? "TODAY\'S POINTS" : "FANTASY POINTS"}</span>
               </div>
 
               <div className="roster-viewer-title">
@@ -304,12 +315,12 @@ export default function HomeDashboard() {
               <h3 className="dream-zone-title dream-zone-forwards">FORWARDS</h3>
               <div className="dream-offence-halves">
                 <div className="dream-offence-half dream-offence-left">
-                  <LineupGroup players={lineup.forwardLines[0]} onOpen={openRosterPlayer} />
-                  <LineupGroup players={lineup.forwardLines[1]} onOpen={openRosterPlayer} />
+                  <LineupGroup players={lineup.forwardLines[0]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
+                  <LineupGroup players={lineup.forwardLines[1]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
                 </div>
                 <div className="dream-offence-half dream-offence-right">
-                  <LineupGroup players={lineup.forwardLines[2]} onOpen={openRosterPlayer} />
-                  <LineupGroup players={lineup.forwardLines[3]} onOpen={openRosterPlayer} />
+                  <LineupGroup players={lineup.forwardLines[2]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
+                  <LineupGroup players={lineup.forwardLines[3]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
                 </div>
               </div>
 
@@ -320,14 +331,15 @@ export default function HomeDashboard() {
                     key={`pair-${index + 1}`}
                     players={pair}
                     onOpen={openRosterPlayer}
+                    pointsMode={playingTodayOnly ? "today" : "season"}
                   />
                 ))}
               </div>
 
               <h3 className="dream-zone-title dream-zone-goalies">GOALIES</h3>
               <div className="goalie-pair">
-                <LineupGroup players={[lineup.goalies[0]]} onOpen={openRosterPlayer} />
-                <LineupGroup players={[lineup.goalies[1]]} onOpen={openRosterPlayer} />
+                <LineupGroup players={[lineup.goalies[0]]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
+                <LineupGroup players={[lineup.goalies[1]]} onOpen={openRosterPlayer} pointsMode={playingTodayOnly ? "today" : "season"} />
               </div>
 
               {!loaded ? <p className="dream-board-message">Loading live rosters…</p> : null}
