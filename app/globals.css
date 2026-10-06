@@ -3633,3 +3633,66 @@ body:has(.pickem-reference-shell) { margin:0; background:#070605; }
   .pickem-reference-week .club-pickem-week-record strong { font-size:12px !important; }
   .pickem-reference-week .club-pickem-week-record small { font-size:6px !important; }
 }
+
+/* ========================================================================== */
+/* V12.1 Pick 'Em — endless long table + open clubhouse                       */
+/* ========================================================================== */
+.pickem-reference-stage {
+  isolation:isolate;
+}
+
+/* After the approved 1672×941 room image ends, continue the foreground table
+   texture for however far expanded game cards make the page grow. */
+.pickem-reference-stage::before {
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:0;
+  right:0;
+  top:56.28vw;
+  bottom:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(9,7,4,.02),rgba(9,7,4,.14)),
+    url('/pickem-table-extension.webp') center top / 100% auto repeat-y;
+}
+
+.pickem-reference-stage > * {
+  position:relative;
+}
+
+.pickem-public-login {
+  position:absolute !important;
+  z-index:9 !important;
+  top:clamp(12px,1.4vw,24px);
+  right:clamp(12px,2vw,34px);
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 13px;
+  border:1px solid rgba(231,201,139,.55);
+  border-radius:4px;
+  color:#f4e8cd;
+  background:rgba(4,7,8,.56);
+  -webkit-backdrop-filter:blur(5px);
+  backdrop-filter:blur(5px);
+  font:800 clamp(8px,.68vw,11px)/1 Arial,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.pickem-public-login:hover {
+  color:#fff3d8;
+  border-color:rgba(239,205,137,.82);
+  background:rgba(8,11,12,.72);
+}
+
+@media (max-width:900px) {
+  .pickem-reference-stage::before { top:720px; background-size:auto 208px; }
+  .pickem-public-login { top:8px; right:8px; min-height:30px; padding:5px 8px; font-size:7px; }
+}
+
+@media (max-width:560px) {
+  .pickem-reference-stage::before { top:610px; background-size:auto 176px; }
+  .pickem-public-login { top:5px; right:5px; }
+}

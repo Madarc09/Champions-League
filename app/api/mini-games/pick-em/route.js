@@ -12,12 +12,11 @@ async function requireManager(request) {
 }
 
 export async function GET(request) {
-  const auth = await requireManager(request);
-  if (auth.error) return auth.error;
+  const manager = await managerFromRequest(request);
 
   try {
-    const snapshot = await getPickEmSnapshot(auth.manager);
-    return NextResponse.json({ ...snapshot, manager: auth.manager }, { headers: { "Cache-Control": "no-store" } });
+    const snapshot = await getPickEmSnapshot(manager);
+    return NextResponse.json({ ...snapshot, manager: manager || null }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Pick 'Em load failed:", error);
     return NextResponse.json({ error: error.message || "Pick 'Em could not be loaded." }, { status: 500 });

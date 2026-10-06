@@ -14,3 +14,9 @@ The Pick ’Em page itself now consists of only three visual layers:
 All existing Pick ’Em behavior remains intact: manager opt-in, W=2 / L=0 / OTL=1 scoring, weekly schedule, saved picks, live scores, collapsible days, matchup info, personal records, and Redis persistence.
 
 No fake navigation, standings, dates, or scores are baked into the new page design.
+
+## V12.1 — Open Clubhouse + Endless Table
+- `/mini-games` is publicly viewable; existing pool-manager authentication is only required when saving a pick.
+- Matchup Info is viewable before login. Personal pick history appears after signing in.
+- The opt-in leaderboard rule is unchanged: a manager is listed only after saving at least one pick.
+- Expanded game-day sections now extend over a table-only texture derived from the approved Pick 'Em room art, so the wooden tabletop continues below the original image height.

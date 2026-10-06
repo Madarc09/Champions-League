@@ -286,6 +286,10 @@ export default function PickEm() {
   }, [load]);
 
   async function makePick(gameId, teamAbbrev) {
+    if (!snapshot?.manager) {
+      window.location.href = "/login?next=/mini-games";
+      return;
+    }
     setSavingGame(String(gameId));
     setStatus("Saving pick…");
     try {
@@ -344,6 +348,7 @@ export default function PickEm() {
     <section className="club-pickem-shell pickem-reference-shell" aria-label="NHL Pick Em">
       <div className="club-pickem-stage pickem-reference-stage">
         <img className="pickem-logo-overlay" src="/pickem-logo-final.png" alt="NHL Pick’Em" />
+        {snapshot && !snapshot.manager ? <a className="pickem-public-login" href="/login?next=/mini-games">LOG IN TO MAKE PICKS</a> : null}
 
         <PickEmLeaderboard rows={leaderboard} currentManager={snapshot?.manager} />
 

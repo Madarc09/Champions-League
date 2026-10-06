@@ -12,16 +12,15 @@ async function requireManager(request) {
 }
 
 export async function GET(request) {
-  const auth = await requireManager(request);
-  if (auth.error) return auth.error;
+  const manager = await managerFromRequest(request);
 
   const { searchParams } = new URL(request.url);
   const gameId = searchParams.get("gameId");
   if (!gameId) return NextResponse.json({ error: "Choose a matchup first." }, { status: 400 });
 
   try {
-    const info = await getPickEmMatchupInfo(auth.manager, gameId);
-    return NextResponse.json({ ...info, manager: auth.manager }, { headers: { "Cache-Control": "no-store" } });
+    const info = await getPickEmMatchupInfo(manager, gameId);
+    return NextResponse.json({ ...info, manager: manager || null }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Pick 'Em matchup info failed:", error);
     return NextResponse.json({ error: error.message || "Matchup info could not be loaded." }, { status: 500 });
