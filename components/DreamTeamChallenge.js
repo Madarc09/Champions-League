@@ -229,7 +229,7 @@ export default function DreamTeamChallenge() {
 
   async function submitRoster() {
     if (!snapshot?.manager) {
-      router.push("/login?next=/dream-team-challenge");
+      router.push("/login?next=/mini-games/draft-challenge");
       return;
     }
     if (!rosterComplete) {
@@ -276,9 +276,13 @@ export default function DreamTeamChallenge() {
 
   return (
     <div className="challenge-page">
+      <nav className="challenge-page-links" aria-label="Draft Challenge navigation">
+        <a href="/">HOME</a>
+        <a href="/mini-games">MINI GAMES</a>
+      </nav>
       <section className="challenge-hero">
         <span className="challenge-kicker">WEEKLY MINI GAME · {snapshot?.weekKey || "2026–27"}</span>
-        <h1>Dream Team <b>Challenge</b></h1>
+        <h1>Draft <b>Challenge</b></h1>
         <p>Build a completely separate $104M roster and try to knock the AI off the Dream Team throne. Submit as many attempts as you want; your real Champions League roster is never touched.</p>
         <div className="challenge-rule-pills">
           <span>12 F</span><span>6 D</span><span>2 G</span><span>$104M CAP</span><span>UNLIMITED TRIES</span><span>LIVE FPTS</span>
