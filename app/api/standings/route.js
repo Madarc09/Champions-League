@@ -74,6 +74,11 @@ export async function GET() {
   let leagueDayKey = null;
   let playingTeamAbbrevs = new Set();
   let scheduleAvailable = false;
+  let dailyStatsSource = null;
+  let dailyStatsUpdatedAt = null;
+  let dailyStatsPlayerCount = 0;
+  let dailyStatsActiveGameCount = null;
+  let dailyStatsLoadedBoxscoreCount = 0;
 
   try {
     const [pool, dailySnapshot, scheduleSnapshot] = await Promise.all([
@@ -88,6 +93,11 @@ export async function GET() {
       })
     ]);
     dailyFantasyPoints = dailySnapshot?.pointsById || {};
+    dailyStatsSource = dailySnapshot?.source || null;
+    dailyStatsUpdatedAt = dailySnapshot?.updatedAt || null;
+    dailyStatsPlayerCount = Number(dailySnapshot?.playerCount || 0);
+    dailyStatsActiveGameCount = dailySnapshot?.activeGameCount ?? null;
+    dailyStatsLoadedBoxscoreCount = Number(dailySnapshot?.loadedBoxscoreCount || 0);
     leagueDayKey = dailySnapshot?.dateKey || scheduleSnapshot?.dateKey || null;
     scheduleAvailable = Boolean(scheduleSnapshot);
     playingTeamAbbrevs = new Set((scheduleSnapshot?.teamAbbrevs || []).map((team) => String(team).toUpperCase()));
@@ -235,7 +245,14 @@ export async function GET() {
       dateKey: leagueDayKey,
       resetsAtEastern: "10:00",
       scheduleAvailable,
-      playingTeamAbbrevs: [...playingTeamAbbrevs]
+      playingTeamAbbrevs: [...playingTeamAbbrevs],
+      dailyStats: {
+        source: dailyStatsSource,
+        updatedAt: dailyStatsUpdatedAt,
+        playerCount: dailyStatsPlayerCount,
+        activeGameCount: dailyStatsActiveGameCount,
+        loadedBoxscoreCount: dailyStatsLoadedBoxscoreCount
+      }
     }
   }, {
     headers: { "Cache-Control": "no-store" }

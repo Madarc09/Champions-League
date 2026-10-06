@@ -9,14 +9,25 @@ function gameTime(value) {
   return date.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
 }
 
-function dateLabel(value) {
+function parseDateKey(value) {
   const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return value || "Today";
-  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12)).toLocaleDateString("en-CA", {
-    weekday: "long",
-    month: "long",
-    day: "numeric"
-  });
+  if (!match) return null;
+  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+}
+
+function dateLabel(value) {
+  const date = parseDateKey(value);
+  if (!date) return value || "Day";
+  return date.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
+}
+
+function weekLabel(start, end) {
+  const startDate = parseDateKey(start);
+  const endDate = parseDateKey(end);
+  if (!startDate || !endDate) return "Current NHL week";
+  const startText = startDate.toLocaleDateString("en-CA", { month: "short", day: "numeric" });
+  const endText = endDate.toLocaleDateString("en-CA", { month: "short", day: "numeric" });
+  return `${startText} – ${endText}`;
 }
 
 function TeamButton({ team, game, selected, saving, onPick }) {
@@ -36,6 +47,27 @@ function TeamButton({ team, game, selected, saving, onPick }) {
       <strong>{team.abbrev}</strong>
       {game.final ? <em>{team.score ?? "—"}</em> : <small>{selected ? "YOUR PICK" : "PICK"}</small>}
     </button>
+  );
+}
+
+function PickEmGame({ game, savingGame, onPick }) {
+  const saving = savingGame === String(game.gameId);
+  return (
+    <article className={`pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}`}>
+      <div className="pickem-game-status">
+        <span>{game.final ? "FINAL" : game.locked ? (game.gameState === "LIVE" || game.gameState === "CRIT" ? "LIVE" : "LOCKED") : gameTime(game.startTimeUTC)}</span>
+        {game.result ? <b className={game.result === "W" ? "is-win" : "is-loss"}>{game.result === "W" ? "WIN" : "LOSS"}</b> : null}
+      </div>
+      <div className="pickem-matchup">
+        <TeamButton team={game.away} game={game} selected={game.pick === game.away.abbrev} saving={saving} onPick={onPick} />
+        <span className="pickem-at">@</span>
+        <TeamButton team={game.home} game={game} selected={game.pick === game.home.abbrev} saving={saving} onPick={onPick} />
+      </div>
+      <footer>
+        {game.pick ? <span>Your pick: <b>{game.pick}</b></span> : <span>{game.locked ? "No pick submitted" : "Choose a winner"}</span>}
+        <span>{game.locked ? "Pick locked" : "Saved instantly · editable until puck drop"}</span>
+      </footer>
+    </article>
   );
 }
 
@@ -80,7 +112,7 @@ export default function PickEm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "The pick could not be saved.");
       setSnapshot(data);
-      setStatus(`${teamAbbrev} locked in — you can change it until puck drop.`);
+      setStatus(`${teamAbbrev} saved — you can change it until that game's puck drop.`);
     } catch (error) {
       setStatus(error.message || "The pick could not be saved.");
     } finally {
@@ -88,18 +120,20 @@ export default function PickEm() {
     }
   }
 
-  const games = Array.isArray(snapshot?.games) ? snapshot.games : [];
+  const days = Array.isArray(snapshot?.days) ? snapshot.days : [];
+  const games = useMemo(() => days.flatMap((day) => day.games || []), [days]);
   const pickedCount = useMemo(() => games.filter((game) => game.pick).length, [games]);
   const openCount = useMemo(() => games.filter((game) => !game.locked).length, [games]);
   const record = snapshot?.record || { wins: 0, losses: 0, pending: 0, picks: 0 };
+  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, pending: 0, picks: 0 };
 
   return (
     <section className="pickem-shell" aria-labelledby="pickem-title">
       <header className="pickem-header">
         <div>
-          <span>DAILY MINI GAME</span>
+          <span>FULL WEEK PICK BOARD</span>
           <h2 id="pickem-title">NHL Pick ’Em</h2>
-          <p>Pick the winner of every NHL game. Change your mind as often as you want before puck drop.</p>
+          <p>Pick every game for the entire week now. Each matchup stays editable until its own scheduled puck drop.</p>
         </div>
         <div className="pickem-record" aria-label={`${record.wins} wins and ${record.losses} losses`}>
           <span>ALL-TIME RECORD</span>
@@ -108,39 +142,38 @@ export default function PickEm() {
         </div>
       </header>
 
-      <div className="pickem-day-bar">
+      <div className="pickem-week-bar">
         <div>
-          <b>{dateLabel(snapshot?.dateKey)}</b>
-          <span>{games.length} game{games.length === 1 ? "" : "s"} · {pickedCount}/{games.length} picked</span>
+          <b>{weekLabel(snapshot?.weekStart, snapshot?.weekEnd)}</b>
+          <span>{games.length} games · {pickedCount}/{games.length} picks saved</span>
         </div>
-        <span>{openCount ? `${openCount} still open` : games.length ? "All picks locked" : "No NHL games today"}</span>
+        <div>
+          <b>{weekRecord.wins}-{weekRecord.losses}</b>
+          <span>{openCount} game{openCount === 1 ? "" : "s"} still open</span>
+        </div>
       </div>
 
-      {loading ? <div className="pickem-empty">Loading today’s NHL schedule…</div> : null}
-      {!loading && !games.length ? <div className="pickem-empty">No NHL games are scheduled today.</div> : null}
+      {loading ? <div className="pickem-empty">Loading this week’s NHL schedule…</div> : null}
+      {!loading && !games.length ? <div className="pickem-empty">No NHL games are scheduled this week.</div> : null}
 
-      <div className="pickem-games">
-        {games.map((game) => {
-          const saving = savingGame === String(game.gameId);
-          return (
-            <article className={`pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}`} key={game.gameId}>
-              <div className="pickem-game-status">
-                <span>{game.final ? "FINAL" : game.locked ? (game.gameState === "LIVE" || game.gameState === "CRIT" ? "LIVE" : "LOCKED") : gameTime(game.startTimeUTC)}</span>
-                {game.result ? <b className={game.result === "W" ? "is-win" : "is-loss"}>{game.result === "W" ? "WIN" : "LOSS"}</b> : null}
-              </div>
-              <div className="pickem-matchup">
-                <TeamButton team={game.away} game={game} selected={game.pick === game.away.abbrev} saving={saving} onPick={makePick} />
-                <span className="pickem-at">@</span>
-                <TeamButton team={game.home} game={game} selected={game.pick === game.home.abbrev} saving={saving} onPick={makePick} />
-              </div>
-              <footer>
-                {game.pick ? <span>Your pick: <b>{game.pick}</b></span> : <span>{game.locked ? "No pick submitted" : "Choose a winner"}</span>}
-                <span>{game.locked ? "Pick locked" : "Editable until puck drop"}</span>
-              </footer>
-            </article>
-          );
-        })}
-      </div>
+      {!loading ? days.map((day) => (
+        <section className={`pickem-day-section${day.dateKey === snapshot?.todayKey ? " is-today" : ""}`} key={day.dateKey}>
+          <div className="pickem-day-bar">
+            <div>
+              <b>{dateLabel(day.dateKey)}{day.dateKey === snapshot?.todayKey ? " · TODAY" : ""}</b>
+              <span>{day.games?.length || 0} game{day.games?.length === 1 ? "" : "s"}</span>
+            </div>
+            <span>{(day.games || []).filter((game) => game.pick).length}/{day.games?.length || 0} picked</span>
+          </div>
+          {(day.games || []).length ? (
+            <div className="pickem-games">
+              {day.games.map((game) => (
+                <PickEmGame key={game.gameId} game={game} savingGame={savingGame} onPick={makePick} />
+              ))}
+            </div>
+          ) : <div className="pickem-day-empty">No games scheduled.</div>}
+        </section>
+      )) : null}
 
       {status ? <p className="pickem-status" role="status">{status}</p> : null}
     </section>

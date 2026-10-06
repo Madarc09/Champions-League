@@ -48,9 +48,9 @@ export default async function MiniGamesPage() {
           <b>OPEN CHALLENGE →</b>
         </a>
         <div className="mini-game-launch-card is-current">
-          <span>DAILY</span>
+          <span>WEEKLY</span>
           <strong>NHL Pick ’Em</strong>
-          <p>Pick every game before puck drop and build your season win-loss record.</p>
+          <p>Pick the entire NHL week in advance. Each game stays editable until its own puck drop.</p>
           <b>PLAYING NOW</b>
         </div>
       </section>
