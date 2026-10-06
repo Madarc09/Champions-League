@@ -339,21 +339,11 @@ export default function PickEm() {
   const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
   const leaderboard = Array.isArray(snapshot?.leaderboard) ? snapshot.leaderboard : [];
 
-  async function logout() {
-    try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
-    window.location.href = "/";
-  }
 
   return (
     <section className="club-pickem-shell pickem-reference-shell" aria-label="NHL Pick Em">
       <div className="club-pickem-stage pickem-reference-stage">
-        <nav className="pickem-reference-hotspots" aria-label="Pick Em navigation">
-          <a className="hot-home" href="/">Home</a>
-          <a className="hot-mini" href="/mini-games">Mini Games</a>
-          {snapshot?.manager ? <a className="hot-locker" href={`/team/${snapshot.manager.slug}/locker-room`}>My Locker</a> : null}
-          <button className="hot-logout" type="button" onClick={logout}>Log out</button>
-          {snapshot?.manager ? <span className="hot-manager">{snapshot.manager.name}</span> : null}
-        </nav>
+        <img className="pickem-logo-overlay" src="/pickem-logo-final.png" alt="NHL Pick’Em" />
 
         <PickEmLeaderboard rows={leaderboard} currentManager={snapshot?.manager} />
 
