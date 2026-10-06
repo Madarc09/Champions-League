@@ -339,63 +339,64 @@ export default function PickEm() {
   const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
   const leaderboard = Array.isArray(snapshot?.leaderboard) ? snapshot.leaderboard : [];
 
+  async function logout() {
+    try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
+    window.location.href = "/";
+  }
+
   return (
-    <section className="club-pickem-shell" aria-labelledby="pickem-title">
-      <div className="club-pickem-stage">
-        <header className="club-pickem-title-block">
-          <span>CHAMPIONS LEAGUE · MINI GAMES</span>
-          <h1 id="pickem-title">NHL Pick ’Em</h1>
-          <p>Read the room. Trust your hockey sense. Build a season-long record one game at a time.</p>
-        </header>
+    <section className="club-pickem-shell pickem-reference-shell" aria-label="NHL Pick Em">
+      <div className="club-pickem-stage pickem-reference-stage">
+        <nav className="pickem-reference-hotspots" aria-label="Pick Em navigation">
+          <a className="hot-home" href="/">Home</a>
+          <a className="hot-mini" href="/mini-games">Mini Games</a>
+          {snapshot?.manager ? <a className="hot-locker" href={`/team/${snapshot.manager.slug}/locker-room`}>My Locker</a> : null}
+          <button className="hot-logout" type="button" onClick={logout}>Log out</button>
+          {snapshot?.manager ? <span className="hot-manager">{snapshot.manager.name}</span> : null}
+        </nav>
 
         <PickEmLeaderboard rows={leaderboard} currentManager={snapshot?.manager} />
 
-        <aside className="club-pickem-personal-ledger" aria-label="Your Pick Em record">
-          <span>{snapshot?.manager?.name || "Manager"}’s Ledger</span>
-          <strong>{record.wins}-{record.losses}-{record.otLosses}</strong>
-          <div><b>{record.points}</b><small>PTS</small></div>
-          <p>{record.pending} pending · {record.picks} total picks</p>
-        </aside>
-      </div>
+        <div className="pickem-reference-week">
+          <div className="club-pickem-week-heading">
+            <div>
+              <span>THIS WEEK’S GAMES</span>
+              <h2>{weekLabel(snapshot?.weekStart, snapshot?.weekEnd)}</h2>
+            </div>
+            <div className="club-pickem-week-record">
+              <span>THIS WEEK</span>
+              <strong>{weekRecord.wins}-{weekRecord.losses}-{weekRecord.otLosses}</strong>
+              <small>{weekRecord.points} PTS · {pickedCount}/{games.length} picked · {openCount} open</small>
+            </div>
+          </div>
 
-      <div className="club-pickem-week-heading">
-        <div>
-          <span>THE WEEKLY CARD</span>
-          <h2>{weekLabel(snapshot?.weekStart, snapshot?.weekEnd)}</h2>
-          <p>Every Monday the next seven-day card opens. Every day begins closed — open only what you want to study.</p>
+          {loading ? <div className="club-pickem-empty">Opening the weekly ledger…</div> : null}
+          {!loading && !games.length ? <div className="club-pickem-empty">No NHL games are scheduled this week.</div> : null}
+
+          {!loading ? <div className="club-pickem-calendar">{days.map((day) => {
+            const collapsed = collapsedDays.has(day.dateKey);
+            const picks = (day.games || []).filter((game) => game.pick).length;
+            return (
+              <section className={`club-pickem-day${day.dateKey === snapshot?.todayKey ? " is-today" : ""}${collapsed ? " is-collapsed" : ""}`} key={day.dateKey}>
+                <button type="button" className="club-pickem-day-toggle" onClick={() => toggleDay(day.dateKey)} aria-expanded={!collapsed}>
+                  <div>
+                    <span>{day.dateKey === snapshot?.todayKey ? "TODAY · " : ""}{dateLabel(day.dateKey)}</span>
+                    <small>{day.games?.length || 0} games · {picks}/{day.games?.length || 0} picked</small>
+                  </div>
+                  <b>{collapsed ? "OPEN" : "CLOSE"}</b>
+                </button>
+                {!collapsed ? ((day.games || []).length ? (
+                  <div className="club-pickem-games">
+                    {day.games.map((game) => <PickEmGame key={game.gameId} game={game} savingGame={savingGame} onPick={makePick} onMatchupInfo={openMatchupInfo} />)}
+                  </div>
+                ) : <div className="club-pickem-day-empty">No games scheduled.</div>) : null}
+              </section>
+            );
+          })}</div> : null}
         </div>
-        <div className="club-pickem-week-record">
-          <span>THIS WEEK</span>
-          <strong>{weekRecord.wins}-{weekRecord.losses}-{weekRecord.otLosses}</strong>
-          <small>{weekRecord.points} PTS · {pickedCount}/{games.length} picked · {openCount} open</small>
-        </div>
+
+        {status ? <p className="club-pickem-status" role="status">{status}</p> : null}
       </div>
-
-      {loading ? <div className="club-pickem-empty">Opening the weekly ledger…</div> : null}
-      {!loading && !games.length ? <div className="club-pickem-empty">No NHL games are scheduled this week.</div> : null}
-
-      {!loading ? <div className="club-pickem-calendar">{days.map((day) => {
-        const collapsed = collapsedDays.has(day.dateKey);
-        const picks = (day.games || []).filter((game) => game.pick).length;
-        return (
-          <section className={`club-pickem-day${day.dateKey === snapshot?.todayKey ? " is-today" : ""}${collapsed ? " is-collapsed" : ""}`} key={day.dateKey}>
-            <button type="button" className="club-pickem-day-toggle" onClick={() => toggleDay(day.dateKey)} aria-expanded={!collapsed}>
-              <div>
-                <span>{day.dateKey === snapshot?.todayKey ? "TODAY · " : ""}{dateLabel(day.dateKey)}</span>
-                <small>{day.games?.length || 0} games · {picks}/{day.games?.length || 0} picked</small>
-              </div>
-              <b>{collapsed ? "OPEN" : "CLOSE"}</b>
-            </button>
-            {!collapsed ? ((day.games || []).length ? (
-              <div className="club-pickem-games">
-                {day.games.map((game) => <PickEmGame key={game.gameId} game={game} savingGame={savingGame} onPick={makePick} onMatchupInfo={openMatchupInfo} />)}
-              </div>
-            ) : <div className="club-pickem-day-empty">No games scheduled.</div>) : null}
-          </section>
-        );
-      })}</div> : null}
-
-      {status ? <p className="club-pickem-status" role="status">{status}</p> : null}
 
       <MatchupInfoModal
         game={matchupGame}
@@ -406,4 +407,5 @@ export default function PickEm() {
       />
     </section>
   );
+
 }

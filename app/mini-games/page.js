@@ -27,10 +27,6 @@ export default async function MiniGamesPage() {
 
   return (
     <main className="mini-games-page club-mini-games-page">
-      <section className="club-mini-game-switcher" aria-label="Mini game selection">
-        <a href="/dream-team-challenge"><span>WEEKLY ROSTER GAME</span><strong>Dream Team Challenge</strong></a>
-        <div className="is-current"><span>SEASON-LONG PREDICTION GAME</span><strong>NHL Pick ’Em</strong></div>
-      </section>
       <PickEm />
     </main>
   );

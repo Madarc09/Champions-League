@@ -3115,3 +3115,252 @@ button.roster-slot:hover { background: rgba(255,255,255,.055); border-color: rgb
 .club-pickem-personal-ledger { background:linear-gradient(180deg,rgba(5,12,17,.70),rgba(3,8,12,.62)); }
 .club-pickem-week-heading { background:linear-gradient(180deg,rgba(6,13,18,.65),rgba(3,8,12,.55)); }
 .club-pickem-calendar { background:rgba(3,8,12,.38) !important; }
+
+/* ========================================================================== */
+/* V11 Pick 'Em reference-image rebuild                                       */
+/* Uses the exact approved still as the scene and overlays only live data.     */
+/* ========================================================================== */
+body:has(.pickem-reference-shell) .minimal-scene-header { display: none !important; }
+body:has(.pickem-reference-shell) .site-shell,
+body:has(.pickem-reference-shell) .site-shell > main { width:100%; max-width:none; margin:0; padding:0; }
+body:has(.pickem-reference-shell) { background:#05080a; }
+
+.club-mini-games-page:has(.pickem-reference-shell) {
+  min-height:100%;
+  padding:0 !important;
+  background:#05080a !important;
+}
+
+.pickem-reference-shell {
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  overflow:hidden;
+  color:#f3f0e8;
+}
+
+.pickem-reference-stage {
+  position:relative;
+  width:100%;
+  min-height:50vw;
+  overflow:visible !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background-image:url('/pickem-reference.webp') !important;
+  background-position:center top !important;
+  background-repeat:no-repeat !important;
+  background-size:100% auto !important;
+  box-shadow:none !important;
+}
+.pickem-reference-stage::after { display:none !important; }
+
+.pickem-reference-hotspots {
+  position:absolute;
+  inset:0 0 auto 0;
+  z-index:20;
+  height:6.3%;
+  pointer-events:none;
+}
+.pickem-reference-hotspots a,
+.pickem-reference-hotspots button {
+  position:absolute;
+  top:8%;
+  height:76%;
+  border:0;
+  color:transparent;
+  background:transparent;
+  cursor:pointer;
+  pointer-events:auto;
+  font-size:0;
+}
+.pickem-reference-hotspots .hot-home { left:29.3%; width:5.4%; }
+.pickem-reference-hotspots .hot-mini { left:56.4%; width:7.5%; }
+.pickem-reference-hotspots .hot-locker { left:64.0%; width:7.2%; }
+.pickem-reference-hotspots .hot-logout { right:7.8%; width:6.3%; }
+.pickem-reference-hotspots .hot-manager {
+  position:absolute;
+  top:8%;
+  right:14.6%;
+  width:8.2%;
+  height:76%;
+  display:grid;
+  place-items:center;
+  padding:0 6px;
+  color:#f3f2ed;
+  background:rgba(4,8,12,.94);
+  border:1px solid rgba(214,221,226,.24);
+  border-radius:3px;
+  font:800 clamp(8px,.72vw,13px)/1 Arial,sans-serif;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+.pickem-reference-stage .club-pickem-leaderboard {
+  position:relative !important;
+  z-index:4;
+  width:59.2% !important;
+  margin:16.65% 0 0 19.2% !important;
+  overflow:hidden;
+  border:1px solid rgba(207,218,224,.58) !important;
+  outline:1px solid rgba(4,8,11,.72) !important;
+  border-radius:2px !important;
+  color:#f7f4ec;
+  background:rgba(3,8,12,.82) !important;
+  -webkit-backdrop-filter:blur(10px) saturate(.8);
+  backdrop-filter:blur(10px) saturate(.8);
+  box-shadow:0 8px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.025) !important;
+}
+.pickem-reference-stage .club-pickem-leaderboard > header {
+  min-height:clamp(32px,2.3vw,41px);
+  padding:5px 14px !important;
+  border-bottom:1px solid rgba(210,220,226,.28) !important;
+  background:rgba(4,9,13,.34) !important;
+}
+.pickem-reference-stage .club-pickem-leaderboard > header span:first-child { display:none; }
+.pickem-reference-stage .club-pickem-leaderboard > header h2 {
+  margin:0 !important;
+  color:#e8e2d4 !important;
+  font:600 clamp(16px,1.55vw,28px)/1 Georgia,"Times New Roman",serif !important;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+.pickem-reference-stage .club-pickem-scoring-key { display:none !important; }
+.pickem-reference-stage .club-pickem-table-head,
+.pickem-reference-stage .club-pickem-standing-row {
+  grid-template-columns:6% 24% 10% 8% 8% 9% 10% 15% 10% !important;
+  padding-inline:12px !important;
+}
+.pickem-reference-stage .club-pickem-table-head {
+  min-height:clamp(22px,1.5vw,27px);
+  color:#d6d8d7 !important;
+  background:rgba(4,9,13,.26) !important;
+  font-size:clamp(7px,.62vw,11px) !important;
+  letter-spacing:.08em;
+}
+.pickem-reference-stage .club-pickem-standing-row {
+  min-height:clamp(32px,2.3vw,41px) !important;
+  border-bottom:1px solid rgba(214,223,228,.18) !important;
+  background:rgba(3,8,12,.24) !important;
+}
+.pickem-reference-stage .club-pickem-standing-row.is-you {
+  background:linear-gradient(90deg,rgba(197,151,72,.13),rgba(3,8,12,.2) 36%) !important;
+}
+.pickem-reference-stage .club-pickem-rank,
+.pickem-reference-stage .club-pickem-points { color:#f0cf83 !important; }
+.pickem-reference-stage .club-pickem-manager strong,
+.pickem-reference-stage .club-pickem-standing-row > span,
+.pickem-reference-stage .club-pickem-points,
+.pickem-reference-stage .club-pickem-rank {
+  font-size:clamp(10px,1vw,18px) !important;
+}
+.pickem-reference-stage .club-pickem-leaderboard > footer { display:none !important; }
+.pickem-reference-stage .club-pickem-form b { width:20px; height:20px; border-radius:3px; }
+
+.pickem-reference-week {
+  position:relative;
+  z-index:4;
+  width:63.8%;
+  margin:2.45% 0 0 16.65%;
+  padding-bottom:3.5%;
+}
+.pickem-reference-week .club-pickem-week-heading {
+  min-height:clamp(36px,3vw,50px);
+  margin:0 !important;
+  padding:6px 14px !important;
+  border:1px solid rgba(207,218,224,.48) !important;
+  border-radius:2px 2px 0 0 !important;
+  color:#f2eee4;
+  background:rgba(3,8,12,.80) !important;
+  -webkit-backdrop-filter:blur(10px) saturate(.8);
+  backdrop-filter:blur(10px) saturate(.8);
+  box-shadow:none !important;
+}
+.pickem-reference-week .club-pickem-week-heading > div:first-child {
+  display:flex !important;
+  align-items:baseline;
+  gap:14px;
+}
+.pickem-reference-week .club-pickem-week-heading span {
+  color:#e2d9c4 !important;
+  font-size:clamp(8px,.72vw,12px) !important;
+  letter-spacing:.10em;
+}
+.pickem-reference-week .club-pickem-week-heading h2 {
+  color:#f4efe6 !important;
+  font-size:clamp(13px,1.2vw,21px) !important;
+  font-weight:500;
+  white-space:nowrap;
+}
+.pickem-reference-week .club-pickem-week-heading p { display:none; }
+.pickem-reference-week .club-pickem-week-record { gap:0; }
+.pickem-reference-week .club-pickem-week-record > span { display:none; }
+.pickem-reference-week .club-pickem-week-record strong { color:#f1ce7b !important; font-size:clamp(11px,1vw,18px) !important; }
+.pickem-reference-week .club-pickem-week-record small { color:#b9b8b3 !important; font-size:clamp(6px,.52vw,9px) !important; }
+
+.pickem-reference-week .club-pickem-calendar {
+  overflow:visible !important;
+  border:1px solid rgba(207,218,224,.48) !important;
+  border-top:0 !important;
+  border-radius:0 0 2px 2px !important;
+  background:rgba(3,8,12,.72) !important;
+  -webkit-backdrop-filter:blur(10px) saturate(.78);
+  backdrop-filter:blur(10px) saturate(.78);
+}
+.pickem-reference-week .club-pickem-day {
+  border-top:1px solid rgba(214,223,228,.24) !important;
+  box-shadow:none !important;
+}
+.pickem-reference-week .club-pickem-day-toggle {
+  min-height:clamp(28px,2.4vw,42px) !important;
+  padding:3px 13px !important;
+  color:#f0ede6 !important;
+  background:rgba(3,8,12,.36) !important;
+}
+.pickem-reference-week .club-pickem-day-toggle:hover { background:rgba(10,18,23,.58) !important; }
+.pickem-reference-week .club-pickem-day-toggle > div {
+  width:100%;
+  display:grid !important;
+  grid-template-columns:minmax(110px,1fr) minmax(100px,.8fr);
+  align-items:center;
+  gap:16px;
+}
+.pickem-reference-week .club-pickem-day-toggle > div > span {
+  color:#f2eee6;
+  font-size:clamp(11px,1vw,18px) !important;
+  font-weight:500;
+  text-transform:uppercase;
+}
+.pickem-reference-week .club-pickem-day-toggle small {
+  color:#bab9b4 !important;
+  font-size:clamp(7px,.62vw,11px) !important;
+}
+.pickem-reference-week .club-pickem-day-toggle > b {
+  min-width:56px;
+  color:#d9d8d4 !important;
+  border-color:rgba(215,223,228,.35) !important;
+  background:rgba(5,10,14,.42);
+}
+.pickem-reference-week .club-pickem-games {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  padding:12px;
+  background:rgba(3,8,12,.88) !important;
+}
+.pickem-reference-week .club-pickem-game {
+  border-color:rgba(209,218,224,.28) !important;
+  background:linear-gradient(160deg,rgba(10,18,23,.96),rgba(3,8,12,.98)) !important;
+}
+.pickem-reference-stage > .club-pickem-status {
+  position:relative;
+  z-index:6;
+  width:63.8%;
+  margin:8px 0 20px 16.65%;
+}
+
+@media (max-width: 900px) {
+  .pickem-reference-shell { overflow-x:auto; }
+  .pickem-reference-stage { min-width:860px; min-height:430px; }
+  .pickem-reference-stage .club-pickem-leaderboard { width:61% !important; margin-left:18.3% !important; }
+  .pickem-reference-week { width:66%; margin-left:15.8%; }
+}
