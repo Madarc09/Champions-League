@@ -3696,3 +3696,92 @@ body:has(.pickem-reference-shell) { margin:0; background:#070605; }
   .pickem-reference-stage::before { top:610px; background-size:auto 176px; }
   .pickem-public-login { top:5px; right:5px; }
 }
+
+/* ========================================================================== */
+/* V12.2 Pick 'Em — home link + readable mobile leaderboard                   */
+/* ========================================================================== */
+.pickem-page-links {
+  position:absolute !important;
+  z-index:10 !important;
+  top:clamp(12px,1.4vw,24px);
+  right:clamp(12px,2vw,34px);
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.pickem-page-links a {
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 13px;
+  border:1px solid rgba(231,201,139,.55);
+  border-radius:4px;
+  color:#f4e8cd;
+  background:rgba(4,7,8,.56);
+  -webkit-backdrop-filter:blur(5px);
+  backdrop-filter:blur(5px);
+  font:800 clamp(8px,.68vw,11px)/1 Arial,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  text-decoration:none;
+}
+.pickem-page-links a:hover {
+  color:#fff3d8;
+  border-color:rgba(239,205,137,.82);
+  background:rgba(8,11,12,.72);
+}
+/* Retire the older standalone-login positioning now that the links share a group. */
+.pickem-reference-stage > .pickem-public-login { position:static !important; }
+
+@media (max-width:900px) {
+  .pickem-page-links { top:8px; right:8px; gap:5px; }
+  .pickem-page-links a { min-height:30px; padding:5px 8px; font-size:7px; }
+}
+
+@media (max-width:720px) {
+  /* Mobile leaderboard is intentionally reduced to the six columns that matter
+     at a glance. Desktop keeps GP, recent form and win percentage. */
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    min-width:0 !important;
+    width:100% !important;
+    grid-template-columns:28px minmax(92px,1fr) 38px 38px 42px 44px !important;
+    column-gap:2px !important;
+    padding-inline:6px !important;
+  }
+  .pickem-reference-stage .club-pickem-table-head > :nth-child(3),
+  .pickem-reference-stage .club-pickem-table-head > :nth-child(8),
+  .pickem-reference-stage .club-pickem-table-head > :nth-child(9),
+  .pickem-reference-stage .club-pickem-standing-row > :nth-child(3),
+  .pickem-reference-stage .club-pickem-standing-row > :nth-child(8),
+  .pickem-reference-stage .club-pickem-standing-row > :nth-child(9) {
+    display:none !important;
+  }
+  .pickem-reference-stage .club-pickem-table-head {
+    font-size:8px !important;
+    letter-spacing:.045em !important;
+  }
+  .pickem-reference-stage .club-pickem-manager strong,
+  .pickem-reference-stage .club-pickem-standing-row > span,
+  .pickem-reference-stage .club-pickem-points,
+  .pickem-reference-stage .club-pickem-rank {
+    font-size:12px !important;
+  }
+  .pickem-reference-stage .club-pickem-manager small { font-size:6px !important; }
+}
+
+@media (max-width:560px) {
+  .pickem-page-links { top:5px; right:5px; }
+  .pickem-page-links a { padding:5px 7px; }
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    grid-template-columns:25px minmax(82px,1fr) 32px 32px 38px 38px !important;
+    padding-inline:4px !important;
+  }
+  .pickem-reference-stage .club-pickem-table-head { font-size:7px !important; }
+  .pickem-reference-stage .club-pickem-manager strong,
+  .pickem-reference-stage .club-pickem-standing-row > span,
+  .pickem-reference-stage .club-pickem-points,
+  .pickem-reference-stage .club-pickem-rank { font-size:10px !important; }
+}

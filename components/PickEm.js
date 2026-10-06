@@ -348,7 +348,10 @@ export default function PickEm() {
     <section className="club-pickem-shell pickem-reference-shell" aria-label="NHL Pick Em">
       <div className="club-pickem-stage pickem-reference-stage">
         <img className="pickem-logo-overlay" src="/pickem-logo-final.png" alt="NHL Pick’Em" />
-        {snapshot && !snapshot.manager ? <a className="pickem-public-login" href="/login?next=/mini-games">LOG IN TO MAKE PICKS</a> : null}
+        <nav className="pickem-page-links" aria-label="Pick Em page links">
+          <a href="/">HOME</a>
+          {snapshot && !snapshot.manager ? <a href="/login?next=/mini-games">LOG IN TO MAKE PICKS</a> : null}
+        </nav>
 
         <PickEmLeaderboard rows={leaderboard} currentManager={snapshot?.manager} />
 

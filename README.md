@@ -20,3 +20,9 @@ No fake navigation, standings, dates, or scores are baked into the new page desi
 - Matchup Info is viewable before login. Personal pick history appears after signing in.
 - The opt-in leaderboard rule is unchanged: a manager is listed only after saving at least one pick.
 - Expanded game-day sections now extend over a table-only texture derived from the approved Pick 'Em room art, so the wooden tabletop continues below the original image height.
+
+## V12.2 mobile standings cleanup
+- Added a permanent HOME link to the Pick 'Em page.
+- On phones, Pick 'Em standings use a compact six-column ledger: Rank, Manager, W, L, OTL, PTS.
+- Desktop standings remain unchanged with GP, recent form and win percentage.
+- Dynamic leaderboard values remain live; Nick currently displays 0-0-0 and 0 PTS while no picks are settled.
