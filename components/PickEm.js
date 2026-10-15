@@ -78,7 +78,7 @@ function TeamButton({ team, game, selected, saving, onPick }) {
 function PickEmGame({ game, savingGame, onPick, onMatchupInfo }) {
   const saving = savingGame === String(game.gameId);
   const live = game.gameState === "LIVE" || game.gameState === "CRIT" || (game.started && !game.final);
-  const resultLabel = game.result === "W" ? "WIN" : game.result === "OTL" ? "OT LOSS · +1" : game.result === "L" ? "LOSS" : null;
+  const resultLabel = game.result === "W" ? "WIN" : game.result === "OTL" ? "TIE · OT/SO LOSS" : game.result === "L" ? "LOSS" : null;
 
   return (
     <article className={`club-pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}${live ? " is-live" : ""}`}>
@@ -217,22 +217,20 @@ function PickEmLeaderboard({ rows = [], currentManager }) {
           <span>THE LONG TABLE</span>
           <h2>Pick ’Em Standings</h2>
         </div>
-        <div className="club-pickem-scoring-key">
-          <span>W <b>2</b></span><i>·</i><span>L <b>0</b></span><i>·</i><span>OTL <b>1</b></span>
+        <div className="club-pickem-scoring-key club-pickem-winpct-key">
+          <span>RANKED BY <b>WIN%</b></span><i>·</i><span>OT/SO LOSS = <b>TIE</b></span>
         </div>
       </header>
       <div className="club-pickem-table-head">
-        <span>#</span><span>Manager</span><span>GP</span><span>W</span><span>L</span><span>OTL</span><span>PTS</span><span>Form</span><span>Win%</span>
+        <span>#</span><span>Manager</span><span>Win%</span><span>Wins</span><span>Losses</span><span>Ties</span>
       </div>
       <div className="club-pickem-table-body">
         {rows.length ? rows.map((row) => (
           <div className={`club-pickem-standing-row${row.managerSlug === currentManager?.slug ? " is-you" : ""}`} key={row.managerSlug}>
             <strong className="club-pickem-rank">{row.rank}</strong>
             <div className="club-pickem-manager"><strong>{row.managerName}</strong>{row.managerSlug === currentManager?.slug ? <small>YOU</small> : null}</div>
-            <span>{row.settled}</span><span>{row.wins}</span><span>{row.losses}</span><span>{row.otLosses}</span>
-            <strong className="club-pickem-points">{row.points}</strong>
-            <FormDots form={row.form} />
-            <span>{row.accuracy == null ? "—" : `${row.accuracy}%`}</span>
+            <strong className="club-pickem-winpct">{row.winPct == null ? "—" : `${row.winPct}%`}</strong>
+            <span>{row.wins}</span><span>{row.losses}</span><span>{row.otLosses}</span>
           </div>
         )) : (
           <div className="club-pickem-standings-empty">The chairs are empty. The first saved pick opens the ledger.</div>
@@ -240,7 +238,7 @@ function PickEmLeaderboard({ rows = [], currentManager }) {
       </div>
       <footer>
         <span>Opt-in only · managers appear after making their first pick</span>
-        <span>OTL = your selected team loses in overtime or a shootout</span>
+        <span>Win% = (wins + ½ ties) ÷ decided picks</span>
       </footer>
     </section>
   );
@@ -339,8 +337,8 @@ export default function PickEm() {
   const games = useMemo(() => days.flatMap((day) => day.games || []), [days]);
   const pickedCount = useMemo(() => games.filter((game) => game.pick).length, [games]);
   const openCount = useMemo(() => games.filter((game) => !game.locked).length, [games]);
-  const record = snapshot?.record || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
-  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0 };
+  const record = snapshot?.record || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0, winPct: null };
+  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0, winPct: null };
   const leaderboard = Array.isArray(snapshot?.leaderboard) ? snapshot.leaderboard : [];
 
 
@@ -364,8 +362,8 @@ export default function PickEm() {
             </div>
             <div className="club-pickem-week-record">
               <span>THIS WEEK</span>
-              <strong>{weekRecord.wins}-{weekRecord.losses}-{weekRecord.otLosses}</strong>
-              <small>{weekRecord.points} PTS · {pickedCount}/{games.length} picked · {openCount} open</small>
+              <strong>{weekRecord.winPct == null ? "—" : `${weekRecord.winPct}%`}</strong>
+              <small>{weekRecord.wins} W · {weekRecord.losses} L · {weekRecord.otLosses} T · {pickedCount}/{games.length} picked · {openCount} open</small>
             </div>
           </div>
 

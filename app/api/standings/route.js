@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { DREAM_TEAM, STANDINGS_TEAMS } from "@/data/league-config";
-import { getLeagueDayFantasySnapshot, getLeagueDayScheduleSnapshot, getPlayerPool } from "@/lib/nhl";
+import {
+  getLeagueDayFantasySnapshot,
+  getLeagueDayScheduleSnapshot,
+  getPlayerPool,
+  getStandingsDailyFantasySnapshot
+} from "@/lib/nhl";
 import { getRedis } from "@/lib/redis";
 import {
   buildLeagueStandings,
@@ -70,6 +75,11 @@ export async function GET() {
   let liveProjectedPoints = {};
   let dailyFantasyPoints = {};
   let officialDailyFantasyPoints = {};
+  let standingsDailyFantasyPoints = {};
+  let standingsDailyLabel = "LAST NIGHT";
+  let standingsDailyDateKey = null;
+  let standingsDailyState = null;
+  let standingsDailyFallbackUsed = false;
   let livePlayersById = new Map();
   let statsUpdatedAt = null;
   let leagueDayKey = null;
@@ -84,7 +94,7 @@ export async function GET() {
   let liveSeasonOverlayPoints = 0;
 
   try {
-    const [pool, dailySnapshot, scheduleSnapshot] = await Promise.all([
+    const [pool, dailySnapshot, scheduleSnapshot, standingsDailySnapshot] = await Promise.all([
       getPlayerPool(),
       getLeagueDayFantasySnapshot().catch((error) => {
         console.error("Today fantasy snapshot unavailable:", error);
@@ -93,10 +103,19 @@ export async function GET() {
       getLeagueDayScheduleSnapshot().catch((error) => {
         console.error("Today schedule snapshot unavailable:", error);
         return null;
+      }),
+      getStandingsDailyFantasySnapshot().catch((error) => {
+        console.error("Standings daily display snapshot unavailable:", error);
+        return null;
       })
     ]);
     dailyFantasyPoints = dailySnapshot?.pointsById || {};
     officialDailyFantasyPoints = dailySnapshot?.officialPointsById || {};
+    standingsDailyFantasyPoints = standingsDailySnapshot?.pointsById || dailyFantasyPoints;
+    standingsDailyLabel = standingsDailySnapshot?.displayLabel || "LAST NIGHT";
+    standingsDailyDateKey = standingsDailySnapshot?.dateKey || null;
+    standingsDailyState = standingsDailySnapshot?.displayState || null;
+    standingsDailyFallbackUsed = Boolean(standingsDailySnapshot?.fallbackUsed);
     dailyStatsSource = dailySnapshot?.source || null;
     dailyStatsUpdatedAt = dailySnapshot?.updatedAt || null;
     dailyStatsPlayerCount = Number(dailySnapshot?.playerCount || 0);
@@ -156,6 +175,9 @@ export async function GET() {
       dailyFantasyPoints[String(storedPlayer.playerId)] = Number(
         dailyFantasyPoints[String(livePlayer.playerId)] || 0
       );
+      standingsDailyFantasyPoints[String(storedPlayer.playerId)] = Number(
+        standingsDailyFantasyPoints[String(livePlayer.playerId)] || 0
+      );
       officialDailyFantasyPoints[String(storedPlayer.playerId)] = Number(
         officialDailyFantasyPoints[String(livePlayer.playerId)] || 0
       );
@@ -182,7 +204,7 @@ export async function GET() {
       // Keep the original league-side Dream Team overlap stat tied to the AI's
       // weekly optimized roster. A mini-game winner may occupy the public Dream
       // Team display, but cannot alter this established league metric.
-      todayPoints: rosterTodayTotal(rosters[team.slug], dailyFantasyPoints),
+      todayPoints: rosterTodayTotal(rosters[team.slug], standingsDailyFantasyPoints),
       dreamTeamPlayers: overlapCount(rosters[team.slug], aiDreamRoster || dreamRoster)
     }));
 
@@ -267,6 +289,12 @@ export async function GET() {
       resetsAtEastern: "10:00",
       scheduleAvailable,
       playingTeamAbbrevs: [...playingTeamAbbrevs],
+      standingsStat: {
+        label: standingsDailyLabel,
+        dateKey: standingsDailyDateKey,
+        state: standingsDailyState,
+        fallbackUsed: standingsDailyFallbackUsed
+      },
       dailyStats: {
         source: dailyStatsSource,
         updatedAt: dailyStatsUpdatedAt,

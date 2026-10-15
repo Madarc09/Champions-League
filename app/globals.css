@@ -4047,3 +4047,51 @@ body:has(.pickem-reference-shell) { margin:0; background:#070605; }
   .mini-game-ai-mark { width: 90px; font-size: 40px; }
   .challenge-page-links { justify-content: center; }
 }
+
+/* ========================================================================== */
+/* V15 — Pick 'Em ranked by Win% + simplified W/L/T ledger                    */
+/* ========================================================================== */
+.club-pickem-table-head,
+.club-pickem-standing-row,
+.pickem-reference-stage .club-pickem-table-head,
+.pickem-reference-stage .club-pickem-standing-row {
+  grid-template-columns: 42px minmax(150px, 1.8fr) 92px 72px 72px 72px !important;
+  column-gap: 8px !important;
+}
+.club-pickem-winpct {
+  color: #f2ce78;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.club-pickem-winpct-key b { color:#f2ce78 !important; }
+
+@media (max-width: 720px) {
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    min-width:0 !important;
+    width:100% !important;
+    grid-template-columns: 26px minmax(86px, 1fr) 54px 38px 38px 38px !important;
+    column-gap: 2px !important;
+    padding-inline: 5px !important;
+  }
+  /* Undo the old nine-column mobile hiding rules. */
+  .pickem-reference-stage .club-pickem-table-head > :nth-child(3),
+  .pickem-reference-stage .club-pickem-standing-row > :nth-child(3) {
+    display:block !important;
+  }
+  .pickem-reference-stage .club-pickem-winpct { font-size:12px !important; }
+}
+
+@media (max-width: 560px) {
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    grid-template-columns: 24px minmax(78px, 1fr) 48px 34px 34px 34px !important;
+    column-gap:1px !important;
+    padding-inline:4px !important;
+  }
+  .pickem-reference-stage .club-pickem-winpct { font-size:10px !important; }
+  .pickem-reference-stage .club-pickem-scoring-key { font-size:6px !important; gap:4px !important; }
+}

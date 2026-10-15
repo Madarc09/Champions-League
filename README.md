@@ -35,3 +35,14 @@ No fake navigation, standings, dates, or scores are baked into the new page desi
 - If a cron is missed, Pick 'Em page/API load safely fills only still-unstarted games for the current day.
 - Skynet chooses from current NHL record/points rate, recent form, goal differential, home/road performance and a small home-ice factor.
 - Pick and settled-result events for all managers are mirrored into a private Redis audit list (`champions-league:mini-games:pick-em:v1:private-history`). No public API exposes that history.
+
+## V15 — Win% Pick 'Em + LIVE / LAST NIGHT daily standings
+
+- Pick 'Em leaderboard is now ranked by winning percentage, not points.
+- Public Pick 'Em columns are Win%, Wins, Losses and Ties. An OT/shootout loss is displayed as a tie and counts as half a win in Win%: `(W + 0.5*T) / decided picks`.
+- Historical 2/0/1 point values remain only in stored/internal records for backward compatibility; they are no longer used to rank or display the Pick 'Em standings.
+- The main fantasy standings daily column now changes dynamically:
+  - LIVE from the first puck drop until the final scheduled NHL game finishes.
+  - LAST NIGHT immediately after the final game is complete and throughout the next day until the next slate starts.
+  - A 2:00 AM Eastern cutoff is used only if NHL game-status data is unavailable.
+- The displayed LAST NIGHT/LIVE points come from the same NHL live boxscore + official daily-stat pipeline, including rookie identity repair.

@@ -251,7 +251,7 @@ export default function HomeDashboard() {
               <span>#</span>
               <span>TEAM</span>
               <span>FPTS</span>
-              <span>TODAY</span>
+              <span>{leagueDay?.standingsStat?.label || "LAST NIGHT"}</span>
               <span>DREAM</span>
             </div>
 
