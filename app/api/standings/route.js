@@ -17,6 +17,7 @@ import { applyStaticProjection } from "@/lib/static-projections";
 import { buildPlayerIdentityIndex, canonicalPlayerName, resolvePlayerFromIndex } from "@/lib/player-identity";
 import { ensureSpecialRosters } from "@/lib/special-teams";
 import { getDreamChallengeSnapshot } from "@/lib/dream-challenge";
+import { getPickEmLeaderboardSnapshot } from "@/lib/pick-em";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -198,6 +199,16 @@ export async function GET() {
     console.error("Standings player refresh failed:", error);
   }
 
+  let pickEmPercentages = {};
+  try {
+    const pickEmLeaderboard = await getPickEmLeaderboardSnapshot();
+    pickEmPercentages = Object.fromEntries(
+      (pickEmLeaderboard || []).map((row) => [row.managerSlug, row.winPct])
+    );
+  } catch (error) {
+    console.error("Homepage Pick 'Em percentages unavailable:", error);
+  }
+
   const standings = buildLeagueStandings(rosters, liveFantasyPoints, liveProjectedPoints)
     .map((team) => ({
       ...team,
@@ -205,7 +216,10 @@ export async function GET() {
       // weekly optimized roster. A mini-game winner may occupy the public Dream
       // Team display, but cannot alter this established league metric.
       todayPoints: rosterTodayTotal(rosters[team.slug], standingsDailyFantasyPoints),
-      dreamTeamPlayers: overlapCount(rosters[team.slug], aiDreamRoster || dreamRoster)
+      dreamTeamPlayers: overlapCount(rosters[team.slug], aiDreamRoster || dreamRoster),
+      pickEmWinPct: Object.prototype.hasOwnProperty.call(pickEmPercentages, team.slug)
+        ? pickEmPercentages[team.slug]
+        : null
     }));
 
   const positionOrder = { F: 0, D: 1, G: 2 };

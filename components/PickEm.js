@@ -78,13 +78,14 @@ function TeamButton({ team, game, selected, saving, onPick }) {
 function PickEmGame({ game, savingGame, onPick, onMatchupInfo }) {
   const saving = savingGame === String(game.gameId);
   const live = game.gameState === "LIVE" || game.gameState === "CRIT" || (game.started && !game.final);
-  const resultLabel = game.result === "W" ? "WIN" : game.result === "OTL" ? "TIE · OT/SO LOSS" : game.result === "L" ? "LOSS" : null;
+  const normalizedResult = game.result === "OTL" ? "L" : game.result;
+  const resultLabel = normalizedResult === "W" ? "WIN" : normalizedResult === "L" ? "LOSS" : null;
 
   return (
     <article className={`club-pickem-game${game.locked ? " is-locked" : ""}${game.final ? " is-final" : ""}${live ? " is-live" : ""}`}>
       <div className="club-pickem-game-status">
         <span>{gameStatusLabel(game)}</span>
-        {resultLabel ? <b className={`result-${String(game.result).toLowerCase()}`}>{resultLabel}</b> : null}
+        {resultLabel ? <b className={`result-${String(normalizedResult).toLowerCase()}`}>{resultLabel}</b> : null}
       </div>
       <div className="club-pickem-matchup">
         <TeamButton team={game.away} game={game} selected={game.pick === game.away.abbrev} saving={saving} onPick={onPick} />
@@ -104,11 +105,13 @@ function PickEmGame({ game, savingGame, onPick, onMatchupInfo }) {
 
 function recordText(personal) {
   if (!personal?.picks) return "No picks yet";
-  const settled = Number(personal.wins || 0) + Number(personal.losses || 0) + Number(personal.otLosses || 0);
+  const wins = Number(personal.wins || 0);
+  const losses = Number(personal.losses || 0) + Number(personal.otLosses || 0);
+  const settled = wins + losses;
   if (!settled) return `${personal.pending || personal.picks} pending`;
   const percentage = personal.accuracy == null ? "" : ` · ${personal.accuracy}% correct`;
   const pending = personal.pending ? ` · ${personal.pending} pending` : "";
-  return `${personal.wins}-${personal.losses}-${personal.otLosses || 0}${percentage}${pending}`;
+  return `${wins}-${losses}${percentage}${pending}`;
 }
 
 function TeamMatchupCard({ abbrev, data, personal, side }) {
@@ -218,11 +221,11 @@ function PickEmLeaderboard({ rows = [], currentManager }) {
           <h2>Pick ’Em Standings</h2>
         </div>
         <div className="club-pickem-scoring-key club-pickem-winpct-key">
-          <span>RANKED BY <b>WIN%</b></span><i>·</i><span>OT/SO LOSS = <b>TIE</b></span>
+          <span>RANKED BY <b>WIN%</b></span><i>·</i><span>EVERY LOSS = <b>L</b></span>
         </div>
       </header>
       <div className="club-pickem-table-head">
-        <span>#</span><span>Manager</span><span>Win%</span><span>Wins</span><span>Losses</span><span>Ties</span>
+        <span>#</span><span>Manager</span><span>Win%</span><span>Wins</span><span>Losses</span>
       </div>
       <div className="club-pickem-table-body">
         {rows.length ? rows.map((row) => (
@@ -230,7 +233,7 @@ function PickEmLeaderboard({ rows = [], currentManager }) {
             <strong className="club-pickem-rank">{row.rank}</strong>
             <div className="club-pickem-manager"><strong>{row.managerName}</strong>{row.managerSlug === currentManager?.slug ? <small>YOU</small> : null}</div>
             <strong className="club-pickem-winpct">{row.winPct == null ? "—" : `${row.winPct}%`}</strong>
-            <span>{row.wins}</span><span>{row.losses}</span><span>{row.otLosses}</span>
+            <span>{row.wins}</span><span>{row.losses}</span>
           </div>
         )) : (
           <div className="club-pickem-standings-empty">The chairs are empty. The first saved pick opens the ledger.</div>
@@ -238,7 +241,7 @@ function PickEmLeaderboard({ rows = [], currentManager }) {
       </div>
       <footer>
         <span>Opt-in only · managers appear after making their first pick</span>
-        <span>Win% = (wins + ½ ties) ÷ decided picks</span>
+        <span>Win% = wins ÷ decided picks</span>
       </footer>
     </section>
   );
@@ -337,8 +340,8 @@ export default function PickEm() {
   const games = useMemo(() => days.flatMap((day) => day.games || []), [days]);
   const pickedCount = useMemo(() => games.filter((game) => game.pick).length, [games]);
   const openCount = useMemo(() => games.filter((game) => !game.locked).length, [games]);
-  const record = snapshot?.record || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0, winPct: null };
-  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, otLosses: 0, pending: 0, picks: 0, points: 0, winPct: null };
+  const record = snapshot?.record || { wins: 0, losses: 0, pending: 0, picks: 0, winPct: null };
+  const weekRecord = snapshot?.weekRecord || { wins: 0, losses: 0, pending: 0, picks: 0, winPct: null };
   const leaderboard = Array.isArray(snapshot?.leaderboard) ? snapshot.leaderboard : [];
 
 
@@ -363,7 +366,7 @@ export default function PickEm() {
             <div className="club-pickem-week-record">
               <span>THIS WEEK</span>
               <strong>{weekRecord.winPct == null ? "—" : `${weekRecord.winPct}%`}</strong>
-              <small>{weekRecord.wins} W · {weekRecord.losses} L · {weekRecord.otLosses} T · {pickedCount}/{games.length} picked · {openCount} open</small>
+              <small>{weekRecord.wins} W · {weekRecord.losses} L · {pickedCount}/{games.length} picked · {openCount} open</small>
             </div>
           </div>
 

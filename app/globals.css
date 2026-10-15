@@ -4095,3 +4095,82 @@ body:has(.pickem-reference-shell) { margin:0; background:#070605; }
   .pickem-reference-stage .club-pickem-winpct { font-size:10px !important; }
   .pickem-reference-stage .club-pickem-scoring-key { font-size:6px !important; gap:4px !important; }
 }
+
+/* ========================================================================== */
+/* V16 — Straight W/L Pick 'Em + homepage Pick 'Em percentage                */
+/* ========================================================================== */
+/* Main homepage standings: add a compact Pick 'Em percentage column without
+   changing the board footprint. */
+.arena-standing-head,
+.arena-standing-list a {
+  grid-template-columns: 7% minmax(0,1fr) 14.5% 14.5% 13% 14% !important;
+  gap: .9% !important;
+}
+.arena-standing-head > :nth-child(n+3),
+.arena-standing-list a > :nth-child(n+3) {
+  text-align: center;
+}
+.arena-pickem-head-link {
+  align-self: end;
+  color: #e1c679;
+  font: inherit;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.arena-pickem-head-link:hover,
+.arena-pickem-head-link:focus-visible {
+  color: #fff0bd;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.arena-pickem-pct {
+  color: #f0d27f;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pick 'Em itself is now a pure choose-the-winner game: Win%, W, L. */
+.club-pickem-table-head,
+.club-pickem-standing-row,
+.pickem-reference-stage .club-pickem-table-head,
+.pickem-reference-stage .club-pickem-standing-row {
+  grid-template-columns: 42px minmax(150px, 1.8fr) 100px 80px 80px !important;
+  column-gap: 10px !important;
+}
+.club-pickem-form .form-otl {
+  color: #f0c8c8;
+  background: #693838;
+}
+
+@media (max-width:720px) {
+  .arena-standing-head,
+  .arena-standing-list a {
+    grid-template-columns: 7% minmax(0,1fr) 14.5% 14.5% 13% 14% !important;
+    gap: .8% !important;
+  }
+  .arena-pickem-head-link { font-size: 8px; letter-spacing: .03em; }
+  .arena-pickem-pct { font-size: 11px !important; }
+
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    grid-template-columns: 26px minmax(90px, 1fr) 58px 42px 42px !important;
+    column-gap: 2px !important;
+    padding-inline: 5px !important;
+  }
+  .pickem-reference-stage .club-pickem-table-head > :nth-child(3),
+  .pickem-reference-stage .club-pickem-standing-row > :nth-child(3) {
+    display:block !important;
+  }
+}
+
+@media (max-width:560px) {
+  .pickem-reference-stage .club-pickem-table-head,
+  .pickem-reference-stage .club-pickem-standing-row {
+    grid-template-columns: 24px minmax(80px, 1fr) 52px 36px 36px !important;
+    column-gap:1px !important;
+    padding-inline:4px !important;
+  }
+}

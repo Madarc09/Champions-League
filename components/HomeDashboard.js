@@ -18,6 +18,13 @@ function formatSalary(value) {
   return `$${(salary / 1_000_000).toFixed(1)}M`;
 }
 
+function formatPercentage(value) {
+  if (value == null || value === "") return "—";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "—";
+  return `${number.toFixed(1).replace(/\.0$/, "")}%`;
+}
+
 function shortName(name) {
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) return parts[0] || "Player";
@@ -247,12 +254,13 @@ export default function HomeDashboard() {
               <span>2026–27 · LIVE</span>
             </header>
 
-            <div className="arena-standing-head" aria-hidden="true">
+            <div className="arena-standing-head">
               <span>#</span>
               <span>TEAM</span>
               <span>FPTS</span>
               <span>{leagueDay?.standingsStat?.label || "LAST NIGHT"}</span>
               <span>DREAM</span>
+              <a className="arena-pickem-head-link" href="/mini-games/pick-em">PICK ’EM</a>
             </div>
 
             <ol className="arena-standing-list">
@@ -264,6 +272,7 @@ export default function HomeDashboard() {
                     <span>{loaded ? formatPoints(team.fantasyPoints) : "—"}</span>
                     <span>{loaded ? formatPoints(team.todayPoints) : "—"}</span>
                     <span>{loaded ? `${team.dreamTeamPlayers || 0}/20` : "—"}</span>
+                    <span className="arena-pickem-pct">{loaded ? formatPercentage(team.pickEmWinPct) : "—"}</span>
                   </a>
                 </li>
               ))}
